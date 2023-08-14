@@ -27,7 +27,7 @@
 #include "api/TaskStorage.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests//EditTaskCommand.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
@@ -36,7 +36,7 @@ public:
     EditTaskHandler(TaskStorage& taskStorage,
                     ActionInvoker& actionInvoker,
                     const DateTimeProvider& dateTimeProvider,
-                    const Converter<TaskDTO, Task>& taskMapper);
+                    const patterns::Converter<TaskDTO, Task>& taskMapper);
 
     auto handle(const EditTaskCommand& command) -> void override;
 
@@ -44,7 +44,7 @@ private:
     TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
     const DateTimeProvider& dateTimeProvider;
-    const Converter<TaskDTO, Task>& taskMapper;
+    const patterns::Converter<TaskDTO, Task>& taskMapper;
 };
 
 } // namespace sprint_timer::api

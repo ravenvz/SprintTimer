@@ -22,7 +22,6 @@
 #ifndef EXTRADAYMODEL_H_CC87JAHL
 #define EXTRADAYMODEL_H_CC87JAHL
 
-#include "qt_gui/utils/DateTimeConverter.h"
 #include <QAbstractListModel>
 #include <QDate>
 

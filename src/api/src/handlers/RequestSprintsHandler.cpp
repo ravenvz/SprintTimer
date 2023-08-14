@@ -25,7 +25,7 @@ namespace sprint_timer::api {
 
 RequestSprintsHandler::RequestSprintsHandler(
     SprintStorageReader& reader_,
-    const Converter<SprintDTO, SprintRecord>& sprintMapper_)
+    const patterns::Converter<SprintDTO, SprintRecord>& sprintMapper_)
     : reader{reader_}
     , sprintMapper{sprintMapper_}
 {

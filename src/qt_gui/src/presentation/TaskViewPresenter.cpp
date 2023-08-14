@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/TaskViewPresenter.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 
 namespace sprint_timer::ui {
 
@@ -44,7 +45,7 @@ void TaskViewPresenter::updateViewImpl() { onTaskSelectionChanged(); }
 
 void TaskViewPresenter::onTaskSelectionChanged()
 {
-    utils::inspect(view(), [&](auto* view) {
+    alg::inspect(view(), [&](auto* view) {
         view->selectTask(taskSelectionMediator.taskUuid());
     });
 }

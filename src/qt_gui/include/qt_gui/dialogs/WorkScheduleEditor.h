@@ -38,7 +38,9 @@ class WorkScheduleEditor : public contracts::WorkScheduleEditor::View,
                            public DisplayableDialog {
 
 public:
-    explicit WorkScheduleEditor(QDialog* parent = nullptr);
+    WorkScheduleEditor(
+        const patterns::Converter<QDate, dw::Date>& dateConverter_,
+        QDialog* parent = nullptr);
 
     ~WorkScheduleEditor() override;
 
@@ -65,7 +67,7 @@ private:
     std::unique_ptr<QAbstractItemModel> exceptionalDaysModel;
     std::unique_ptr<QAbstractItemModel> roasterModel;
     std::unique_ptr<QAbstractItemModel> roasterBufferModel;
-    utils::DateConverter dateConverter;
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
 
     void addSchedule();
 

@@ -22,6 +22,7 @@
 #ifndef PICKPERIODWIDGET_H
 #define PICKPERIODWIDGET_H
 
+#include "cpp_utils/patterns/Converter.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include <QStringListModel>
 #include <QWidget>
@@ -36,7 +37,8 @@ namespace sprint_timer::ui::qt_gui {
 class DateRangeSelector : public QWidget,
                           public contracts::DateRangeSelectorContract::View {
 public:
-    explicit DateRangeSelector(QWidget* parent_ = nullptr);
+    DateRangeSelector(const patterns::Converter<QDate, dw::Date>& dateConverter,
+                      QWidget* parent_ = nullptr);
 
     ~DateRangeSelector() override;
 
@@ -49,6 +51,7 @@ private:
     std::unique_ptr<QAbstractItemModel> yearsModel;
     QStringListModel monthsModel;
     dw::DateRange selectedDateRange;
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
     dw::Weekday firstDayOfWeek{dw::Weekday::Sunday};
 
     void onYearOrMonthChanged();

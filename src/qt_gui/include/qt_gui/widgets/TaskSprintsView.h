@@ -23,6 +23,7 @@
 #define TASKSPRINTSVIEW_H_HYCTEOV4
 
 #include "core/Sprint.h"
+#include "cpp_utils/patterns/Converter.h"
 #include "qt_gui/delegates/HistoryItemDelegate.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/presentation/TaskSprintsContract.h"
@@ -41,7 +42,9 @@ class TaskSprintsView : public StandaloneDisplayableWidget,
                         public contracts::TaskSprintsContract::View {
 
 public:
-    TaskSprintsView(QStyledItemDelegate& delegate, QWidget* parent = nullptr);
+    TaskSprintsView(QStyledItemDelegate& delegate,
+                    const patterns::Converter<QDate, dw::Date>& dateConverter,
+                    QWidget* parent = nullptr);
 
     explicit TaskSprintsView(QWidget* parent = nullptr);
 
@@ -51,6 +54,7 @@ public:
 
 private:
     std::unique_ptr<Ui::TaskSprintsView> ui;
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
     HistoryModel historyModel;
 };
 

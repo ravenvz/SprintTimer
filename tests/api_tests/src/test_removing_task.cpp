@@ -78,11 +78,13 @@ public:
  *
  */
 
+auto uuid_projection = [](const auto& node) { return node.uuid; };
+
 TEST_F(RemovingTaskFixture, removing_task_with_no_sprints)
 {
     auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
                                                    registerSprintBulkHandler);
-    tree.removeNode("3");
+    tree.erase(std::ranges::find(tree, "3", uuid_projection));
 
     deleteTaskHandler.handle(DeleteTaskCommand{"3"});
 
@@ -96,7 +98,7 @@ TEST_F(RemovingTaskFixture, removing_task_that_has_assosiated_sprints)
 {
     auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
                                                    registerSprintBulkHandler);
-    tree.removeNode("5");
+    tree.erase(std::ranges::find(tree, "5", uuid_projection));
 
     deleteTaskHandler.handle(DeleteTaskCommand{"5"});
 

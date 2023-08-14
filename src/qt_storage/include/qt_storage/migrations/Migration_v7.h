@@ -22,13 +22,19 @@
 #ifndef MIGRATION_V7_H_DR4Y16V3
 #define MIGRATION_V7_H_DR4Y16V3
 
+#include "api/UUIDGenerator.h"
 #include "qt_storage/migrations/Migration.h"
 
 namespace sprint_timer::storage::qt_storage {
 
 class Migration_v7 final : public Migration {
 public:
+    explicit Migration_v7(api::UUIDGenerator& uuidGenerator_);
+
     void run(const QString& connectionName) const final;
+
+private:
+    api::UUIDGenerator& uuidGenerator;
 };
 
 } // namespace sprint_timer::storage::qt_storage

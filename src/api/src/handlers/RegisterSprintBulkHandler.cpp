@@ -23,7 +23,6 @@
 #include "api/actions/RegisterSprintBulk.h"
 #include "api/dtos/SprintMapper.h"
 #include "core/SprintConflictException.h"
-#include "core/utils/Algutils.h"
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -94,7 +93,7 @@ RegisterSprintBulkHandler::RegisterSprintBulkHandler(
     TaskStorageReader& taskReader_,
     SprintStorage& sprintStorage_,
     ActionInvoker& actionInvoker_,
-    const Converter<dw::DateTimeRange, Sprint>& sprintMapper_)
+    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper_)
     : taskReader{taskReader_}
     , sprintStorage{sprintStorage_}
     , actionInvoker{actionInvoker_}

@@ -22,11 +22,13 @@
 #include "api/handlers/ReadTaskTreeHandler.h"
 #include "core/SprintTimerException.h"
 
+#include <iostream>
+
 namespace sprint_timer::api {
 
 ReadTaskTreeHandler::ReadTaskTreeHandler(
     TaskStorageReader& taskStorageReader_,
-    const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
     : taskStorageReader{taskStorageReader_}
     , taskTreeMapper{taskTreeMapper_}
 {

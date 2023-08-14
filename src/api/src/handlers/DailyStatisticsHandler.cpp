@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "api/handlers/DailyStatisticsHandler.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/ranges_ext.h"
 
 namespace {
 
@@ -66,7 +66,7 @@ DailyStatisticsHandler::handle(const DailyStatisticsQuery& query)
     };
     std::ranges::for_each(sprints, updateCount);
 
-    const auto total = ranges_ext::fold(sprintsPerDay, 0, std::plus<int>{});
+    const auto total = alg::fold(sprintsPerDay, 0, std::plus<int>{});
     const double actualAverage = workdays > 0 ? total / workdays : 0;
 
     return DailyStatisticsDTO{

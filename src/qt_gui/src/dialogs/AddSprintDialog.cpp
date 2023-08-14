@@ -21,7 +21,6 @@
 *********************************************************************************/
 #include "qt_gui/dialogs/AddSprintDialog.h"
 #include "qt_gui/models/CustomRoles.h"
-#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_add_sprint_dialog.h"
 #include <QCalendarWidget>
 #include <QComboBox>
@@ -41,7 +40,8 @@ AddSprintDialog::AddSprintDialog(
     contracts::RegisterSprintControl::Presenter& presenter_,
     QAbstractItemModel& taskModel_,
     dw::Weekday firstDayOfWeek_,
-    std::chrono::minutes sprintDuration_)
+    std::chrono::minutes sprintDuration_,
+    const patterns::Converter<QDateTime, dw::DateTime>& dateTimeConverter_)
     : sprintDuration{sprintDuration_}
 {
     auto layout = std::make_unique<QFormLayout>();
@@ -79,7 +79,11 @@ AddSprintDialog::AddSprintDialog(
         });
     connect(this,
             &QDialog::accepted,
-            [this, &taskModel_, selector = taskSelector.get(), &presenter_]() {
+            [this,
+             &taskModel_,
+             selector = taskSelector.get(),
+             &presenter_,
+             &dateTimeConverter_]() {
                 const auto taskUuid =
                     taskModel_
                         .data(taskModel_.index(selector->currentIndex(), 0),
@@ -87,7 +91,7 @@ AddSprintDialog::AddSprintDialog(
                         .toString()
                         .toStdString();
                 const auto firstSprintStart =
-                    utils::DateTimeConverter{}(startTime->dateTime());
+                    dateTimeConverter_(startTime->dateTime());
                 const auto numSprints = sprintNumber->value();
                 presenter_.registerConsecutiveSprints(
                     taskUuid, firstSprintStart, numSprints, sprintDuration);

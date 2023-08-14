@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/AddTaskDialog.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -32,12 +32,11 @@ AddTaskDialog::AddTaskDialog(dw::Weekday firstDayOfWeek_, QWidget* parent_)
 
 auto AddTaskDialog::accept() -> void
 {
-    using sprint_timer::utils::inspect;
     if (nameIsEmpty()) {
         markNameFieldRed();
         return;
     }
-    inspect(presenter(), [this](auto* presenter) {
+    alg::inspect(presenter(), [this](auto* presenter) {
         auto taskDto = parseFormFields();
         presenter->onTaskCreationAccepted(std::move(taskDto.name),
                                           std::move(taskDto.tags),

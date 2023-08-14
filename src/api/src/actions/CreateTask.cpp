@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "api/actions/CreateTask.h"
 #include "api/GatewayException.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 
 namespace sprint_timer::api::actions {
 
@@ -39,7 +39,10 @@ CreateTask::CreateTask(TaskStorage& taskStorage_,
 auto CreateTask::execute() -> void
 {
     auto taskTree = taskStorage.taskTree();
-    taskTree.addChild(task.uuid(), task, parent, beforePosition);
+    auto parent_it = parent ? find_by_uuid(taskTree, *parent) : taskTree.end();
+    taskTree.insert(parent_it, task, beforePosition.transform([](auto pos) {
+        return ds::DestinationPosition{pos};
+    }));
     taskStorage.saveTree(taskTree);
     taskStorage.save(task);
 }
@@ -47,8 +50,7 @@ auto CreateTask::execute() -> void
 auto CreateTask::undo() -> void
 {
     auto taskTree = taskStorage.taskTree();
-    const auto pos = taskTree.positionInChildren(task.uuid());
-    taskTree.removeNodes(parent, static_cast<int64_t>(*pos), 1);
+    taskTree.erase(find_by_uuid(taskTree, task.uuid()));
     taskStorage.saveTree(taskTree);
     taskStorage.remove(task.uuid());
 }
@@ -57,9 +59,9 @@ auto CreateTask::describe() const -> std::string
 {
     std::stringstream ss;
     ss << "Creating task action: " << task;
-    utils::inspect(parent, [&](const auto& uuid) { ss << ", uuid: " << uuid; });
-    utils::inspect(beforePosition,
-                   [&](auto pos) { ss << ", beforePos: " << pos; });
+    alg::inspect(parent, [&](const auto& uuid) { ss << ", uuid: " << uuid; });
+    alg::inspect(beforePosition,
+                 [&](auto pos) { ss << ", beforePos: " << pos; });
     return ss.str();
 }
 

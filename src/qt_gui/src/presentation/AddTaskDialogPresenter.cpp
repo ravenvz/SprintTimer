@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/AddTaskDialogPresenter.h"
+#include "core/TaskTree.h"
 
 namespace {
 
@@ -38,10 +39,8 @@ auto makeParentSearchStrategy(sprint_timer::ui::TaskAddMode mode)
     switch (mode) {
     case sprint_timer::ui::TaskAddMode::Subtask:
         return addSubtaskLast;
-        break;
     case sprint_timer::ui::TaskAddMode::Sibling:
         return addSiblingBelow;
-        break;
     }
     return addSubtaskLast;
 }
@@ -84,7 +83,7 @@ auto AddTaskDialogPresenter::onTaskCreationAccepted(
 
 auto AddTaskDialogPresenter::updateViewImpl() -> void
 {
-    utils::inspect(view(), [&](auto* view) {
+    alg::inspect(view(), [&](auto* view) {
         const auto tags = allTagsHandler.handle(api::AllTagsQuery{});
         view->fillTags(tags);
         const auto taskTree =
@@ -103,14 +102,21 @@ auto addSiblingBelow(
     const sprint_timer::api::TaskTreeDTO& taskTree,
     const sprint_timer::ui::AddTaskContext& context) -> void
 {
-    using sprint_timer::utils::inspect;
-    using sprint_timer::utils::transform;
-    inspect(context.parent(), [&](const auto& siblingUuid) {
-        const auto parent = taskTree.parent(siblingUuid);
-        const auto position =
-            transform(taskTree.positionInChildren(siblingUuid),
-                      [&](auto pos) { return static_cast<int64_t>(pos) + 1; });
-        view->fillParentData(parent, position);
+    alg::inspect(context.parent(), [&](const auto& siblingUuid) {
+        auto it = std::ranges::find(
+            taskTree, siblingUuid, &sprint_timer::api::TaskDTO::uuid);
+        const auto position = taskTree.position_in_children(it) + 1;
+        auto parent_it = taskTree.parent(it);
+        std::optional<std::string> parent_uuid{
+            parent_it == taskTree.cend() ? std::optional<std::string>{}
+                                         : parent_it->uuid};
+        // const auto parent = taskTree.parent(siblingUuid);
+        // const auto position =
+        //     taskTree.positionInChildren(siblingUuid).transform([&](auto pos)
+        //     {
+        //         return static_cast<int64_t>(pos) + 1;
+        //     });
+        view->fillParentData(parent_uuid, position);
     });
 }
 
@@ -119,11 +125,14 @@ auto addSubtaskLast(
     const sprint_timer::api::TaskTreeDTO& taskTree,
     const sprint_timer::ui::AddTaskContext& context) -> void
 {
-    using sprint_timer::utils::transform;
     const auto childrenSize =
-        transform(context.parent(), [&](const auto& uuid) {
-            return taskTree.children(uuid).size();
-        }).value_or(taskTree.children().size());
+        context.parent()
+            .transform([&](const auto& uuid) {
+                auto it = std::ranges::find(
+                    taskTree, uuid, &sprint_timer::api::TaskDTO::uuid);
+                return taskTree.children(it).size();
+            })
+            .value_or(taskTree.children(taskTree.cend()).size());
     view->fillParentData(context.parent(), static_cast<int64_t>(childrenSize));
 }
 

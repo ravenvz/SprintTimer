@@ -24,6 +24,7 @@
 #include "api/requests/EditTaskCommand.h"
 #include "api/requests/ReadTaskTreeQuery.h"
 #include "api/requests/SaveTaskTreeCommand.h"
+#include "api/requests/ToggleTaskCompletedCommand.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/PlannerPresenter.h"
@@ -31,7 +32,6 @@
 
 namespace {
 
-using sprint_timer::Tree;
 using sprint_timer::api::TaskTreeDTO;
 using sprint_timer::ui::contracts::PlannerContract::PlannerItem;
 
@@ -48,11 +48,13 @@ constexpr std::string_view dueTodayColor{"dueTodayColor"};
 constexpr std::string_view dueOverdueColor{"dueOverdueColor"};
 constexpr std::string_view tagColor{"tagColor"};
 
+auto id_projection = [](const auto& node) { return node.uuid; };
+
 } // namespace
 
-using sprint_timer::Tree;
 using sprint_timer::ui::PlannerColors;
 using sprint_timer::ui::contracts::PlannerContract::PlannerItem;
+using sprint_timer::ui::contracts::PlannerContract::PlannerTree;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
@@ -63,10 +65,7 @@ using namespace std::chrono_literals;
 class PlannerWindowMock
     : public sprint_timer::ui::contracts::PlannerContract::View {
 public:
-    MOCK_METHOD(void,
-                displayPlanner,
-                ((const Tree<std::string, PlannerItem>&)),
-                (override));
+    MOCK_METHOD(void, displayPlanner, ((const PlannerTree&)), (override));
 };
 
 class MockDateTimeProvider : public DateTimeProvider {
@@ -89,6 +88,11 @@ public:
         savePlannerHandler;
     NiceMock<mocks::CommandHandlerMock<sprint_timer::api::DeleteTaskCommand>>
         deleteTaskHandler;
+    NiceMock<mocks::CommandHandlerMock<sprint_timer::api::EditTaskCommand>>
+        editTaskHandler;
+    NiceMock<mocks::CommandHandlerMock<
+        sprint_timer::api::ToggleTaskCompletedCommand>>
+        toggleTaskHandler;
     NiceMock<MockDateTimeProvider> dateTimeProvider;
     sprint_timer::ui::AddTaskContext addTaskContext;
     sprint_timer::ui::EditTaskContext editTaskContext;
@@ -107,6 +111,8 @@ public:
                                            readPlannerHandler,
                                            savePlannerHandler,
                                            deleteTaskHandler,
+                                           editTaskHandler,
+                                           toggleTaskHandler,
                                            addTaskContext,
                                            editTaskContext,
                                            dateTimeProvider};
@@ -121,8 +127,8 @@ TEST_F(PlannerPresenterFixture, does_nothing_when_view_is_not_attached)
 
 TEST_F(PlannerPresenterFixture, updates_view_when_view_is_attached)
 {
-    auto matches_tree = [](const Tree<std::string, PlannerItem>& tree) {
-        return tree == Tree<std::string, PlannerItem>{};
+    auto matches_tree = [](const PlannerTree& tree) {
+        return tree == PlannerTree{};
     };
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(dw::current_date_time_local()));
@@ -141,8 +147,8 @@ TEST_F(PlannerPresenterFixture, updates_view)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild(
-        "1",
+    taskTree.insert(
+        taskTree.end(),
         TaskDTO{"1",
                 {"Tag9", "Tag2"},
                 "Some root task",
@@ -153,11 +159,10 @@ TEST_F(PlannerPresenterFixture, updates_view)
                 NoteDTO{"Just some text note"},
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "1",
+                TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"1",
                     {"Some root task", textColor, defaultBackround},
                     {"Tag9, Tag2", tagColor, defaultBackround},
@@ -167,8 +172,8 @@ TEST_F(PlannerPresenterFixture, updates_view)
                     "Just some text note",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
@@ -184,8 +189,8 @@ TEST_F(PlannerPresenterFixture, displays_task_without_time_frame)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild(
-        "1",
+    taskTree.insert(
+        taskTree.end(),
         TaskDTO{"1",
                 {"Tag9", "Tag2"},
                 "Some root task",
@@ -196,11 +201,10 @@ TEST_F(PlannerPresenterFixture, displays_task_without_time_frame)
                 NoteDTO{"Just some text note"},
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "1",
+                TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"1",
                     {"Some root task", textColor, defaultBackround},
                     {"Tag9, Tag2", tagColor, defaultBackround},
@@ -210,8 +214,8 @@ TEST_F(PlannerPresenterFixture, displays_task_without_time_frame)
                     "Just some text note",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -227,24 +231,23 @@ TEST_F(PlannerPresenterFixture, displays_task_that_is_due_soon)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild("2",
-                      TaskDTO{"2",
-                              {"Tag1", "Tag2"},
-                              "Some task that is due soon",
-                              5,
-                              {},
-                              false,
-                              anchorTime,
-                              NoteDTO{"Just some text note"},
-                              TaskTimeframeDTO{anchorTime - Days{2},
-                                               anchorTime + Days{3},
-                                               std::nullopt,
-                                               std::nullopt},
-                              TaskTypeDTO::Regular},
-                      std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "2",
+    taskTree.insert(taskTree.end(),
+                    TaskDTO{"2",
+                            {"Tag1", "Tag2"},
+                            "Some task that is due soon",
+                            5,
+                            {},
+                            false,
+                            anchorTime,
+                            NoteDTO{"Just some text note"},
+                            TaskTimeframeDTO{anchorTime - Days{2},
+                                             anchorTime + Days{3},
+                                             std::nullopt,
+                                             std::nullopt},
+                            TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"2",
                     {"Some task that is due soon", textColor, defaultBackround},
                     {"Tag1, Tag2", tagColor, defaultBackround},
@@ -254,8 +257,8 @@ TEST_F(PlannerPresenterFixture, displays_task_that_is_due_soon)
                     "Just some text note",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -271,24 +274,23 @@ TEST_F(PlannerPresenterFixture, displays_task_with_reminder)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild("3",
-                      TaskDTO{"3",
-                              {"Tag1", "Tag2"},
-                              "Some task with reminder",
-                              7,
-                              {},
-                              false,
-                              anchorTime,
-                              NoteDTO{"Task with reminder note"},
-                              TaskTimeframeDTO{anchorTime - Days{2},
-                                               anchorTime + Days{5},
-                                               anchorTime + Days{5} - 2h,
-                                               std::nullopt},
-                              TaskTypeDTO::Regular},
-                      std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "3",
+    taskTree.insert(taskTree.end(),
+                    TaskDTO{"3",
+                            {"Tag1", "Tag2"},
+                            "Some task with reminder",
+                            7,
+                            {},
+                            false,
+                            anchorTime,
+                            NoteDTO{"Task with reminder note"},
+                            TaskTimeframeDTO{anchorTime - Days{2},
+                                             anchorTime + Days{5},
+                                             anchorTime + Days{5} - 2h,
+                                             std::nullopt},
+                            TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"3",
                     {"Some task with reminder", textColor, defaultBackround},
                     {"Tag1, Tag2", tagColor, defaultBackround},
@@ -298,8 +300,8 @@ TEST_F(PlannerPresenterFixture, displays_task_with_reminder)
                     "Task with reminder note",
                     {"08:00 26.09.2022", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -315,23 +317,22 @@ TEST_F(PlannerPresenterFixture, displays_project)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild("4",
-                      TaskDTO{"4",
-                              {"Tag1", "Tag2"},
-                              "Project",
-                              7,
-                              {},
-                              false,
-                              anchorTime,
-                              NoteDTO{"Task with reminder note"},
-                              TaskTimeframeDTO{anchorTime - Days{2},
-                                               anchorTime + Days{5},
-                                               anchorTime + Days{5} - 2h,
-                                               std::nullopt},
-                              TaskTypeDTO::Project},
-                      std::nullopt);
-    taskTree.addChild(
-        "11",
+    taskTree.insert(taskTree.end(),
+                    TaskDTO{"4",
+                            {"Tag1", "Tag2"},
+                            "Project",
+                            7,
+                            {},
+                            false,
+                            anchorTime,
+                            NoteDTO{"Task with reminder note"},
+                            TaskTimeframeDTO{anchorTime - Days{2},
+                                             anchorTime + Days{5},
+                                             anchorTime + Days{5} - 2h,
+                                             std::nullopt},
+                            TaskTypeDTO::Project});
+    taskTree.insert(
+        std::ranges::find(taskTree, "4", id_projection),
         TaskDTO{"11",
                 {"Tag3"},
                 "Sub task 1",
@@ -342,10 +343,9 @@ TEST_F(PlannerPresenterFixture, displays_project)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        "4");
-    taskTree.addChild(
-        "12",
+                TaskTypeDTO::Regular});
+    taskTree.insert(
+        std::ranges::find(taskTree, "11", id_projection),
         TaskDTO{"12",
                 {"Tag2"},
                 "Sub project 1",
@@ -356,10 +356,9 @@ TEST_F(PlannerPresenterFixture, displays_project)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Project},
-        "11");
-    taskTree.addChild(
-        "13",
+                TaskTypeDTO::Project});
+    taskTree.insert(
+        std::ranges::find(taskTree, "12", id_projection),
         TaskDTO{"13",
                 {"Tag7"},
                 "Sub task 2",
@@ -371,10 +370,9 @@ TEST_F(PlannerPresenterFixture, displays_project)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        "12");
-    taskTree.addChild(
-        "14",
+                TaskTypeDTO::Regular});
+    taskTree.insert(
+        std::ranges::find(taskTree, "12", id_projection),
         TaskDTO{"14",
                 {"Tag8"},
                 "Sub task 3",
@@ -386,11 +384,10 @@ TEST_F(PlannerPresenterFixture, displays_project)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        "12");
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "4",
+                TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"4",
                     {"Project", tagColor, defaultBackround},
                     {"Tag1, Tag2", tagColor, defaultBackround},
@@ -400,23 +397,22 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     "Task with reminder note",
                     {"08:00 26.09.2022", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Project},
-        std::nullopt);
-    plannerTree.addChild(
-        "11",
-        PlannerItem{"11",
-                    {"Sub task 1", textColor, defaultBackround},
-                    {"Tag3", tagColor, defaultBackround},
-                    {"0/3", textColor, defaultBackround},
-                    anchorTime,
-                    {"", textColor, defaultBackround},
-                    "",
-                    {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        "4");
-    plannerTree.addChild(
-        "12",
+                    TaskTypeDTO::Project});
+    plannerTree.insert(std::ranges::find(plannerTree, "4", id_projection),
+                       PlannerItem{"11",
+                                   {"Sub task 1", textColor, defaultBackround},
+                                   {"Tag3", tagColor, defaultBackround},
+                                   {"0/3", textColor, defaultBackround},
+                                   anchorTime,
+                                   {"", textColor, defaultBackround},
+                                   "",
+                                   {"", textColor, defaultBackround},
+                                   false,
+                                   false,
+                                   TaskTypeDTO::Regular});
+    plannerTree.insert(
+        std::ranges::find(plannerTree, "11", id_projection),
         PlannerItem{"12",
                     {"Sub project 1", tagColor, defaultBackround},
                     {"Tag2", tagColor, defaultBackround},
@@ -426,34 +422,32 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     "",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Project},
-        "11");
-    plannerTree.addChild(
-        "13",
-        PlannerItem{"13",
-                    {"Sub task 2", textColor, defaultBackround},
-                    {"Tag7", tagColor, defaultBackround},
-                    {"2/3", textColor, defaultBackround},
-                    anchorTime,
-                    {"", textColor, defaultBackround},
-                    "",
-                    {"", textColor, defaultBackround},
-                    true,
-                    TaskTypeDTO::Regular},
-        "12");
-    plannerTree.addChild(
-        "14",
-        PlannerItem{"14",
-                    {"Sub task 3", textColor, defaultBackround},
-                    {"Tag8", tagColor, defaultBackround},
-                    {"2/2", doneWorkColor, defaultBackround},
-                    anchorTime,
-                    {"", textColor, defaultBackround},
-                    "",
-                    {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        "12");
+                    TaskTypeDTO::Project});
+    plannerTree.insert(std::ranges::find(plannerTree, "12", id_projection),
+                       PlannerItem{"13",
+                                   {"Sub task 2", textColor, defaultBackround},
+                                   {"Tag7", tagColor, defaultBackround},
+                                   {"2/3", textColor, defaultBackround},
+                                   anchorTime,
+                                   {"", textColor, defaultBackround},
+                                   "",
+                                   {"", textColor, defaultBackround},
+                                   true,
+                                   false,
+                                   TaskTypeDTO::Regular});
+    plannerTree.insert(std::ranges::find(plannerTree, "12", id_projection),
+                       PlannerItem{"14",
+                                   {"Sub task 3", textColor, defaultBackround},
+                                   {"Tag8", tagColor, defaultBackround},
+                                   {"2/2", doneWorkColor, defaultBackround},
+                                   anchorTime,
+                                   {"", textColor, defaultBackround},
+                                   "",
+                                   {"", textColor, defaultBackround},
+                                   false,
+                                   false,
+                                   TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -469,24 +463,23 @@ TEST_F(PlannerPresenterFixture, displays_overdue_task)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild("5",
-                      TaskDTO{"5",
-                              {"Tag5", "Tag1"},
-                              "Overdue task",
-                              8,
-                              {},
-                              false,
-                              anchorTime,
-                              std::nullopt,
-                              TaskTimeframeDTO{anchorTime - Days{5},
-                                               anchorTime - Days{3},
-                                               std::nullopt,
-                                               std::nullopt},
-                              TaskTypeDTO::Regular},
-                      std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "5",
+    taskTree.insert(taskTree.end(),
+                    TaskDTO{"5",
+                            {"Tag5", "Tag1"},
+                            "Overdue task",
+                            8,
+                            {},
+                            false,
+                            anchorTime,
+                            std::nullopt,
+                            TaskTimeframeDTO{anchorTime - Days{5},
+                                             anchorTime - Days{3},
+                                             std::nullopt,
+                                             std::nullopt},
+                            TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"5",
                     {"Overdue task", textColor, defaultBackround},
                     {"Tag5, Tag1", tagColor, defaultBackround},
@@ -496,8 +489,8 @@ TEST_F(PlannerPresenterFixture, displays_overdue_task)
                     "",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -513,8 +506,8 @@ TEST_F(PlannerPresenterFixture, displays_done_task)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild(
-        "6",
+    taskTree.insert(
+        taskTree.end(),
         TaskDTO{"6",
                 {"Tag1", "Tag4"},
                 "Work done task",
@@ -526,11 +519,10 @@ TEST_F(PlannerPresenterFixture, displays_done_task)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "6",
+                TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"6",
                     {"Work done task", textColor, defaultBackround},
                     {"Tag1, Tag4", tagColor, defaultBackround},
@@ -540,8 +532,8 @@ TEST_F(PlannerPresenterFixture, displays_done_task)
                     "",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -557,8 +549,8 @@ TEST_F(PlannerPresenterFixture, displays_overwork_task)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild(
-        "7",
+    taskTree.insert(
+        taskTree.end(),
         TaskDTO{"7",
                 {"Tag3", "Tag4"},
                 "Overwork task",
@@ -570,11 +562,10 @@ TEST_F(PlannerPresenterFixture, displays_overwork_task)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        std::nullopt);
-    Tree<std::string, PlannerItem> plannerTree;
-    plannerTree.addChild(
-        "7",
+                TaskTypeDTO::Regular});
+    PlannerTree plannerTree;
+    plannerTree.insert(
+        plannerTree.end(),
         PlannerItem{"7",
                     {"Overwork task", textColor, defaultBackround},
                     {"Tag3, Tag4", tagColor, defaultBackround},
@@ -584,8 +575,8 @@ TEST_F(PlannerPresenterFixture, displays_overwork_task)
                     "",
                     {"", textColor, defaultBackround},
                     false,
-                    TaskTypeDTO::Regular},
-        std::nullopt);
+                    false,
+                    TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -601,8 +592,8 @@ TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
     const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
                               10h};
     TaskTreeDTO taskTree;
-    taskTree.addChild(
-        "7",
+    taskTree.insert(
+        taskTree.end(),
         TaskDTO{"7",
                 {"Tag3", "Tag4"},
                 "Overwork task",
@@ -614,35 +605,32 @@ TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        std::nullopt);
-    taskTree.addChild("1",
-                      TaskDTO{"1",
-                              {"Tag1"},
-                              "Other task",
-                              4,
-                              {DateTimeRange{anchorTime, anchorTime}},
-                              false,
-                              anchorTime,
-                              std::nullopt,
-                              TaskTimeframeDTO{},
-                              TaskTypeDTO::Regular},
-                      std::nullopt);
+                TaskTypeDTO::Regular});
+    taskTree.insert(taskTree.end(),
+                    TaskDTO{"1",
+                            {"Tag1"},
+                            "Other task",
+                            4,
+                            {DateTimeRange{anchorTime, anchorTime}},
+                            false,
+                            anchorTime,
+                            std::nullopt,
+                            TaskTimeframeDTO{},
+                            TaskTypeDTO::Regular});
     TaskTreeDTO expected;
-    expected.addChild("1",
-                      TaskDTO{"1",
-                              {"Tag1"},
-                              "Other task",
-                              4,
-                              {DateTimeRange{anchorTime, anchorTime}},
-                              false,
-                              anchorTime,
-                              std::nullopt,
-                              TaskTimeframeDTO{},
-                              TaskTypeDTO::Regular},
-                      std::nullopt);
-    expected.addChild(
-        "7",
+    expected.insert(expected.end(),
+                    TaskDTO{"1",
+                            {"Tag1"},
+                            "Other task",
+                            4,
+                            {DateTimeRange{anchorTime, anchorTime}},
+                            false,
+                            anchorTime,
+                            std::nullopt,
+                            TaskTimeframeDTO{},
+                            TaskTypeDTO::Regular});
+    expected.insert(
+        expected.end(),
         TaskDTO{"7",
                 {"Tag3", "Tag4"},
                 "Overwork task",
@@ -654,8 +642,7 @@ TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
                 std::nullopt,
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
-                TaskTypeDTO::Regular},
-        std::nullopt);
+                TaskTypeDTO::Regular});
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
@@ -698,7 +685,7 @@ TEST_F(PlannerPresenterFixture, changes_task_edition_context)
                  TaskTypeDTO::Regular};
     sprint_timer::ui::EditTaskContext expected{TaskDTO{task}};
     TaskTreeDTO taskTree;
-    taskTree.addChild("123", task, std::nullopt);
+    taskTree.insert(std::ranges::find(taskTree, "123", id_projection), task);
     ON_CALL(dateTimeProvider, dateTimeLocalNow)
         .WillByDefault(Return(dw::current_date_time_local()));
     ON_CALL(readPlannerHandler, handle(_)).WillByDefault(Return(taskTree));
@@ -707,4 +694,122 @@ TEST_F(PlannerPresenterFixture, changes_task_edition_context)
     sut.changeTaskEditionContext("123");
 
     EXPECT_EQ(expected, editTaskContext);
+}
+
+TEST_F(PlannerPresenterFixture,
+       throws_when_failing_to_find_task_for_quick_edition)
+{
+    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
+                              10h};
+    TaskTreeDTO taskTree;
+    taskTree.insert(
+        taskTree.end(),
+        TaskDTO{"6",
+                {"Tag1", "Tag4"},
+                "Some task name",
+                2,
+                {DateTimeRange{anchorTime, anchorTime},
+                 DateTimeRange{anchorTime, anchorTime}},
+                false,
+                anchorTime,
+                std::nullopt,
+                TaskTimeframeDTO{
+                    anchorTime, std::nullopt, std::nullopt, std::nullopt},
+                TaskTypeDTO::Regular});
+    TaskDTO expected{
+        "6",
+        {"Tag1", "Tag4"},
+        "Changed task name",
+        2,
+        {DateTimeRange{anchorTime, anchorTime},
+         DateTimeRange{anchorTime, anchorTime}},
+        false,
+        anchorTime,
+        std::nullopt,
+        TaskTimeframeDTO{anchorTime, std::nullopt, std::nullopt, std::nullopt},
+        TaskTypeDTO::Regular};
+    ON_CALL(dateTimeProvider, dateTimeLocalNow)
+        .WillByDefault(Return(anchorTime));
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(taskTree));
+    sut.attachView(view);
+
+    EXPECT_THROW(
+        sut.quickEditTask(
+            "777", std::string{"Some another name"}, {"Some_another_tag"}, 22),
+        std::runtime_error);
+}
+
+TEST_F(PlannerPresenterFixture, relays_task_name_edition)
+{
+    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
+                              10h};
+    TaskTreeDTO taskTree;
+    taskTree.insert(
+        taskTree.end(),
+        TaskDTO{"6",
+                {"Tag1", "Tag4"},
+                "Some task name",
+                2,
+                {DateTimeRange{anchorTime, anchorTime},
+                 DateTimeRange{anchorTime, anchorTime}},
+                false,
+                anchorTime,
+                std::nullopt,
+                TaskTimeframeDTO{
+                    anchorTime, std::nullopt, std::nullopt, std::nullopt},
+                TaskTypeDTO::Regular});
+    TaskDTO expected{
+        "6",
+        {"ChangedTag1"},
+        "Changed task name",
+        222,
+        {DateTimeRange{anchorTime, anchorTime},
+         DateTimeRange{anchorTime, anchorTime}},
+        false,
+        anchorTime,
+        std::nullopt,
+        TaskTimeframeDTO{anchorTime, std::nullopt, std::nullopt, std::nullopt},
+        TaskTypeDTO::Regular};
+    ON_CALL(dateTimeProvider, dateTimeLocalNow)
+        .WillByDefault(Return(anchorTime));
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(taskTree));
+    sut.attachView(view);
+
+    EXPECT_CALL(editTaskHandler, handle(EditTaskCommand{expected}));
+
+    sut.quickEditTask(
+        "6", std::string{"Changed task name"}, {"ChangedTag1"}, 222);
+}
+
+TEST_F(PlannerPresenterFixture, relays_task_toggle)
+{
+    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
+                              10h};
+    TaskTreeDTO taskTree;
+    taskTree.insert(
+        taskTree.end(),
+        TaskDTO{"6",
+                {"Tag1", "Tag4"},
+                "Some task name",
+                2,
+                {DateTimeRange{anchorTime, anchorTime},
+                 DateTimeRange{anchorTime, anchorTime}},
+                false,
+                anchorTime,
+                std::nullopt,
+                TaskTimeframeDTO{
+                    anchorTime, std::nullopt, std::nullopt, std::nullopt},
+                TaskTypeDTO::Regular});
+    ON_CALL(dateTimeProvider, dateTimeLocalNow)
+        .WillByDefault(Return(anchorTime));
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(taskTree));
+    sut.attachView(view);
+
+    EXPECT_CALL(toggleTaskHandler,
+                handle(ToggleTaskCompletedCommand{"6", anchorTime}));
+
+    sut.toggleTask("6");
 }

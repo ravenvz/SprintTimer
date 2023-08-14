@@ -37,8 +37,6 @@ public:
                      std::unique_ptr<QWidget> datePickerWidget,
                      QWidget* parent = nullptr);
 
-    ~StatisticsWindow() override;
-
     QSize sizeHint() const override;
 };
 

@@ -25,9 +25,17 @@
 
 namespace sprint_timer::storage::qt_storage {
 
+Migration_v7::Migration_v7(api::UUIDGenerator& uuidGenerator_)
+    : uuidGenerator{uuidGenerator_}
+{
+}
+
 auto Migration_v7::run(const QString& connectionName) const -> void
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
+
+    const auto inboxFolderUuid =
+        QString::fromStdString(uuidGenerator.generateUUID());
 
     tryExecute(query, "DROP VIEW sprint_view;");
     tryExecute(query, "DROP VIEW task_view;");
@@ -106,10 +114,6 @@ auto Migration_v7::run(const QString& connectionName) const -> void
     tryExecute(query, "ALTER TABLE sprint_temp RENAME TO sprint;");
 
     tryExecute(query,
-               "CREATE TABLE IF NOT EXISTS task_tree ("
-               "task_uuid STRING);");
-
-    tryExecute(query,
                "CREATE VIEW sprint_view AS "
                "SELECT task.id taskid, task.name, GROUP_CONCAT(tag.name) tags, "
                "start_time, finish_time "
@@ -159,6 +163,41 @@ auto Migration_v7::run(const QString& connectionName) const -> void
                "FROM task_view "
                "LEFT JOIN clean_sprint_view "
                "ON clean_sprint_view.task_id = task_view.task_id;");
+
+    tryExecute(query,
+               "CREATE TABLE IF NOT EXISTS task_tree ("
+               "task_uuid STRING);");
+
+    // Writing serialized version of task tree into the table placing all tasks
+    // that are considered active (see query details for definition) into newly
+    // created folder Inbox
+    tryExecute(query, "INSERT INTO task_tree(task_uuid) VALUES(NULL);");
+    tryExecute(query, "INSERT INTO task_tree(task_uuid) VALUES(NULL);");
+    tryExecute(query,
+               QString{"INSERT INTO task_tree(task_uuid) VALUES('%1');"}.arg(
+                   inboxFolderUuid));
+    tryExecute(query, "INSERT INTO task_tree(task_uuid) VALUES(NULL);");
+    tryExecute(query,
+               "INSERT INTO task_tree(task_uuid) SELECT uuid FROM task_view "
+               "WHERE completed = 0 OR last_modified > "
+               "DATETIME('now', '-1 day');");
+    tryExecute(
+        query,
+        "WITH RECURSIVE generate_series(value) AS (SELECT 1 UNION ALL SELECT "
+        "value + 1 FROM generate_series WHERE value + 1 <= (SELECT count(*) + "
+        "1 "
+        "FROM task_view WHERE completed = 0 OR "
+        "last_modified > DATETIME('now', '-1 day'))) INSERT INTO "
+        "task_tree(task_uuid) SELECT NULL FROM "
+        "generate_series;");
+    tryExecute(
+        query,
+        QString{"INSERT INTO task(name, estimated_cost, actual_cost, "
+                " completed, "
+                "priority, last_modified, uuid, deleted, type) "
+                " values('Inbox', 0, 0, 0, 0, DATETIME('now'), '%1', 0, 1);"}
+            .arg(inboxFolderUuid));
+
     // "LEFT JOIN note ON note.task_id = task_view.task_id;");
 
     // "CREATE VIEW adv_task_view AS "

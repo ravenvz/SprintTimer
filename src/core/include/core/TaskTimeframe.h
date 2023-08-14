@@ -23,7 +23,7 @@
 #define TASKTIMEFRAME_H_TJRHDXEA
 
 #include "core/Recurrence.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
 
@@ -42,6 +42,10 @@ struct TaskTimeframe {
         , remindAt{remindAt_}
         , recurrence{std::move(recurrence_)}
     {
+        if (not due) {
+            due = recurrence.and_then(
+                [&](const auto& rec) { return rec.nextRecurrence(start); });
+        }
     }
 
     constexpr TaskTimeframe(
@@ -76,9 +80,33 @@ constexpr auto operator==(const TaskTimeframe& lhs, const TaskTimeframe& rhs)
                    right.date(), right.hour(), right.minute(), right.second());
     };
     return date_time_equal(lhs.start, rhs.start) &&
-           utils::opt_equal(lhs.due, rhs.due, date_time_equal) &&
+           alg::opt_equal(lhs.due, rhs.due, date_time_equal) &&
            lhs.recurrence == rhs.recurrence &&
-           utils::opt_equal(lhs.remindAt, rhs.remindAt, date_time_equal);
+           alg::opt_equal(lhs.remindAt, rhs.remindAt, date_time_equal);
+}
+
+template <class CharT, class Traits>
+std::basic_ostream<CharT, Traits>&
+operator<<(std::basic_ostream<CharT, Traits>& os, const TaskTimeframe& frame)
+{
+    os << "TaskTimeframe{start: " << frame.start << ", due: "
+       << frame.due
+              .transform([](const auto& dt) {
+                  return dw::to_string(dt, "dd.MM.yyyy hh:mm:ss");
+              })
+              .value_or("n/a")
+       << ", remindAt: "
+       << frame.remindAt
+              .transform([](const auto& dt) {
+                  return dw::to_string(dt, "dd.MM.yyyy hh:mm:ss");
+              })
+              .value_or("n/a")
+       << ", recurrence: "
+       << frame.recurrence
+              .transform([](const auto& rec) { return rec.pattern(); })
+              .value_or("n/a")
+       << "}";
+    return os;
 }
 
 } // namespace sprint_timer

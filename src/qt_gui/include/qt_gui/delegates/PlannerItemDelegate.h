@@ -37,15 +37,28 @@ public:
     explicit PlannerItemDelegate(QObject* parent = nullptr);
 
 private:
-    void paint(QPainter* painter,
-               const QStyleOptionViewItem& option,
-               const QModelIndex& index) const override;
+    auto sizeHint(const QStyleOptionViewItem& option,
+                  const QModelIndex& index) const -> QSize override;
 
-    QSize sizeHint(const QStyleOptionViewItem& option,
-                   const QModelIndex& index) const override;
+    auto setModelData(QWidget* editor,
+                      QAbstractItemModel* model,
+                      const QModelIndex& index) const -> void override;
 
-    // void initStyleOption(QStyleOptionViewItem* option,
-    //                      const QModelIndex& index) const override;
+    auto createEditor(QWidget* parent,
+                      const QStyleOptionViewItem& option,
+                      const QModelIndex& index) const -> QWidget* override;
+
+    auto setEditorData(QWidget* editor, const QModelIndex& index) const
+        -> void override;
+
+    auto updateEditorGeometry(QWidget* editor,
+                              const QStyleOptionViewItem& option,
+                              const QModelIndex& index) const -> void override;
+
+    auto initStyleOption(QStyleOptionViewItem* option,
+                         const QModelIndex& index) const -> void override;
+
+    auto commitAndClose() -> void;
 };
 
 } // namespace sprint_timer::ui::qt_gui

@@ -22,17 +22,14 @@
 #include "api/handlers/EditTaskHandler.h"
 #include "api/HandlerException.h"
 #include "api/actions/EditTask.h"
-#include "core/utils/Algutils.h"
 #include <algorithm>
-
-#include <iostream>
 
 namespace sprint_timer::api {
 
 EditTaskHandler::EditTaskHandler(TaskStorage& taskStorage_,
                                  ActionInvoker& actionInvoker_,
                                  const DateTimeProvider& dateTimeProvider_,
-                                 const Converter<TaskDTO, Task>& taskMapper_)
+                                 const patterns::Converter<TaskDTO, Task>& taskMapper_)
     : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
     , dateTimeProvider{dateTimeProvider_}

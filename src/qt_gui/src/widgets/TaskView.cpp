@@ -25,6 +25,7 @@
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/utils/MouseRightReleaseEater.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include <QMenu>
 
 namespace sprint_timer::ui::qt_gui {
@@ -54,7 +55,7 @@ TaskView::TaskView(StandaloneDisplayable& sprintsForTaskView_,
         }
     });
     connect(this, &QListView::pressed, [this]() {
-        utils::inspect(presenter(), [&](auto* presenter) {
+        alg::inspect(presenter(), [&](auto* presenter) {
             const auto var =
                 model()->data(currentIndex(), CustomRoles::ItemRole);
             presenter->changeTaskSelection(var.value<api::TaskDTO>());

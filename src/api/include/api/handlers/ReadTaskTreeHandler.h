@@ -25,21 +25,22 @@
 #include "api/TaskStorageReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/ReadTaskTreeQuery.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
 class ReadTaskTreeHandler : public asp::QueryHandler<ReadTaskTreeQuery> {
 public:
-    ReadTaskTreeHandler(TaskStorageReader& taskStorageReader,
-                        const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper);
+    ReadTaskTreeHandler(
+        TaskStorageReader& taskStorageReader,
+        const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper);
 
     auto handle(const ReadTaskTreeQuery& query)
         -> ReadTaskTreeQuery::Result override;
 
 private:
     TaskStorageReader& taskStorageReader;
-    const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper;
+    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper;
 };
 
 } // namespace sprint_timer::api

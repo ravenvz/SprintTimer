@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/TagTop.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/ranges_ext.h"
 #include <numeric>
 #include <ranges>
 
@@ -60,7 +60,7 @@ void TagTop::arrangeSprintsByTag(const std::vector<SprintRecord>& sprints)
 void TagTop::computeTagFrequencies()
 {
     const auto total =
-        ranges_ext::fold(sprintsByTag, 0ULL, [](auto acc, const auto& entry) {
+        alg::fold(sprintsByTag, 0ULL, [](auto acc, const auto& entry) {
             return acc + entry.second.size();
         });
     auto tag_frequency = [total = static_cast<double>(total)](
@@ -93,7 +93,7 @@ void TagTop::buildTagTop()
     const auto bottomTags =
         std::ranges::subrange(begin(frequencies) + limit, end(frequencies));
 
-    const auto combinedBottomTagFrequency = ranges_ext::fold(
+    const auto combinedBottomTagFrequency = alg::fold(
         bottomTags | std::views::elements<1>, 0.0, std::plus<double>{});
 
     const auto bottomTagsView = bottomTags | std::views::elements<0>;

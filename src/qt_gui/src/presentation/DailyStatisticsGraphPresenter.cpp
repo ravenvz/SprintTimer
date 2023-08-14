@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/DailyStatisticsGraphPresenter.h"
-#include "core/utils/StringUtils.h"
+#include <format>
 #include <string_view>
 
 namespace {
@@ -147,10 +147,9 @@ void updateLegend(
     const sprint_timer::api::DailyStatisticsDTO& dailyStatistics)
 {
     using sprint_timer::ui::contracts::DailyStatisticGraphContract::LegendData;
-    using sprint_timer::utils::formatDecimal;
-    view->updateLegend(
-        LegendData{std::to_string(dailyStatistics.totalSprints),
-                   formatDecimal(dailyStatistics.averageSprintsPerWorkday)});
+    view->updateLegend(LegendData{
+        std::to_string(dailyStatistics.totalSprints),
+        std::format("{:.2f}", dailyStatistics.averageSprintsPerWorkday)});
 }
 
 void updateDailyGraph(

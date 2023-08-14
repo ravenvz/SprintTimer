@@ -30,7 +30,7 @@ namespace sprint_timer::api {
 SaveTaskTreeHandler::SaveTaskTreeHandler(
     TaskStorage& taskStorage_,
     ActionInvoker& actionInvoker_,
-    const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
     : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
     , taskTreeMapper{taskTreeMapper_}

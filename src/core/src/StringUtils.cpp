@@ -30,20 +30,6 @@ std::string join(const std::vector<std::string>& vec,
     return join(vec.cbegin(), vec.cend(), delimeter);
 }
 
-bool startsWith(const std::string& str, const std::string& start)
-{
-    if (start.size() > str.size())
-        return false;
-    return std::equal(start.cbegin(), start.cend(), str.cbegin());
-}
-
-bool endsWith(const std::string& str, const std::string& end)
-{
-    if (end.size() > str.size())
-        return false;
-    return std::equal(end.crbegin(), end.crend(), str.crbegin());
-}
-
 std::string formatDecimal(double value, int precision)
 {
     std::stringstream ss;
@@ -51,25 +37,28 @@ std::string formatDecimal(double value, int precision)
     return ss.str();
 }
 
-std::vector<std::string_view> split(std::string_view str, char delimeter)
-{
-    std::vector<std::string_view> result;
-    for (size_t left{0}, right{0}; right != std::string_view::npos;
-         left = right + 1) {
-        right = str.find_first_of(delimeter, left);
-        result.push_back(str.substr(left, right - left));
-    }
-    return result;
-}
+// std::vector<std::string_view> split(std::string_view str, char delimeter)
+// {
+//     std::vector<std::string_view> result;
+//     for (size_t left{0}, right{0}; right != std::string_view::npos;
+//          left = right + 1) {
+//         right = str.find_first_of(delimeter, left);
+//         result.push_back(str.substr(left, right - left));
+//     }
+//     return result;
+// }
 
-auto split(std::string_view str, std::string_view delimiter) -> std::vector<std::string_view> {
-    std::vector<std::string_view> result;
-    for (size_t left{0}, right{0}; right != str.npos; left = right + delimiter.size()) {
-        right = str.find(delimiter, left);
-        result.push_back(str.substr(left, right - left));
-    }
-    return result;
-}
+// auto split(std::string_view str, std::string_view delimiter)
+//     -> std::vector<std::string_view>
+// {
+//     std::vector<std::string_view> result;
+//     for (size_t left{0}, right{0}; right != str.npos;
+//          left = right + delimiter.size()) {
+//         right = str.find(delimiter, left);
+//         result.push_back(str.substr(left, right - left));
+//     }
+//     return result;
+// }
 
 } // namespace sprint_timer::utils
 

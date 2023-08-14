@@ -24,7 +24,6 @@
 
 #include "api/TaskStorage.h"
 #include "api/TaskTreeMetadataStorage.h"
-
 #include "core/Task.h"
 
 namespace sprint_timer::api::actions {

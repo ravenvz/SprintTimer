@@ -32,24 +32,35 @@ DeleteTask::DeleteTask(TaskStorage& taskStorage_, Task taskToRemove_)
 auto DeleteTask::execute() -> void
 {
     auto taskTree = taskStorage.taskTree();
-    parent = taskTree.parent(task.uuid());
-    position = taskTree.positionInChildren(task.uuid());
-    subTree = taskTree.subTree(task.uuid());
-    taskTree.removeNode(task.uuid());
+    auto it = find_by_uuid(taskTree, task.uuid());
+    auto parent_it = taskTree.parent(it);
+    parent = parent_it == taskTree.end()
+                 ? std::optional<std::string>{}
+                 : std::optional<std::string>{parent_it->uuid()};
+    position = taskTree.position_in_children(it);
+    subTree = taskTree.take_subtree(it);
     taskStorage.saveTree(taskTree);
-    subTree.dfs([&](const auto& uuid, const auto& /*task*/) {
-        taskStorage.remove(uuid);
-    });
+    std::ranges::for_each(
+        subTree, [&](const auto& id) { taskStorage.remove(id); }, &Task::uuid);
 }
 
 auto DeleteTask::undo() -> void
 {
     auto taskTree = taskStorage.taskTree();
-    taskTree.addSubtree(subTree, parent, position);
+    auto parent_it = parent
+                         .transform([&](const auto& uuid) {
+                             return find_by_uuid(taskTree, uuid);
+                         })
+                         .value_or(taskTree.end());
+    // auto parent_it = parent ? find_by_uuid(taskTree, *parent) :
+    // taskTree.end();
+    taskTree.insert_subtree(
+        parent_it, subTree, position.transform([](auto pos) {
+            return ds::DestinationPosition{pos};
+        }));
     taskStorage.saveTree(taskTree);
-    subTree.dfs([&](const auto& /*key*/, const auto& payload) {
-        taskStorage.save(payload);
-    });
+    std::ranges::for_each(
+        subTree, [this](const auto& payload) { taskStorage.save(payload); });
 }
 
 auto DeleteTask::describe() const -> std::string

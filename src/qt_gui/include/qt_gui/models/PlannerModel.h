@@ -25,6 +25,7 @@
 #include "qt_gui/TreeModel.h"
 #include "qt_gui/presentation/PlannerContract.h"
 #include <QAbstractItemModel>
+#include <QBrush>
 #include <QColor>
 #include <qmimedata.h>
 
@@ -60,8 +61,8 @@ public:
 
     // auto parent(const QModelIndex& index) const -> QModelIndex override;
 
-    // auto setData(const QModelIndex& index, const QVariant& value, int role)
-    //     -> bool override;
+    auto setData(const QModelIndex& index, const QVariant& value, int role)
+        -> bool override;
 
     // auto moveRows(const QModelIndex& sourceParent,
     //               int sourceRow,
@@ -79,21 +80,21 @@ public:
 
     // auto columnCount(const QModelIndex& parent) const -> int override;
 
-    auto displayPlanner(
-        const Tree<std::string, contracts::PlannerContract::PlannerItem>&
-            taskTree) -> void;
-
-    auto displayGoals() -> void;
-
-    auto displayProjects() -> void;
-
-    auto displayReviews() -> void;
+    // auto displayPlanner(
+    //     const Tree<std::string, contracts::PlannerContract::PlannerItem>&
+    //         taskTree) -> void;
+    //
+    // auto displayGoals() -> void;
+    //
+    // auto displayProjects() -> void;
+    //
+    // auto displayReviews() -> void;
 
 private:
     struct ItemRepr {
         QString payload;
-        QColor pen;
-        QColor brush;
+        QBrush foreground;
+        QBrush background;
     };
     struct Item {
         std::string uuid;
@@ -104,16 +105,23 @@ private:
         QString notes;
         ItemRepr reminder;
         bool finished;
+        bool recurrent;
         api::TaskTypeDTO type;
     };
-    Tree<std::string, Item> storage;
-    std::unique_ptr<Item> root;
-
-    auto findParent(Item* node) const
-        -> std::optional<std::pair<const Item*, int>>;
+    // Tree<std::string, Item> storage;
+    // std::unique_ptr<Item> root;
+    //
+    // auto findParent(Item* node) const
+    //     -> std::optional<std::pair<const Item*, int>>;
 
     auto makeItem(const contracts::PlannerContract::PlannerItem& dto) const
         -> Item;
+
+    // Returns Item at index, assumes index is valid.
+    auto getItemData(const QModelIndex& index, int role) const -> Item;
+
+    auto replaceItemData(const QModelIndex& index, const Item& item, int role)
+        -> bool;
 };
 
 } // namespace sprint_timer::ui::qt_gui

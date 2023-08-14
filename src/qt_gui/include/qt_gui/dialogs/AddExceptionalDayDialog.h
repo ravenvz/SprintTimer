@@ -19,9 +19,9 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "date_wrapper/date_wrapper.h"
 #include <QDate>
 #include <QDialog>
-#include "date_wrapper/date_wrapper.h"
 #include <memory>
 
 #ifndef ADDEXCEPTIONALDAYDIALOG_H_4KBYLJOJ
@@ -32,13 +32,13 @@ namespace sprint_timer::ui::qt_gui {
 class AddExceptionalDayDialog : public QDialog {
 public:
     struct OutputData {
-        dw::Date startDate{dw::current_date_local()};
+        QDate startDate{QDate::currentDate()};
         int32_t numDays{1};
         int32_t sprintsPerDay{0};
     };
 
-    AddExceptionalDayDialog(dw::Weekday firstDayOfWeek,
-                            dw::Date preselectedDate,
+    AddExceptionalDayDialog(Qt::DayOfWeek firstDayOfWeek,
+                            QDate preselectedDate,
                             OutputData& data,
                             QDialog* parent = nullptr);
 };

@@ -20,13 +20,12 @@
 **
 *********************************************************************************/
 #include "core/TagTop.h"
-#include "core/utils/Algutils.h"
 #include "gtest/gtest.h"
 #include <gmock/gmock-matchers.h>
 #include <ranges>
 
-using sprint_timer::TagTop;
 using sprint_timer::Tag;
+using sprint_timer::TagTop;
 using namespace ::testing;
 
 namespace {
@@ -55,8 +54,7 @@ private:
 std::vector<sprint_timer::TagTop::sprint_tags_t> buildSomeSprints();
 
 bool contains(
-    const std::pair<dw::DateTimeRange,
-                    std::vector<sprint_timer::Tag>>& element,
+    const std::pair<dw::DateTimeRange, std::vector<sprint_timer::Tag>>& element,
     const sprint_timer::Tag& value)
 {
     return std::ranges::find(element.second, value) !=
@@ -65,8 +63,7 @@ bool contains(
 
 std::vector<dw::DateTimeRange> findSprintsWithTag(
     std::span<const std::pair<dw::DateTimeRange,
-                              std::vector<sprint_timer::Tag>>>
-        sprints,
+                              std::vector<sprint_timer::Tag>>> sprints,
     const sprint_timer::Tag& tag)
 {
     std::vector<dw::DateTimeRange> sprintsForTag;
@@ -167,8 +164,8 @@ namespace {
 
 std::vector<sprint_timer::TagTop::sprint_tags_t> buildSomeSprints()
 {
-    using sprint_timer::TagTop;
     using sprint_timer::Tag;
+    using sprint_timer::TagTop;
     std::vector<sprint_timer::TagTop::sprint_tags_t> result;
     const dw::DateTimeRange someTimeSpan{
         dw::current_date_time(), dw::current_date_time() + sprintDuration};

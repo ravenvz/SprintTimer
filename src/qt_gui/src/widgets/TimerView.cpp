@@ -135,7 +135,7 @@ void TimerView::selectTask(const std::optional<std::string>& uuid)
                                           QString::fromStdString(id));
         return matches.isEmpty() ? -1 : matches.front().row();
     };
-    const auto maybeIndex = utils::transform(uuid, findIndex);
+    const auto maybeIndex = uuid.transform(findIndex);
     submissionBox->setCurrentIndex(maybeIndex.value_or(-1));
 }
 

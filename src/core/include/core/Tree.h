@@ -22,7 +22,7 @@
 #ifndef TREE_H_RQOZCKEL
 #define TREE_H_RQOZCKEL
 
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/alg_ext.h"
 #include <concepts>
 #include <functional>
 #include <memory>
@@ -380,9 +380,9 @@ template <typename Func>
 auto Tree<KeyT, PayloadT>::dfs(Func func,
                                const std::optional<KeyT>& initial) const -> void
 {
-    Node* rt = utils::transform(initial, [&](const auto& key) {
-                   return tryLocateNode(key);
-               }).value_or(nullptr);
+    Node* rt =
+        initial.transform([&](const auto& key) { return tryLocateNode(key); })
+            .value_or(nullptr);
     for_each([&](int /*level*/,
                  const Node* node) { func(node->key, node->payload); },
              rt);
@@ -496,14 +496,14 @@ auto Tree<KeyT, PayloadT>::moveNodes(
     }
 
     if (sourceParent == destinationParent) {
-        utils::slide(std::begin(children) + sourceRow,
-                     std::begin(children) + sourceRow + count,
-                     std::begin(children) + destinationChild);
+        alg::slide(std::begin(children) + sourceRow,
+                   std::begin(children) + sourceRow + count,
+                   std::begin(children) + destinationChild);
         return;
     }
-    auto [first, last] = utils::slide(std::begin(children) + sourceRow,
-                                      std::begin(children) + sourceRow + count,
-                                      std::end(children));
+    auto [first, last] = alg::slide(std::begin(children) + sourceRow,
+                                    std::begin(children) + sourceRow + count,
+                                    std::end(children));
 
     std::for_each(first, last, [&](auto& node) {
         addChildInternal(
@@ -668,9 +668,9 @@ auto Tree<KeyT, PayloadT>::removeNodesInternal(
         mesg += std::to_string(count);
         throw std::runtime_error{mesg};
     }
-    auto [first, last] = utils::slide(std::begin(children) + row,
-                                      std::begin(children) + row + count,
-                                      std::end(children));
+    auto [first, last] = alg::slide(std::begin(children) + row,
+                                    std::begin(children) + row + count,
+                                    std::end(children));
     std::vector<std::unique_ptr<Node>> nodes(static_cast<size_t>(count));
     std::move(first, last, std::begin(nodes));
     children.erase(first, last);
@@ -694,7 +694,7 @@ auto Tree<KeyT, PayloadT>::tryLocateNode(const std::optional<KeyT>& node) const
             return it->second;
         }
     };
-    return utils::transform(node, nodePtr).value_or(root.get());
+    return node.transform(nodePtr).value_or(root.get());
 }
 
 } // namespace sprint_timer

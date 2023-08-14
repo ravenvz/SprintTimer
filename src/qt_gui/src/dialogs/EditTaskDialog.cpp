@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/EditTaskDialog.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 
@@ -34,14 +34,12 @@ EditTaskDialog::EditTaskDialog(dw::Weekday firstDayOfWeek_, QWidget* parent_)
 
 void EditTaskDialog::accept()
 {
-    using sprint_timer::utils::inspect;
-
     if (nameIsEmpty()) {
         markNameFieldRed();
         return;
     }
 
-    inspect(presenter(), [&](auto* presenter) {
+    alg::inspect(presenter(), [&](auto* presenter) {
         auto editedTask = parseFormFields();
         presenter->onEditTaskAccepted(parseFormFields());
     });

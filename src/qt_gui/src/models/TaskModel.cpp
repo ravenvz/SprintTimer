@@ -20,9 +20,10 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/TaskModel.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
+#include <format>
 #include <string>
 
 namespace {
@@ -208,11 +209,8 @@ namespace {
 
 std::string prefixTags(const std::vector<std::string>& tags)
 {
-    return sprint_timer::utils::transformJoin(tags, " ", [](const auto& el) {
-        std::string res{"#"};
-        res += el;
-        return res;
-    });
+    return alg::join(
+        tags, " ", [](const auto& el) { return std::format("#{}", el); });
 }
 
 } // namespace

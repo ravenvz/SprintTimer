@@ -20,7 +20,6 @@
 **
 *********************************************************************************/
 #include "core/Sprint.h"
-#include "core/utils/StringUtils.h"
 #include <algorithm>
 #include <utility>
 

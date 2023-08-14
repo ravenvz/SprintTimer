@@ -26,22 +26,23 @@
 #include "api/TaskStorage.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/SaveTaskTreeCommand.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
 class SaveTaskTreeHandler : public asp::CommandHandler<SaveTaskTreeCommand> {
 public:
-    SaveTaskTreeHandler(TaskStorage& taskStorage_,
-                        ActionInvoker& actionInvoker_,
-                        const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper);
+    SaveTaskTreeHandler(
+        TaskStorage& taskStorage_,
+        ActionInvoker& actionInvoker_,
+        const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper);
 
     void handle(const SaveTaskTreeCommand& command) override;
 
 private:
     TaskStorage& taskStorage;
     ActionInvoker& actionInvoker;
-    const Converter<TaskTreeDTO, TaskTree>& taskTreeMapper;
+    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper;
 };
 
 } // namespace sprint_timer::api

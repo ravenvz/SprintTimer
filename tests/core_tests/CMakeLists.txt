@@ -3,7 +3,6 @@ add_executable(test_core)
 target_sources(test_core
     PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/mocks/WorkflowMock.h"
-    "${CMAKE_CURRENT_LIST_DIR}/test_algutils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_distribution.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_by_day.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_progress_by_month.cpp"
@@ -12,7 +11,6 @@ target_sources(test_core
     "${CMAKE_CURRENT_LIST_DIR}/test_recurrence.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_sprint.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_stateful_timer.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/test_string_utils.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_tag_top.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/test_task_timeframe.cpp"

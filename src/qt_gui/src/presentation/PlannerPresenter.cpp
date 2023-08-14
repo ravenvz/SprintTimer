@@ -20,8 +20,11 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/PlannerPresenter.h"
-#include "core/utils/Algutils.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
+#include "cpp_utils/algorithms/string_ext.h"
+#include <format>
+
+#include <iostream>
 
 namespace {
 
@@ -116,12 +119,9 @@ public:
 
     auto operator()(const TaskDTO& task) const -> PlannerItem
     {
-        using sprint_timer::utils::join;
-        using sprint_timer::utils::transform;
-
         const auto* strategy = strategies[static_cast<size_t>(task.kind)];
         const auto& taskTags = task.tags;
-        const auto tags = join(cbegin(taskTags), cend(taskTags), ", ");
+        const auto tags = alg::join(cbegin(taskTags), cend(taskTags), ", ");
         return PlannerItem{task.uuid,
                            strategy->makeName(task.name),
                            strategy->makeTags(tags),
@@ -131,6 +131,7 @@ public:
                            strategy->makeNote(task.notes),
                            strategy->makeReminder(task.timeFrame),
                            task.finished,
+                           task.timeFrame.recurrence.has_value(),
                            task.kind};
     }
 
@@ -148,17 +149,22 @@ auto overdueStatus(dw::DateTime now, dw::DateTime date) -> OverdueStatus;
 
 namespace sprint_timer::ui {
 
-PlannerPresenter::PlannerPresenter(PlannerColors colors_,
-                                   read_planner_handler_t& readPlannerHandler_,
-                                   save_planner_handler_t& savePlannerHandler_,
-                                   delete_task_handler_t& deleteTaskHandler_,
-                                   AddTaskContext& addTaskContext_,
-                                   EditTaskContext& editTaskContext_,
-                                   const api::DateTimeProvider& timeProvider_)
+PlannerPresenter::PlannerPresenter(
+    PlannerColors colors_,
+    read_planner_handler_t& readPlannerHandler_,
+    save_planner_handler_t& savePlannerHandler_,
+    delete_task_handler_t& deleteTaskHandler_,
+    edit_task_handler_t& editTaskHandler_,
+    toggle_task_completed_handler_t& toggleTaskCompletedHandler_,
+    AddTaskContext& addTaskContext_,
+    EditTaskContext& editTaskContext_,
+    const api::DateTimeProvider& timeProvider_)
     : colors{colors_}
     , readPlannerHandler{readPlannerHandler_}
     , savePlannerHandler{savePlannerHandler_}
     , deleteTaskHandler{deleteTaskHandler_}
+    , editTaskHandler{editTaskHandler_}
+    , toggleTaskCompletedHandler{toggleTaskCompletedHandler_}
     , addTaskContext{addTaskContext_}
     , editTaskContext{editTaskContext_}
     , timeProvider{timeProvider_}
@@ -180,7 +186,7 @@ void PlannerPresenter::updateViewImpl()
                 .release(),
         };
         const auto itemMaker = MakeItem{strategies};
-        v.value()->displayPlanner(data.mapped(itemMaker));
+        v.value()->displayPlanner(data.transform(itemMaker));
     }
 }
 
@@ -196,8 +202,18 @@ auto PlannerPresenter::moveNodes(
     const std::optional<std::string>& destinationParent,
     int64_t destinationChild) -> void
 {
-    data.moveNodes(
-        sourceParent, sourceRow, count, destinationParent, destinationChild);
+    data.move_nodes(
+        sourceParent
+            ? std::ranges::find(data, *sourceParent, &api::TaskDTO::uuid)
+            : data.end(),
+        ds::SourcePosition{sourceRow},
+        ds::Count{count},
+        destinationParent
+            ? std::ranges::find(data, *destinationParent, &api::TaskDTO::uuid)
+            : data.end(),
+        ds::DestinationPosition{destinationChild});
+    // data.moveNodes(
+    //     sourceParent, sourceRow, count, destinationParent, destinationChild);
     updateView();
     savePlannerHandler.handle(api::SaveTaskTreeCommand{data});
 }
@@ -217,9 +233,39 @@ auto PlannerPresenter::changeTaskAdditionContext(
 
 auto PlannerPresenter::changeTaskEditionContext(const std::string& uuid) -> void
 {
-    utils::inspect(data.payload(uuid), [&](const auto& task) {
-        editTaskContext = EditTaskContext(TaskDTO{task.get()});
-    });
+    auto it = std::ranges::find(data, uuid, &TaskDTO::uuid);
+    if (it == data.cend()) {
+        throw std::runtime_error{
+            std::format("Cannot find task with uuid: {}", uuid)};
+    }
+    auto task = *it;
+    editTaskContext = EditTaskContext{std::move(task)};
+}
+
+auto PlannerPresenter::quickEditTask(std::string&& uuid,
+                                     std::string&& name,
+                                     std::vector<std::string>&& tags,
+                                     int cost) -> void
+{
+    auto it = std::ranges::find(data, uuid, &TaskDTO::uuid);
+    if (it == data.cend()) {
+        throw std::runtime_error{
+            std::format("Cannot find task with uuid: {}", uuid)};
+    }
+
+    auto editedTask = *it;
+    editedTask.name = std::move(name);
+    editedTask.tags = std::move(tags);
+    editedTask.expectedCost = cost;
+    editTaskHandler.handle(api::EditTaskCommand{std::move(editedTask)});
+}
+
+auto PlannerPresenter::toggleTask(const std::string& uuid) -> void
+{
+    if (std::ranges::find(data, uuid, &TaskDTO::uuid) != data.cend()) {
+        toggleTaskCompletedHandler.handle(api::ToggleTaskCompletedCommand{
+            uuid, timeProvider.dateTimeLocalNow()});
+    }
 }
 
 } // namespace sprint_timer::ui
@@ -254,9 +300,6 @@ auto MakeItemStrategy::makeProgress(const TaskDTO& /* taskNode */) const -> Item
 auto MakeItemStrategy::makeDueDate(
     const std::optional<TaskTimeframeDTO>& maybeFrame) const -> Item
 {
-    using sprint_timer::utils::and_then;
-    using sprint_timer::utils::transform;
-
     auto formatDuration = [&](dw::DateTime rightNow, dw::DateTime date) {
         return std::string{rightNow < date ? "+" : "-"} +
                std::to_string(dw::DateRange{rightNow.date(), date.date()}
@@ -265,56 +308,50 @@ auto MakeItemStrategy::makeDueDate(
                std::string{" Days"};
     };
 
-    return transform(
-               and_then(maybeFrame,
-                        [](const auto& frame) { return frame.due; }),
-               [&](const auto& dueDate) -> Item {
-                   const auto status = overdueStatus(now, dueDate);
-                   using enum OverdueStatus;
-                   switch (status) {
-                   case Today:
-                       return {"Today", colors.contrastText, colors.doneWork};
-                   case OverdueSameWeek:
-                       return {weekdayToString(dueDate),
-                               colors.contrastText,
-                               colors.dueOverdue};
-                   case LaterSameWeek:
-                       return {weekdayToString(dueDate),
-                               colors.contrastText,
-                               colors.dueSoon};
-                   case Later:
-                       return {formatDuration(now, dueDate),
-                               colors.contrastText,
-                               colors.dueNotSoon};
-                   case Overdue:
-                       return {formatDuration(now, dueDate),
-                               colors.contrastText,
-                               colors.dueOverdue};
-                   }
-                   // TODO replace with std::unreachable when migrating to c++23
-                   throw std::runtime_error{"Unreachable"};
-               })
+    return maybeFrame.and_then([](const auto& frame) { return frame.due; })
+        .transform([&](const auto& dueDate) -> Item {
+            const auto status = overdueStatus(now, dueDate);
+            using enum OverdueStatus;
+            switch (status) {
+            case Today:
+                return {"Today", colors.contrastText, colors.doneWork};
+            case OverdueSameWeek:
+                return {weekdayToString(dueDate),
+                        colors.contrastText,
+                        colors.dueOverdue};
+            case LaterSameWeek:
+                return {weekdayToString(dueDate),
+                        colors.contrastText,
+                        colors.dueSoon};
+            case Later:
+                return {formatDuration(now, dueDate),
+                        colors.contrastText,
+                        colors.dueNotSoon};
+            case Overdue:
+                return {formatDuration(now, dueDate),
+                        colors.contrastText,
+                        colors.dueOverdue};
+            }
+            std::unreachable();
+        })
         .value_or(Item{"", colors.text, colors.defaultBackround});
 }
 
 auto MakeItemStrategy::makeReminder(
     const std::optional<TaskTimeframeDTO>& maybeFrame) const -> Item
 {
-    using sprint_timer::utils::and_then;
-    using sprint_timer::utils::transform;
-    const auto dateRepr = transform(
-        and_then(maybeFrame, [](const auto& frame) { return frame.remindAt; }),
-        [](const auto& reminder) {
-            return dw::to_string(reminder, "hh:mm dd.MM.yyyy");
-        });
+    const auto dateRepr =
+        maybeFrame.and_then([](const auto& frame) { return frame.remindAt; })
+            .transform([](const auto& reminder) {
+                return dw::to_string(reminder, "hh:mm dd.MM.yyyy");
+            });
     return {dateRepr.value_or(""), colors.text, colors.defaultBackround};
 }
 
 auto MakeItemStrategy::makeNote(const std::optional<NoteDTO>& maybeNote) const
     -> std::string
 {
-    using sprint_timer::utils::transform;
-    return transform(maybeNote, [](const auto& note) { return note.text; })
+    return maybeNote.transform([](const auto& note) { return note.text; })
         .value_or("");
 }
 

@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/TaskSprintsPresenter.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 
 namespace sprint_timer::ui {
 
@@ -33,8 +34,8 @@ TaskSprintsPresenter::TaskSprintsPresenter(
 
 void TaskSprintsPresenter::updateViewImpl()
 {
-    utils::inspect(view(), [&](auto* view) {
-        utils::inspect(taskSelectionContext.taskUuid(), [&](const auto& uuid) {
+    alg::inspect(view(), [&](auto* view) {
+        alg::inspect(taskSelectionContext.taskUuid(), [&](const auto& uuid) {
             const auto sprints =
                 sprintsForTaskHandler.handle(api::SprintsForTaskQuery{uuid});
             view->displaySprints(sprints);

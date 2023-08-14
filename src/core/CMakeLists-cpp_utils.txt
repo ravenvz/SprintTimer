@@ -1,0 +1,16 @@
+include(FetchContent)
+
+FetchContent_Declare(
+    cpp_utils
+
+    GIT_REPOSITORY https://github.com/ravenvz/cpp_utils.git
+    GIT_TAG        v0.1.17
+)
+
+FetchContent_GetProperties(cpp_utils)
+if (NOT cpp_utils_POPULATED)
+    FetchContent_Populate(cpp_utils)
+    set(ENABLE_TESTING OFF)
+    set(ENABLE_CACHE OFF)
+    add_subdirectory(${cpp_utils_SOURCE_DIR} ${cpp_utils_BINARY_DIR})
+endif()

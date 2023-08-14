@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/WorkScheduleEditorPresenter.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include <numeric>
 
 namespace {
@@ -176,7 +176,7 @@ std::string weekScheduleToString(const sprint_timer::WeekSchedule& weekSchedule,
         cbegin(goals), cend(goals), begin(strGoals), [](const auto& elem) {
             return std::to_string(elem.second);
         });
-    return sprint_timer::utils::join(strGoals, ", ");
+    return alg::join(strGoals, ", ");
 }
 
 std::vector<std::pair<dw::Weekday, int>>

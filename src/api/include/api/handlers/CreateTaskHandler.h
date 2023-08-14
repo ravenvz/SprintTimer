@@ -29,7 +29,7 @@
 #include "api/com_query/CommandHandler.h"
 #include "api/dtos/TaskDTO.h"
 #include "api/requests/CreateTaskCommand.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
@@ -39,7 +39,7 @@ public:
                       ActionInvoker& actionInvoker_,
                       UUIDGenerator& uuidGenerator_,
                       DateTimeProvider& dateTimeProvider_,
-                      const Converter<TaskDTO, Task>& taskMapper_);
+                      const patterns::Converter<TaskDTO, Task>& taskMapper_);
 
     auto handle(const CreateTaskCommand& command) -> void override;
 
@@ -48,7 +48,7 @@ private:
     ActionInvoker& actionInvoker;
     UUIDGenerator& uuidGenerator;
     DateTimeProvider& dateTimeProvider;
-    const Converter<TaskDTO, Task>& taskMapper;
+    const patterns::Converter<TaskDTO, Task>& taskMapper;
 };
 
 } // namespace sprint_timer::api

@@ -83,15 +83,26 @@ public:
 TEST_F(ChangingTaskTreeFixture, saving_tree_and_reverting)
 {
     using namespace sprint_timer::api;
-    using Tags = std::vector<std::string>;
     const auto initialTree = fixtures::givenSomeTaskTreeCreated(
         createTaskHandler, registerSprintsHandler);
+    // std::cout << initialTree.to_string() << std::endl;
+    auto reverted_tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+    std::cout << reverted_tree.to_string() << std::endl;
     auto mutatedTree = initialTree;
-    mutatedTree.moveNodes("1", 0, 1, "5", 0);
+    auto uuid_projection = [](const auto& node) { return node.uuid; };
+    mutatedTree.move_nodes(std::ranges::find(mutatedTree, "1", uuid_projection),
+                           ds::SourcePosition{1},
+                           ds::Count{1},
+                           std::ranges::find(mutatedTree, "0", uuid_projection),
+                           ds::DestinationPosition{0});
+    // std::cout << mutatedTree.to_string() << std::endl;
 
     saveTaskTreeHandler.handle(SaveTaskTreeCommand{mutatedTree});
     EXPECT_EQ(mutatedTree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
 
+    // std::cout << initialTree.to_string() << std::endl;
     undoActionHandler.handle(UndoLastCommand{});
+    // auto reverted_tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+    // std::cout << reverted_tree.to_string() << std::endl;
     EXPECT_EQ(initialTree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
 }

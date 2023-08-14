@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/TimerPresenter.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include <string_view>
 
 namespace {
@@ -84,7 +85,7 @@ void TimerPresenter::onTimerTick(std::chrono::seconds timeLeft)
 
 void TimerPresenter::onWorkflowStateChanged(IWorkflow::StateId currentState)
 {
-    utils::inspect(view(), [&](auto* view) {
+    alg::inspect(view(), [&](auto* view) {
         using contracts::TimerContract::TimerUiModel;
         switch (currentState) {
         case IWorkflow::StateId::Idle:
@@ -140,7 +141,7 @@ void TimerPresenter::onZoneClicked() { workflow.toggleInTheZoneMode(); }
 
 void TimerPresenter::onTaskSelectionChanged()
 {
-    utils::inspect(view(), [&](auto* view) {
+    alg::inspect(view(), [&](auto* view) {
         view->selectTask(taskSelectionMediator.taskUuid());
     });
 }

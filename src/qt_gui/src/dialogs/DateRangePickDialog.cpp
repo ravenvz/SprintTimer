@@ -20,20 +20,21 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/DateRangePickDialog.h"
-#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_pick_dialog.h"
 
 namespace sprint_timer::ui::qt_gui {
 
-DateRangePickDialog::DateRangePickDialog(dw::Weekday firstDayOfWeek,
-                                         const dw::DateRange& dateRange,
-                                         QWidget* parent_)
+DateRangePickDialog::DateRangePickDialog(
+    Qt::DayOfWeek firstDayOfWeek_,
+    const std::pair<QDate, QDate>& dateRange_,
+    QWidget* parent_)
     : QDialog{parent_}
     , ui{std::make_unique<Ui::DateRangePickDialog>()}
 {
     ui->setupUi(this);
     ui->cwStart->setMaximumDate(QDate::currentDate());
     ui->cwEnd->setMaximumDate(QDate::currentDate());
+
     // NOTE also see ui file for used signal connections
     connect(ui->cwStart,
             &QCalendarWidget::clicked,
@@ -43,26 +44,19 @@ DateRangePickDialog::DateRangePickDialog(dw::Weekday firstDayOfWeek,
             &QCalendarWidget::clicked,
             ui->cwStart,
             &QCalendarWidget::setMaximumDate);
-    if (firstDayOfWeek == dw::Weekday::Monday) {
-        ui->cwStart->setFirstDayOfWeek(Qt::Monday);
-        ui->cwEnd->setFirstDayOfWeek(Qt::Monday);
-    }
-    else {
-        ui->cwStart->setFirstDayOfWeek(Qt::Sunday);
-        ui->cwEnd->setFirstDayOfWeek(Qt::Sunday);
-    }
-    const utils::DateConverter dateConverter;
-    ui->dePickStartDate->setDate(dateConverter(dateRange.start()));
-    ui->dePickEndDate->setDate(dateConverter(dateRange.finish()));
+
+    ui->cwStart->setFirstDayOfWeek(firstDayOfWeek_);
+    ui->cwEnd->setFirstDayOfWeek(firstDayOfWeek_);
+
+    ui->dePickStartDate->setDate(dateRange_.first);
+    ui->dePickEndDate->setDate(dateRange_.second);
 }
 
 DateRangePickDialog::~DateRangePickDialog() = default;
 
-dw::DateRange DateRangePickDialog::selectedRange()
+auto DateRangePickDialog::selectedRange() -> std::pair<QDate, QDate>
 {
-    const utils::DateConverter dateConverter;
-    return dw::DateRange{dateConverter(ui->cwStart->selectedDate()),
-                         dateConverter(ui->cwEnd->selectedDate())};
+    return {ui->cwStart->selectedDate(), ui->cwEnd->selectedDate()};
 }
 
 } // namespace sprint_timer::ui::qt_gui

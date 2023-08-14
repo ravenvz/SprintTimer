@@ -21,11 +21,10 @@
 *********************************************************************************/
 #include "api/dtos/TaskTimeframeMapper.h"
 #include "core/Recurrence.h"
-#include "core/utils/Algutils.h"
 
 namespace sprint_timer::api {
 
-auto TaskTimeframeMapper::convert(const TaskTimeframe& frame) const
+auto TaskTimeframeMapper::make_dto_impl(const TaskTimeframe& frame) const
     -> TaskTimeframeDTO
 {
     const auto recurrence = frame.recurrence.transform(
@@ -33,7 +32,7 @@ auto TaskTimeframeMapper::convert(const TaskTimeframe& frame) const
     return TaskTimeframeDTO{frame.start, frame.due, frame.remindAt, recurrence};
 }
 
-auto TaskTimeframeMapper::convert(const TaskTimeframeDTO& dto) const
+auto TaskTimeframeMapper::make_entity_impl(const TaskTimeframeDTO& dto) const
     -> TaskTimeframe
 {
     const auto recurrence = dto.recurrence.transform(

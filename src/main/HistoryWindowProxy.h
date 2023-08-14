@@ -40,10 +40,12 @@ public:
         ui::contracts::DateRangeSelectorContract::Presenter&
             dateRangeSelectorPresenter_,
         ui::contracts::HistoryContract::Presenter& historyPresenter_,
-        ui::contracts::DataExportContract::Presenter& dataExportPresenter_)
+        ui::contracts::DataExportContract::Presenter& dataExportPresenter_,
+        const patterns::Converter<QDate, dw::Date>& dateConverter_)
         : dateRangeSelectorPresenter{dateRangeSelectorPresenter_}
         , historyPresenter{historyPresenter_}
         , dataExportPresenter{dataExportPresenter_}
+        , dateConverter{dateConverter_}
     {
     }
 
@@ -52,11 +54,12 @@ private:
         dateRangeSelectorPresenter;
     ui::contracts::HistoryContract::Presenter& historyPresenter;
     ui::contracts::DataExportContract::Presenter& dataExportPresenter;
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
 
     std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override
     {
         using namespace ui::qt_gui;
-        auto selector = std::make_unique<DateRangeSelector>();
+        auto selector = std::make_unique<DateRangeSelector>(dateConverter);
         selector->setPresenter(dateRangeSelectorPresenter);
         auto historyTab = std::make_unique<HistoryTab>();
         historyTab->setPresenter(historyPresenter);

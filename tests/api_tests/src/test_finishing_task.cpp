@@ -45,6 +45,8 @@ public:
         commandComposer.undoHandler()};
     asp::CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler{
         commandComposer.registerSprintBulkHandler()};
+    asp::QueryHandler<ReadTaskTreeQuery>& readTaskTreeHandler{
+        queryComposer.readTaskTreeHandler()};
 };
 
 TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
@@ -128,7 +130,9 @@ TEST_F(FinishingTaskFixture,
         DateTime{Date{Year{2023}, Month{5}, Day{4}}} + 1h + 25min,
         DateTime{Date{Year{2023}, Month{5}, Day{4}}} + 1h + 50min}};
     registerSprintsHandler.handle(RegisterSprintBulkCommand{"0", sprints});
-    std::vector<TaskDTO> expected{
+    TaskTreeDTO expected;
+    expected.insert(
+        expected.end(),
         TaskDTO{"0",
                 {"Tag1"},
                 "Name",
@@ -141,7 +145,9 @@ TEST_F(FinishingTaskFixture,
                                  std::nullopt,
                                  std::nullopt,
                                  "Mon *-6..12-*"},
-                TaskTypeDTO::Regular},
+                TaskTypeDTO::Regular});
+    expected.insert(
+        expected.end(),
         TaskDTO{"1",
                 {"Tag1"},
                 "Name",
@@ -154,13 +160,47 @@ TEST_F(FinishingTaskFixture,
                                  std::nullopt,
                                  std::nullopt,
                                  "Mon *-6..12-*"},
-                TaskTypeDTO::Regular}};
+                TaskTypeDTO::Regular});
+
+    std::cout << expected.to_string() << std::endl;
+
+    // std::vector<TaskDTO> expected{
+    //     TaskDTO{"0",
+    //             {"Tag1"},
+    //             "Name",
+    //             7,
+    //             sprints,
+    //             true,
+    //             dw::current_date_time_local(),
+    //             std::nullopt,
+    //             TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2},
+    //             Day{5}}},
+    //                              std::nullopt,
+    //                              std::nullopt,
+    //                              "Mon *-6..12-*"},
+    //             TaskTypeDTO::Regular},
+    //     TaskDTO{"1",
+    //             {"Tag1"},
+    //             "Name",
+    //             7,
+    //             {},
+    //             false,
+    //             dw::current_date_time_local(),
+    //             std::nullopt,
+    //             TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2},
+    //             Day{5}}},
+    //                              std::nullopt,
+    //                              std::nullopt,
+    //                              "Mon *-6..12-*"},
+    //             TaskTypeDTO::Regular}};
 
     toggleTaskCompletedHandler.handle(
         ToggleTaskCompletedCommand{"0", dw::current_date_time_local()});
-    const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
+    const auto tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+    std::cout << tree.to_string() << std::endl;
+    // const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
 
-    EXPECT_EQ(expected, tasks);
+    EXPECT_EQ(expected, tree);
 }
 
 TEST_F(FinishingTaskFixture,

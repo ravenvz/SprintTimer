@@ -22,22 +22,25 @@
 #ifndef ADDSPRINTDIALOG_H
 #define ADDSPRINTDIALOG_H
 
+#include "cpp_utils/patterns/Converter.h"
+#include "date_wrapper/date_wrapper.h"
 #include "qt_gui/delegates/SubmissionItemDelegate.h"
 #include "qt_gui/dialogs/DisplayableDialog.h"
 #include "qt_gui/presentation/RegisterSprintControl.h"
 #include <QSpinBox>
 #include <QTimeEdit>
-#include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer::ui::qt_gui {
 
 class AddSprintDialog : public DisplayableDialog {
 
 public:
-    AddSprintDialog(contracts::RegisterSprintControl::Presenter& presenter,
-                    QAbstractItemModel& taskModel,
-                    dw::Weekday firstDayOfWeek,
-                    std::chrono::minutes sprintDuration);
+    AddSprintDialog(
+        contracts::RegisterSprintControl::Presenter& presenter,
+        QAbstractItemModel& taskModel,
+        dw::Weekday firstDayOfWeek,
+        std::chrono::minutes sprintDuration,
+        const patterns::Converter<QDateTime, dw::DateTime>& dateTimeConverter);
 
     ~AddSprintDialog() override;
 

@@ -23,7 +23,6 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-
 #include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
@@ -50,11 +49,6 @@ StatisticsWindow::StatisticsWindow(
     layout->addWidget(dailyTimelineGraph_.release(), 3);
     layout->addWidget(bottomFrame.release(), 4);
     setLayout(layout.release());
-}
-
-StatisticsWindow::~StatisticsWindow()
-{
-    std::cerr << "StatisticsWindow destroyed\n";
 }
 
 QSize StatisticsWindow::sizeHint() const { return QSize{1100, 730}; }

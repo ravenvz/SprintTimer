@@ -28,7 +28,6 @@
 #include "core/Tag.h"
 #include "core/TaskTimeframe.h"
 #include "core/TaskType.h"
-#include "core/utils/StringUtils.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
 #include <vector>

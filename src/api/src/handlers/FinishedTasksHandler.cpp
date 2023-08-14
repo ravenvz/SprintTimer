@@ -24,7 +24,7 @@
 namespace sprint_timer::api {
 
 FinishedTasksHandler::FinishedTasksHandler(
-    TaskStorageReader& reader_, const Converter<TaskDTO, Task>& taskMapper_)
+    TaskStorageReader& reader_, const patterns::Converter<TaskDTO, Task>& taskMapper_)
     : reader{reader_}
     , taskMapper{taskMapper_}
 {

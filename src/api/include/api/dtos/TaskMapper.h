@@ -25,33 +25,34 @@
 #include "api/dtos/NoteMapper.h"
 #include "api/dtos/TaskDTO.h"
 #include "core/Task.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-class TaskMapper : public Converter<TaskDTO, Task> {
+class TaskMapper : public patterns::Converter<TaskDTO, Task> {
 public:
     TaskMapper(
-        const Converter<NoteDTO, Note>& noteMapper,
-        const Converter<std::string, Tag>& tagMapper,
-        const Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper_,
-        const Converter<TaskTypeDTO, TaskType>& taskTypeMapper_,
-        const Converter<dw::DateTimeRange, Sprint>& sprintMapper);
+        const patterns::Converter<NoteDTO, Note>& noteMapper,
+        const patterns::Converter<std::string, Tag>& tagMapper,
+        const patterns::Converter<TaskTimeframeDTO, TaskTimeframe>&
+            timeFrameMapper_,
+        const patterns::Converter<TaskTypeDTO, TaskType>& taskTypeMapper_,
+        const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper);
 
 private:
-    [[nodiscard]] auto convert(const TaskDTO& dto) const
-        -> Task override;
-
-    [[nodiscard]] auto convert(const Task& task) const
+    [[nodiscard]] auto make_dto_impl(const Task& task) const
         -> TaskDTO override;
 
-    const Converter<NoteDTO, Note>& noteMapper;
-    const Converter<std::string, Tag>& tagMapper;
-    const Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper;
-    const Converter<TaskTypeDTO, TaskType>& taskTypeMapper;
-    const Converter<dw::DateTimeRange, Sprint>& sprintMapper;
+    [[nodiscard]] auto make_entity_impl(const TaskDTO& dto) const
+        -> Task override;
+
+    const patterns::Converter<NoteDTO, Note>& noteMapper;
+    const patterns::Converter<std::string, Tag>& tagMapper;
+    const patterns::Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper;
+    const patterns::Converter<TaskTypeDTO, TaskType>& taskTypeMapper;
+    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper;
 };
 
 } // namespace sprint_timer::api

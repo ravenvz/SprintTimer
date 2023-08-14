@@ -21,7 +21,6 @@
 *********************************************************************************/
 
 #include "qt_gui/dialogs/AddExceptionalDayDialog.h"
-#include "qt_gui/utils/DateTimeConverter.h"
 #include <QCalendarWidget>
 #include <QDialogButtonBox>
 #include <QFormLayout>
@@ -30,8 +29,8 @@
 
 namespace sprint_timer::ui::qt_gui {
 
-AddExceptionalDayDialog::AddExceptionalDayDialog(dw::Weekday firstDayOfWeek_,
-                                                 dw::Date preselectedDate_,
+AddExceptionalDayDialog::AddExceptionalDayDialog(Qt::DayOfWeek firstDayOfWeek_,
+                                                 QDate preselectedDate_,
                                                  OutputData& data_,
                                                  QDialog* parent_)
     : QDialog{parent_}
@@ -44,11 +43,8 @@ AddExceptionalDayDialog::AddExceptionalDayDialog(dw::Weekday firstDayOfWeek_,
     auto buttons = std::make_unique<QDialogButtonBox>(QDialogButtonBox::Ok |
                                                       QDialogButtonBox::Cancel);
 
-    const utils::DateConverter dateConverter;
-
-    calendar->setFirstDayOfWeek(
-        firstDayOfWeek_ == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday);
-    calendar->setSelectedDate(dateConverter(preselectedDate_));
+    calendar->setFirstDayOfWeek(firstDayOfWeek_);
+    calendar->setSelectedDate(preselectedDate_);
 
     daysDurationField->setValue(1);
 
@@ -65,11 +61,10 @@ AddExceptionalDayDialog::AddExceptionalDayDialog(dw::Weekday firstDayOfWeek_,
             [&data_,
              numDays = daysDurationField.get(),
              numSprints = numSprintsField.get(),
-             cal = calendar.get(),
-             &converter = dateConverter]() {
+             cal = calendar.get()]() {
                 data_.numDays = numDays->value();
                 data_.sprintsPerDay = numSprints->value();
-                data_.startDate = converter(cal->selectedDate());
+                data_.startDate = cal->selectedDate();
             });
 
     layout->addRow(calendar.release());

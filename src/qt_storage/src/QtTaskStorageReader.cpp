@@ -22,8 +22,8 @@
 #include "qt_storage/QtTaskStorageReader.h"
 #include "api/GatewayException.h"
 #include "core/Note.h"
-#include "core/utils/Algutils.h"
-#include "core/utils/StringUtils.h"
+#include "core/TreeType.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/utils/DateTimeConverter.h"
 #include "qt_storage/utils/QueryUtils.h"
@@ -59,15 +59,7 @@ enum class TaskMetadataColumn { Uuid = 0 };
 
 enum class TagColumn { Id, Name };
 
-struct TaskMetadata {
-    std::string uuid{};
-};
-
-template <class CharT, class Traits>
-auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskMetadata& data)
-    -> std::basic_ostream<CharT, Traits>&;
-
-using TaskMetadataTree = sprint_timer::Tree<std::string, TaskMetadata>;
+using TaskMetadataTree = sprint_timer::TreeType<std::string>;
 
 auto tasksFromQuery(QSqlQuery& query) -> std::vector<Task>;
 
@@ -250,10 +242,8 @@ std::vector<Task> QtTaskStorageReader::findByUuid(const std::string& uuid)
 std::vector<Task>
 QtTaskStorageReader::findMatching(std::span<const std::string> uuids)
 {
-    const auto us = sprint_timer::utils::transformJoin(
-        cbegin(uuids), cend(uuids), ",", [](const auto& id) {
-            return "'" + std::string{id} + "'";
-        });
+    const auto us = alg::join(
+        uuids, ",", [](const auto& id) { return std::format("'{}'", id); });
 
     QSqlQuery query(QSqlDatabase::database(connectionName));
     tryExecute(query,
@@ -286,7 +276,7 @@ auto QtTaskStorageReader::taskTree() -> TaskTree
 
     std::vector<std::string> uuids;
 
-    std::ranges::copy(metaTree.keys(), std::back_inserter(uuids));
+    std::ranges::copy(metaTree, std::back_inserter(uuids));
 
     auto tasks = findMatching(uuids);
     std::unordered_map<std::string, Task> taskMap;
@@ -294,17 +284,16 @@ auto QtTaskStorageReader::taskTree() -> TaskTree
         taskMap.insert({task.uuid(), std::move(task)});
     }
 
-    auto combine = [&](const auto& payload) {
-        if (auto it = taskMap.find(payload.uuid); it != taskMap.cend()) {
+    auto combine = [&](const auto& uuid) {
+        if (auto it = taskMap.find(uuid); it != taskMap.cend()) {
             return it->second;
         }
         throw api::GatewayException{std::string{"Error reading task tree: "} +
-                                    std::string{"task with uuid = "} +
-                                    payload.uuid +
+                                    std::string{"task with uuid = "} + uuid +
                                     std::string{" cannot be found."}};
     };
 
-    return metaTree.mapped(combine);
+    return metaTree.transform(combine);
 }
 
 } // namespace sprint_timer::storage::qt_storage
@@ -315,21 +304,9 @@ using sprint_timer::Sprint;
 using sprint_timer::Tag;
 using sprint_timer::Task;
 
-template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os, const TaskMetadata& data)
-{
-    os << "TaskMetadata{";
-    os << "uuid: " << data.uuid << "}";
-    return os;
-}
-
 auto readTreeMetadata(const QString& connectionName) -> TaskMetadataTree
 {
     using namespace sprint_timer::storage::qt_storage;
-    using sprint_timer::utils::transform;
-
-    using entry_t = TaskMetadataTree::entry_t;
 
     QSqlQuery query(QSqlDatabase::database(connectionName));
 
@@ -338,12 +315,8 @@ auto readTreeMetadata(const QString& connectionName) -> TaskMetadataTree
                    .arg(TaskTreeTable::Columns::task_uuid)
                    .arg(TaskTreeTable::name));
 
-    auto read_metadata =
-        [](const auto& record) -> std::optional<TaskMetadataTree::entry_t> {
-        auto uuid = maybeString(record, to_int(TaskMetadataColumn::Uuid));
-        return transform(uuid, [](const auto& id) {
-            return TaskMetadataTree::entry_t{id, id};
-        });
+    auto read_metadata = [](const auto& record) -> std::optional<std::string> {
+        return maybeString(record, to_int(TaskMetadataColumn::Uuid));
     };
 
     const auto records = copyAllRecords(query);
@@ -351,13 +324,13 @@ auto readTreeMetadata(const QString& connectionName) -> TaskMetadataTree
         return TaskMetadataTree{};
     }
 
-    std::vector<std::optional<entry_t>> flattenedTree;
+    std::vector<std::optional<std::string>> flattenedTree;
     flattenedTree.reserve(records.size());
 
     std::ranges::transform(
         records, std::back_inserter(flattenedTree), read_metadata);
 
-    return TaskMetadataTree::unflatten(flattenedTree);
+    return TaskMetadataTree::from_flattened(flattenedTree);
 }
 
 auto tasksFromQuery(QSqlQuery& query) -> std::vector<Task>
@@ -385,7 +358,6 @@ auto taskFromRecords(auto first, auto last) -> Task
 {
     const sprint_timer::storage::utils::DateTimeConverter dateTimeConverter;
     using namespace sprint_timer::storage::qt_storage;
-    using sprint_timer::utils::transform;
 
     const auto name = maybeString(*first, to_int(TaskColumn::Name));
     const auto uuid = maybeString(*first, to_int(TaskColumn::Uuid));
@@ -397,8 +369,8 @@ auto taskFromRecords(auto first, auto last) -> Task
         maybeDateTime(*first, to_int(TaskColumn::LastModified)));
     const auto type = maybeInt(*first, to_int(TaskColumn::Type));
     const auto notes =
-        transform(maybeString(*first, to_int(TaskColumn::Note)),
-                  [](const auto& str) { return sprint_timer::Note{str}; });
+        maybeString(*first, to_int(TaskColumn::Note))
+            .transform([](const auto& str) { return sprint_timer::Note{str}; });
     const auto timeFrame = readTimeframe(*first,
                                          to_int(TaskColumn::Start),
                                          to_int(TaskColumn::Due),
@@ -429,10 +401,9 @@ auto taskFromRecords(auto first, auto last) -> Task
                     tags,
                     finished.value(),
                     lastModified.value(),
-                    transform(type,
-                              [](const auto& integralType) {
-                                  return makeTaskType(integralType);
-                              })
+                    type.transform([](const auto& integralType) {
+                            return makeTaskType(integralType);
+                        })
                         .value(),
                     notes,
                     timeFrame.value()};
@@ -463,7 +434,6 @@ auto readTimeframe(const QSqlRecord& record,
                    int recurrence) -> std::optional<sprint_timer::TaskTimeframe>
 {
     using namespace sprint_timer::storage::qt_storage;
-    using sprint_timer::utils::transform;
 
     const auto startV = convertDateTime(maybeDateTime(record, start));
     const auto dueV = convertDateTime(maybeDateTime(record, due));
@@ -514,10 +484,9 @@ auto convertDateTime(const std::optional<QDateTime>& dateTime)
 {
     const sprint_timer::storage::utils::DateTimeConverter dateTimeConverter;
     using namespace sprint_timer::storage::qt_storage;
-    using sprint_timer::utils::transform;
 
-    return transform(dateTime,
-                     [&](const auto& dt) { return dateTimeConverter(dt); });
+    return dateTime.transform(
+        [&](const auto& dt) { return dateTimeConverter(dt); });
 }
 
 auto makeTaskType(int32_t numeric) -> sprint_timer::TaskType

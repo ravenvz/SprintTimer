@@ -67,7 +67,10 @@ TEST_F(EditTaskDialogPresenterFixture, updates_view_when_view_is_attached)
                             api::TaskTimeframeDTO{},
                             api::TaskTypeDTO{api::TaskTypeDTO::Regular}};
     api::TaskTreeDTO taskTree;
-    taskTree.addChild("123", task, std::nullopt);
+    taskTree.insert(
+        std::ranges::find(
+            taskTree, "123", [](const auto& node) { return node.uuid; }),
+        task);
     ON_CALL(readTaskTreeHandler, handle(_))
         .WillByDefault(::testing::Return(taskTree));
     ON_CALL(allTagsHandler, handle(_)).WillByDefault(::testing::Return(tags));
@@ -97,7 +100,10 @@ TEST_F(EditTaskDialogPresenterFixture, fires_command_on_edit_confirmation)
             sprint_timer::api::TaskTypeDTO::Regular}};
     editTaskContext = ui::EditTaskContext{api::TaskDTO{task}};
     sprint_timer::api::TaskTreeDTO taskTree;
-    taskTree.addChild("123", task, std::nullopt);
+    taskTree.insert(
+        std::ranges::find(
+            taskTree, "123", [](const auto& node) { return node.uuid; }),
+        task);
     ON_CALL(readTaskTreeHandler, handle(_))
         .WillByDefault(::testing::Return(taskTree));
 

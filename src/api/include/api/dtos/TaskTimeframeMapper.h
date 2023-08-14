@@ -24,16 +24,17 @@
 
 #include "api/dtos/TaskTimeframeDTO.h"
 #include "core/TaskTimeframe.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
-class TaskTimeframeMapper : public Converter<TaskTimeframeDTO, TaskTimeframe> {
+class TaskTimeframeMapper
+    : public patterns::Converter<TaskTimeframeDTO, TaskTimeframe> {
 private:
-    [[nodiscard]] auto convert(const TaskTimeframe& frame) const
+    [[nodiscard]] auto make_dto_impl(const TaskTimeframe& frame) const
         -> TaskTimeframeDTO override;
 
-    [[nodiscard]] auto convert(const TaskTimeframeDTO& dto) const
+    [[nodiscard]] auto make_entity_impl(const TaskTimeframeDTO& dto) const
         -> TaskTimeframe override;
 };
 

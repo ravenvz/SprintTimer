@@ -24,7 +24,7 @@
 #include "api/TaskStorageReader.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
@@ -35,7 +35,7 @@ public:
         TaskStorageReader& taskReader,
         SprintStorage& sprintStorage,
         ActionInvoker& actionInvoker,
-        const Converter<dw::DateTimeRange, Sprint>& sprintMapper);
+        const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper);
 
     void handle(const RegisterSprintBulkCommand& command) override;
 
@@ -43,7 +43,7 @@ private:
     TaskStorageReader& taskReader;
     SprintStorage& sprintStorage;
     ActionInvoker& actionInvoker;
-    const Converter<dw::DateTimeRange, Sprint>& sprintMapper;
+    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper;
 
     void throwIfTaskDoesNotExist(const std::string& taskUuid);
 };

@@ -32,20 +32,23 @@ public:
     TaskSprintsViewProxy(
         mvp::BasePresenter<ui::contracts::TaskSprintsContract::View>&
             presenter_,
-        QStyledItemDelegate& delegate);
+        QStyledItemDelegate& delegate,
+        const patterns::Converter<QDate, dw::Date>& dateConverter);
 
 private:
     mvp::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter;
     QStyledItemDelegate& delegate;
-
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
     std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override;
 };
 
 TaskSprintsViewProxy::TaskSprintsViewProxy(
     mvp::BasePresenter<ui::contracts::TaskSprintsContract::View>& presenter_,
-    QStyledItemDelegate& delegate_)
+    QStyledItemDelegate& delegate_,
+    const patterns::Converter<QDate, dw::Date>& dateConverter_)
     : presenter{presenter_}
     , delegate{delegate_}
+    , dateConverter{dateConverter_}
 {
 }
 
@@ -53,7 +56,7 @@ inline std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget>
 TaskSprintsViewProxy::create()
 {
     auto taskSprintsView =
-        std::make_unique<ui::qt_gui::TaskSprintsView>(delegate);
+        std::make_unique<ui::qt_gui::TaskSprintsView>(delegate, dateConverter);
     presenter.attachView(*taskSprintsView);
     return taskSprintsView;
 }

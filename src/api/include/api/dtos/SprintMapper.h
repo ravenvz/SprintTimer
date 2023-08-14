@@ -24,27 +24,28 @@
 
 #include "api/dtos/SprintDTO.h"
 #include "core/Sprint.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-class SprintMapper : public Converter<SprintDTO, SprintRecord> {
+class SprintMapper : public patterns::Converter<SprintDTO, SprintRecord> {
 private:
-    [[nodiscard]] auto convert(const SprintRecord& sprintRecord) const
+    [[nodiscard]] auto make_dto_impl(const SprintRecord& sprintRecord) const
         -> SprintDTO override;
 
-    [[nodiscard]] auto convert(const SprintDTO& dto) const
+    [[nodiscard]] auto make_entity_impl(const SprintDTO& dto) const
         -> SprintRecord override;
 };
 
-class SprintDatetimeMapper : public Converter<dw::DateTimeRange, Sprint> {
+class SprintDatetimeMapper
+    : public patterns::Converter<dw::DateTimeRange, Sprint> {
 private:
-    [[nodiscard]] auto convert(const Sprint& sprint) const
+    [[nodiscard]] auto make_dto_impl(const Sprint& sprint) const
         -> dw::DateTimeRange override;
 
-    [[nodiscard]] auto convert(const dw::DateTimeRange& dto) const
+    [[nodiscard]] auto make_entity_impl(const dw::DateTimeRange& dto) const
         -> Sprint override;
 };
 

@@ -20,12 +20,13 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/PlannerModel.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/alg_ext.h"
+#include "qt_gui/PlannerColumn.h"
 #include "qt_gui/TreeItem.h"
 #include "qt_gui/models/CustomRoles.h"
-#include "qt_gui/utils/DateTimeConverter.h"
+#include <QBrush>
 #include <QColor>
-#include <qbrush.h>
+#include <qicon.h>
 #include <utility>
 
 namespace {
@@ -40,8 +41,6 @@ namespace {
 
 auto makeColor(std::string_view color) -> QColor;
 
-constexpr int auxColNumber{5};
-
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
@@ -49,8 +48,13 @@ namespace sprint_timer::ui::qt_gui {
 using contracts::PlannerContract::PlannerItem;
 
 PlannerModel::PlannerModel(QObject* parent_)
-    : TreeModel{QStringList{
-                    "Name", "Progress", "Tags", "Due date", "Reminder", "Aux"},
+    : TreeModel{QStringList{"Name",
+                            "Progress",
+                            "Tags",
+                            "Due date",
+                            "Reminder",
+                            "Reccurent",
+                            "Type"},
                 parent_}
 {
 }
@@ -60,7 +64,7 @@ auto PlannerModel::supportedDropActions() const -> Qt::DropActions
     return Qt::MoveAction;
 }
 
-Qt::DropActions PlannerModel::supportedDragActions() const
+auto PlannerModel::supportedDragActions() const -> Qt::DropActions
 {
     return Qt::MoveAction;
 }
@@ -127,81 +131,229 @@ auto PlannerModel::dropMimeData(const QMimeData* /* data */,
     return false;
 }
 
-Qt::ItemFlags PlannerModel::flags(const QModelIndex& index) const
+auto PlannerModel::flags(const QModelIndex& index) const -> Qt::ItemFlags
 {
     Qt::ItemFlags returnFlags =
-        sprint_timer::ui::qt_gui::TreeModel::flags(index) | Qt::ItemIsEditable;
-
-    if (index.column() == 0) {
-        returnFlags |= Qt::ItemIsUserCheckable;
-    }
+        sprint_timer::ui::qt_gui::TreeModel::flags(index);
 
     if (!index.isValid()) {
         return Qt::ItemIsDropEnabled;
     }
-    if (index.model() != this) {
-        return returnFlags | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
+
+    using enum PlannerColumn;
+
+    switch (static_cast<PlannerColumn>(index.column())) {
+    case Name:
+        return returnFlags |= Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+    case Progress:
+    case Tags:
+        return returnFlags | Qt::ItemIsEditable;
+    case DueDate:
+    case Reminder:
+    case Recurrent:
+    case Type:
+    default:
+        return Qt::NoItemFlags;
     }
 
-    return returnFlags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+    // if (index.model() != this) {
+    //     return returnFlags | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled |
+    //            Qt::ItemIsEditable;
+    // }
+
+    return Qt::NoItemFlags;
+    // return returnFlags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled |
+    //        Qt::ItemIsEditable;
 }
 
-QVariant PlannerModel::data(const QModelIndex& index, int role) const
+auto PlannerModel::data(const QModelIndex& index, int role) const -> QVariant
 {
-    using aux_data_t = std::tuple<std::string, bool, api::TaskTypeDTO>;
-
-    if (!index.isValid()) {
+    if (not index.isValid()) {
         return {};
     }
 
-    switch (role) {
-    case CustomRoles::IdRole: {
-        QVariant var;
-        var.setValue(std::get<0>(
-            TreeModel::data(
-                this->index(index.row(), auxColNumber, index.parent()),
-                Qt::DisplayRole)
-                .value<aux_data_t>()));
-        return var;
-    }
-    case Qt::DisplayRole: {
-        if (index.column() == auxColNumber) {
-            QVariant var;
-            auto item = TreeModel::data(index, role).value<aux_data_t>();
-            var.setValue(item);
-            return var;
-        }
-        return TreeModel::data(index, Qt::DisplayRole);
-    }
-    case Qt::CheckStateRole: {
-        return std::get<1>(
-                   TreeModel::data(
-                       this->index(index.row(), auxColNumber, index.parent()),
-                       Qt::DisplayRole)
-                       .value<aux_data_t>())
-                   ? Qt::Checked
-                   : Qt::Unchecked;
+    auto item = getItemData(index, role);
+
+    using enum PlannerColumn;
+
+    ItemRepr repr;
+
+    switch (static_cast<PlannerColumn>(index.column())) {
+    case Name:
+        repr = item.name;
+        break;
+    case Tags:
+        repr = item.tags;
+        break;
+    case Progress:
+        repr = item.progress;
+        break;
+    case DueDate:
+        repr = item.dueDate;
+        break;
+    case Reminder:
+        repr = item.reminder;
+        break;
+    case Recurrent:
+        return item.recurrent;
+    case Type: {
+        QVariant typeVar;
+        typeVar.setValue(item.type);
+        return typeVar;
     }
     default:
         return {};
     }
 
-    return {};
+    switch (role) {
+    case Qt::DisplayRole:
+        return repr.payload;
+    case Qt::ForegroundRole:
+        return repr.foreground;
+    case Qt::BackgroundRole:
+        return repr.background;
+    case Qt::CheckStateRole:
+        return item.finished ? Qt::Checked : Qt::Unchecked;
+    case Qt::DecorationRole: {
+        if (static_cast<PlannerColumn>(index.column()) == PlannerColumn::Name) {
+            if (item.recurrent) {
+                return QIcon{":icons/recurrence.png"};
+            }
+            if (item.type == api::TaskTypeDTO::Folder) {
+                return QIcon{":icons/folder.png"};
+            }
+        }
+        break;
+    }
+
+    case CustomRoles::IdRole: {
+        QVariant uuid;
+        uuid.setValue(item.uuid);
+        return uuid;
+    }
+
+    case Qt::EditRole: {
+        QVariant details;
+        details.setValue(std::tuple<std::string, QString, QString, QString>{
+            item.uuid,
+            item.name.payload,
+            item.progress.payload,
+            item.tags.payload});
+        return details;
+    }
+
+    default:
+        return {};
+    }
+
+    return TreeModel::data(index, role);
 }
 
-// bool PlannerModel::setData(const QModelIndex& index,
-//                            const QVariant& #<{(| value |)}>#,
-//                            int role)
-// {
-//     if (index.column() == 0 && role == Qt::CheckStateRole) {
-//         auto* item = static_cast<Item*>(index.internalPointer());
-//         item->finished = !item->finished;
-//         emit dataChanged(index, index, QVector<int>{role});
-//         // TODO propagate to presenter
-//     }
-//     emit dataChanged(index, index);
-//     return true;
-// }
+auto PlannerModel::getItemData(const QModelIndex& index, int role) const -> Item
+{
+    auto var =
+        TreeModel::data(TreeModel::index(index.row(), 0, index.parent()), role);
+    return var.value<Item>();
+}
+
+auto PlannerModel::replaceItemData(const QModelIndex& index,
+                                   const Item& item,
+                                   int role) -> bool
+{
+    QVariant var;
+    var.setValue(item);
+    return TreeModel::setData(index, var, role);
+}
+
+auto PlannerModel::setData(const QModelIndex& index,
+                           const QVariant& value,
+                           int role) -> bool
+{
+    if (not index.isValid()) {
+        return false;
+    }
+
+    using item_t = sprint_timer::ui::contracts::PlannerContract::PlannerItem;
+
+    if (role == CustomRoles::ItemRole) {
+        auto item = value.value<item_t>();
+        QVariant var;
+        var.setValue(makeItem(item));
+        return TreeModel::setData(index, var, role);
+    }
+
+    using enum PlannerColumn;
+
+    if (role == Qt::EditRole) {
+        switch (static_cast<PlannerColumn>(index.column())) {
+        case Name: {
+            auto item = getItemData(index, role);
+            const auto updatedName = value.toString();
+            if (item.name.payload == updatedName) {
+                return false;
+            }
+            item.name.payload = updatedName;
+            return replaceItemData(index, item, role);
+        }
+        case Progress: {
+            auto item = getItemData(index, role);
+            const auto updatedEstimation = value.toInt();
+            const auto payloadParts = item.progress.payload.split('/');
+            int actual = payloadParts.front().toInt();
+            int estimated = payloadParts.front().toInt();
+            if (estimated == updatedEstimation) {
+                return false;
+            }
+            item.progress.payload =
+                QString{"%1/%2"}.arg(actual).arg(updatedEstimation);
+            qDebug() << "Payload = " << item.progress.payload;
+            return replaceItemData(index, item, role);
+        }
+        case Tags: {
+            auto item = getItemData(index, role);
+            const auto updatedTags = value.toString();
+            if (item.tags.payload == updatedTags) {
+                return false;
+            }
+            item.tags.payload = updatedTags;
+            return replaceItemData(index, item, role);
+        }
+        default:
+            return false;
+        }
+    }
+
+    if (role == Qt::CheckStateRole) {
+        auto var = TreeModel::data(
+            TreeModel::index(index.row(), 0, index.parent()), role);
+        auto item = var.value<Item>();
+        item.finished = !item.finished;
+        QVariant nvar;
+        nvar.setValue(item);
+        return TreeModel::setData(index, nvar, role);
+    }
+
+    // if (role != Qt::EditRole) {
+    //     return false;
+    // }
+
+    // if (TreeModel::setData(index, value, role)) {
+    //     emit dataChanged(index, index);
+    //     return true;
+    // }
+
+    // if (index.column() == 0 && role == Qt::EditRole) {
+    //     auto* item = static_cast<Item*>(index.internalPointer());
+    //     item->finished = !item->finished;
+    //     // emit dataChanged(index, index, QVector<int>{role});
+    //     // TODO propagate to presenter
+    //     std::cout << "HERE" << std::endl;
+    //     emit dataChanged(index, index);
+    //     return true;
+    // }
+
+    return false;
+}
 
 // auto PlannerModel::moveRows(const QModelIndex& sourceParent,
 //                             int sourceRow,
@@ -380,120 +532,79 @@ QVariant PlannerModel::data(const QModelIndex& index, int role) const
 // int PlannerModel::columnCount(const QModelIndex& #<{(|parent|)}>#) const
 // { return 5; }
 
-auto PlannerModel::makeItem(const PlannerItem& dto) const -> Item
+auto PlannerModel::makeItem(const PlannerItem& plannerItem) const -> Item
 {
-    // auto representDueDate =
-    //     [](const std::optional<api::TaskTimeframeDTO>& maybeTimeframe,
-    //        const ui::contracts::PlannerContract::Colors& colors) {
-    //         using sprint_timer::utils::transform;
-    //         const auto dateTime = transform(
-    //             transform(maybeTimeframe, extractDueTime),
-    //             utils::toQDateTime);
-    //         QString repr{dateTime ? dateTime->toString("ddd dd.MM.yyyy
-    //         hh:mm")
-    //                               : QString{}};
-    //         return ItemRepr<QString>{repr,
-    //                                  makeColor(colors.dueDateColor.first),
-    //                                  makeColor(colors.dueDateColor.second)};
-    //     };
-
-    // auto representReminder =
-    //     [](const std::optional<api::TaskTimeframeDTO>& maybeTimeframe,
-    //        const ui::contracts::PlannerContract::Colors& colors) {
-    //         using sprint_timer::utils::and_then;
-    //         using sprint_timer::utils::transform;
-    //         const auto reminder = transform(
-    //             and_then(maybeTimeframe, extractReminder),
-    //             utils::toQDateTime);
-    //         QString repr{reminder ? reminder->toString("ddd dd.MM.yyyy
-    //         hh:mm")
-    //                               : QString{}};
-    //         return ItemRepr<QString>{repr,
-    //                                  makeColor(colors.reminderColor.first),
-    //                                  makeColor(colors.reminderColor.second)};
-    //     };
-
-    return Item{dto.uuid,
-                ItemRepr{QString::fromStdString(dto.name.description),
-                         makeColor(dto.name.foreground),
-                         makeColor(dto.name.background)},
-                ItemRepr{QString::fromStdString(dto.tags.description),
-                         makeColor(dto.tags.foreground),
-                         makeColor(dto.tags.background)},
-                ItemRepr{QString::fromStdString(dto.progress.description),
-                         makeColor(dto.progress.foreground),
-                         makeColor(dto.progress.background)},
-                ItemRepr{QString::fromStdString(dto.dueDate.description),
-                         makeColor(dto.dueDate.foreground),
-                         makeColor(dto.dueDate.background)},
-                QString::fromStdString(dto.notes),
-                ItemRepr{QString::fromStdString(dto.reminder.description),
-                         makeColor(dto.tags.foreground),
-                         makeColor(dto.tags.background)},
-                dto.finished,
-                dto.type};
-}
-
-auto PlannerModel::displayPlanner(
-    const Tree<std::string, PlannerItem>& taskTree) -> void
-{
-}
-
-auto PlannerModel::displayGoals() -> void { }
-
-auto PlannerModel::displayProjects() -> void { }
-
-auto PlannerModel::displayReviews() -> void { }
-
-auto PlannerModel::findParent(Item* node) const
-    -> std::optional<std::pair<const PlannerModel::Item*, int>>
-{
-    using sprint_timer::utils::and_then;
-    using sprint_timer::utils::or_else;
-    using sprint_timer::utils::transform;
-
-    auto getPayload = [this](const auto& uuid) {
-        return storage.payload(uuid);
+    auto make_repr = [](const auto& item) {
+        return ItemRepr{.payload = QString::fromStdString(item.description),
+                        .foreground = QBrush{makeColor(item.foreground)},
+                        .background = QBrush{makeColor(item.background)}};
     };
-
-    auto getPosition = [this](const auto& uuid) {
-        return storage.positionInChildren(uuid);
-    };
-
-    // TODO replace when updgraded to C++23
-    // const auto parentUuid = storage.parent(node->uuid);
-    // const auto parent = parentUuid.and_then(getPayload);
-    // return parentUuid
-    //         .and_then(getPosition)
-    //         .transform(lambda_that_builds_result);
-
-    using sprint_timer::utils::inspect;
-
-    const auto parentUuid = storage.parent(node->uuid);
-    // std::cout << "ParentUuid: ";
-    // inspect(parentUuid,
-    //         [](const auto& uuid) { std::cout << uuid.get() << std::endl;
-    //         });
-    const auto parent = and_then(parentUuid, getPayload);
-    // std::cout << "Parent payload (ptr): ";
-    // inspect(parent, [](const auto& p) { std::cout << p.get().uuid; });
-    // std::cout << "maybeRow: ";
-    const auto maybeRow = and_then(parentUuid, getPosition);
-    // inspect(maybeRow, [](const auto& row) { std::cout << row <<
-    // std::endl;
-    // }); return transform(maybeRow, [&](size_t row) {
-    //     return std::make_pair(&parent.value().get(),
-    //     static_cast<int>(row));
-    // });
-
-    auto res = transform(maybeRow, [&](size_t row) {
-        return std::make_pair(&parent.value().get(), static_cast<int>(row));
-    });
-    return res;
-    // if (res) {
-    //     std::cout << "Found parent: " res.s << std::endl;
-    // }
+    // std::cout << plannerItem.name.description << " type: " <<
+    // plannerItem.type
+    //           << std::endl;
+    return Item{plannerItem.uuid,
+                make_repr(plannerItem.name),
+                make_repr(plannerItem.tags),
+                make_repr(plannerItem.progress),
+                make_repr(plannerItem.dueDate),
+                QString::fromStdString(plannerItem.notes),
+                make_repr(plannerItem.reminder),
+                plannerItem.finished,
+                plannerItem.recurrent,
+                plannerItem.type};
 }
+
+// auto PlannerModel::findParent(Item* node) const
+//     -> std::optional<std::pair<const PlannerModel::Item*, int>>
+// {
+//     using sprint_timer::utils::and_then;
+//     using sprint_timer::utils::or_else;
+//     using sprint_timer::utils::transform;
+//
+//     auto getPayload = [this](const auto& uuid) {
+//         return storage.payload(uuid);
+//     };
+//
+//     auto getPosition = [this](const auto& uuid) {
+//         return storage.positionInChildren(uuid);
+//     };
+//
+//     // TODO replace when updgraded to C++23
+//     // const auto parentUuid = storage.parent(node->uuid);
+//     // const auto parent = parentUuid.and_then(getPayload);
+//     // return parentUuid
+//     //         .and_then(getPosition)
+//     //         .transform(lambda_that_builds_result);
+//
+//     using sprint_timer::utils::inspect;
+//
+//     const auto parentUuid = storage.parent(node->uuid);
+//     // std::cout << "ParentUuid: ";
+//     // inspect(parentUuid,
+//     //         [](const auto& uuid) { std::cout << uuid.get() <<
+//     std::endl;
+//     //         });
+//     const auto parent = and_then(parentUuid, getPayload);
+//     // std::cout << "Parent payload (ptr): ";
+//     // inspect(parent, [](const auto& p) { std::cout << p.get().uuid; });
+//     // std::cout << "maybeRow: ";
+//     const auto maybeRow = and_then(parentUuid, getPosition);
+//     // inspect(maybeRow, [](const auto& row) { std::cout << row <<
+//     // std::endl;
+//     // }); return transform(maybeRow, [&](size_t row) {
+//     //     return std::make_pair(&parent.value().get(),
+//     //     static_cast<int>(row));
+//     // });
+//
+//     auto res = transform(maybeRow, [&](size_t row) {
+//         return std::make_pair(&parent.value().get(),
+//         static_cast<int>(row));
+//     });
+//     return res;
+//     // if (res) {
+//     //     std::cout << "Found parent: " res.s << std::endl;
+//     // }
+// }
 
 } // namespace sprint_timer::ui::qt_gui
 

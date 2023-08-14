@@ -37,7 +37,7 @@
 #include "api/handlers/ToggleTaskCompletedHandler.h"
 #include "api/handlers/UndoLastCommandHandler.h"
 #include "api_tests/CommandHandlerComposer.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::compose {
 
@@ -49,10 +49,10 @@ struct TestCommandHandlerComposer final : public CommandHandlerComposer {
         WorkScheduleWriter& scheduleStorage_,
         api::UUIDGenerator& generator_,
         api::DateTimeProvider& dateTimeProvider_,
-        const Converter<api::TaskDTO, Task>& taskMapper,
+        const patterns::Converter<api::TaskDTO, Task>& taskMapper,
         // const Converter<std::string, Tag>& tagMapper_,
-        const Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
-        const Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper);
+        const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
+        const patterns::Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper);
 
     asp::CommandHandler<api::CreateTaskCommand>& createTaskHandler() override;
 

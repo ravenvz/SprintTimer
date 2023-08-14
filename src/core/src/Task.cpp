@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "core/Task.h"
 #include "core/SprintTimerException.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include <algorithm>
 #include <iostream>
 #include <utility>
@@ -72,7 +72,7 @@ Task::Task(std::string name_,
 {
 }
 
-auto Task::finish(const std::string& uuid) const -> Task { return *this; }
+auto Task::finish(const std::string& /* uuid */) const -> Task { return *this; }
 
 auto Task::edit(const Task& desiredTask, dw::DateTime currentTime) const -> Task
 {
@@ -209,7 +209,7 @@ auto Task::nextRecurrence(const std::string& nextUuid,
 
 auto operator<<(std::ostream& os, const Task& task) -> std::ostream&
 {
-    using utils::inspect;
+    using alg::inspect;
     os << prefixTags(task.tags());
     if (!task.tags().empty()) {
         os << " ";

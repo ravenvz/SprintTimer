@@ -20,10 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/TreeItem.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/alg_ext.h"
 #include <utility>
-
-#include <iostream>
 
 namespace sprint_timer::ui::qt_gui {
 
@@ -158,9 +156,9 @@ auto moveRowsBetweenChildren(TreeItem* sourceParent,
                              int destinationChild) -> bool
 {
     if (sourceParent == destinationParent) {
-        utils::slide(std::begin(sourceParent->childItems) + sourceRow,
-                     std::begin(sourceParent->childItems) + sourceRow + count,
-                     std::begin(sourceParent->childItems) + destinationChild);
+        alg::slide(std::begin(sourceParent->childItems) + sourceRow,
+                   std::begin(sourceParent->childItems) + sourceRow + count,
+                   std::begin(sourceParent->childItems) + destinationChild);
         return true;
     }
 

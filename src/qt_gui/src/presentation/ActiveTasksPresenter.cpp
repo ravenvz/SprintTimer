@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/ActiveTasksPresenter.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/alg_ext.h"
 
 namespace sprint_timer::ui {
 
@@ -74,9 +74,9 @@ void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,
     int32_t offset{sourceRow < destinationRow ? 1 : 0};
 
     std::vector<std::string> newOrder = oldOrder;
-    utils::slide(begin(newOrder) + sourceRow,
-                 begin(newOrder) + sourceRow + count,
-                 begin(newOrder) + destinationRow + offset);
+    alg::slide(begin(newOrder) + sourceRow,
+               begin(newOrder) + sourceRow + count,
+               begin(newOrder) + destinationRow + offset);
 
     changePriorityHandler.handle(api::ChangeActiveTasksPriorityCommand{
         std::move(oldOrder), std::move(newOrder)});

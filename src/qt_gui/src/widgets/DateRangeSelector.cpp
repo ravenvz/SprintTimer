@@ -23,11 +23,11 @@
 #include "QtCore/qdatetime.h"
 #include "QtCore/qstringlistmodel.h"
 #include "qt_gui/dialogs/DateRangePickDialog.h"
-#include "qt_gui/utils/DateTimeConverter.h"
 #include "ui_date_range_picker.h"
 #include <algorithm>
 #include <iterator>
 #include <memory>
+#include <ranges>
 
 namespace {
 
@@ -39,11 +39,14 @@ QStringList monthNames();
 
 namespace sprint_timer::ui::qt_gui {
 
-DateRangeSelector::DateRangeSelector(QWidget* parent_)
+DateRangeSelector::DateRangeSelector(
+    const patterns::Converter<QDate, dw::Date>& dateConverter_,
+    QWidget* parent_)
     : QWidget{parent_}
     , ui{std::make_unique<Ui::DateRangePicker>()}
     , monthsModel{monthNames()}
     , selectedDateRange{currentMonth()}
+    , dateConverter{dateConverter_}
 {
     ui->setupUi(this);
     ui->cbxMonth->setModel(&monthsModel);
@@ -67,10 +70,10 @@ DateRangeSelector::~DateRangeSelector() { }
 void DateRangeSelector::updateOperationalRange(const std::vector<int>& years)
 {
     QStringList lst;
-    std::transform(cbegin(years),
-                   cend(years),
-                   std::back_inserter(lst),
-                   [](const auto& elem) { return QString("%1").arg(elem); });
+    std::ranges::transform(
+        years, std::back_inserter(lst), [](const auto& elem) {
+            return QString("%1").arg(elem);
+        });
     yearsModel = std::make_unique<QStringListModel>(lst);
 
     ui->cbxMonth->setModel(&monthsModel);
@@ -112,7 +115,6 @@ void DateRangeSelector::updateSelectionHintLabel()
 {
     // using QDate instead of dw::date here when converting to string
     // provides date localization
-    const utils::DateConverter dateConverter;
     ui->labelSelectionHint->setText(
         QString{"%1 - %2"}
             .arg(dateConverter(selectedDateRange.start()).toString())
@@ -121,9 +123,15 @@ void DateRangeSelector::updateSelectionHintLabel()
 
 void DateRangeSelector::openDatePickDialog()
 {
-    DateRangePickDialog dialog{firstDayOfWeek, selectedDateRange};
+    DateRangePickDialog dialog{
+        firstDayOfWeek == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday,
+        {dateConverter(selectedDateRange.start()),
+         dateConverter(selectedDateRange.finish())}};
+
     if (dialog.exec() == QDialog::Accepted) {
-        onRangeChanged(dialog.selectedRange());
+        const auto [firstDate, lastDate] = dialog.selectedRange();
+        onRangeChanged(
+            dw::DateRange{dateConverter(firstDate), dateConverter(lastDate)});
     }
 }
 

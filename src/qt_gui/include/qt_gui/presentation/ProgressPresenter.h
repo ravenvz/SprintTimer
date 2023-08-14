@@ -22,10 +22,9 @@
 #ifndef DAILYPROGRESSPRESENTER_H_JN1XIWIZ
 #define DAILYPROGRESSPRESENTER_H_JN1XIWIZ
 
-#include "core/BackRequestStrategy.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/RequestProgressQuery.h"
-#include "core/utils/StringUtils.h"
+#include "core/BackRequestStrategy.h"
 #include "qt_gui/presentation/ProgressPresenterContract.h"
 #include <optional>
 
@@ -34,8 +33,7 @@ namespace sprint_timer::ui {
 class ProgressPresenter
     : public mvp::BasePresenter<contracts::DailyProgress::View> {
 public:
-    using request_progress_hdl_t =
-        asp::QueryHandler<api::RequestProgressQuery>;
+    using request_progress_hdl_t = asp::QueryHandler<api::RequestProgressQuery>;
 
     explicit ProgressPresenter(request_progress_hdl_t& requestProgressHandler);
 

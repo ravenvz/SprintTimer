@@ -24,19 +24,20 @@
 
 #include "api/dtos/TaskTreeDTO.h"
 #include "core/TaskTree.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
-class TaskTreeMapper : public Converter<TaskTreeDTO, TaskTree> {
+class TaskTreeMapper : public patterns::Converter<TaskTreeDTO, TaskTree> {
 public:
-    explicit TaskTreeMapper(const Converter<TaskDTO, Task>& taskMapper);
+    explicit TaskTreeMapper(
+        const patterns::Converter<TaskDTO, Task>& taskMapper);
 
 private:
-    [[nodiscard]] auto convert(const TaskTree& tree) const
+    [[nodiscard]] auto make_dto_impl(const TaskTree& tree) const
         -> TaskTreeDTO override;
 
-    [[nodiscard]] auto convert(const TaskTreeDTO& dto) const
+    [[nodiscard]] auto make_entity_impl(const TaskTreeDTO& dto) const
         -> TaskTree override;
 
     const Converter<TaskDTO, Task>& taskMapper;

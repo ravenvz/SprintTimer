@@ -34,10 +34,12 @@ public:
     AddSprintDialogProxy(
         ui::contracts::RegisterSprintControl::Presenter& presenter_,
         QAbstractItemModel& taskModel_,
-        api::IConfig& settings_)
+        api::IConfig& settings_,
+        const patterns::Converter<QDateTime, dw::DateTime>& dateTimeConverter_)
         : presenter{presenter_}
         , taskModel{taskModel_}
         , settings{settings_}
+        , dateTimeConverter{dateTimeConverter_}
     {
     }
 
@@ -47,13 +49,15 @@ public:
             presenter,
             taskModel,
             settings.firstDayOfWeek(),
-            settings.sprintDuration());
+            settings.sprintDuration(),
+            dateTimeConverter);
     }
 
 private:
     ui::contracts::RegisterSprintControl::Presenter& presenter;
     QAbstractItemModel& taskModel;
     api::IConfig& settings;
+    const patterns::Converter<QDateTime, dw::DateTime>& dateTimeConverter;
 };
 
 } // namespace sprint_timer::compose

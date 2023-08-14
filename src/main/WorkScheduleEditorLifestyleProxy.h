@@ -29,18 +29,22 @@ namespace sprint_timer::compose {
 
 class WorkScheduleEditorLifestyleProxy : public DisplaybleDialogLifestyleProxy {
 public:
-    explicit WorkScheduleEditorLifestyleProxy(
-        ui::contracts::WorkScheduleEditor::Presenter& presenter);
+    WorkScheduleEditorLifestyleProxy(
+        ui::contracts::WorkScheduleEditor::Presenter& presenter,
+        const patterns::Converter<QDate, dw::Date>& dateConverter);
 
 private:
     ui::contracts::WorkScheduleEditor::Presenter& presenter;
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
 
     std::unique_ptr<ui::qt_gui::DisplayableDialog> create() override;
 };
 
 inline WorkScheduleEditorLifestyleProxy::WorkScheduleEditorLifestyleProxy(
-    ui::contracts::WorkScheduleEditor::Presenter& presenter_)
+    ui::contracts::WorkScheduleEditor::Presenter& presenter_,
+    const patterns::Converter<QDate, dw::Date>& dateConverter_)
     : presenter{presenter_}
+    , dateConverter{dateConverter_}
 {
 }
 
@@ -48,7 +52,7 @@ inline std::unique_ptr<ui::qt_gui::DisplayableDialog>
 WorkScheduleEditorLifestyleProxy::create()
 {
     auto workScheduleEditor =
-        std::make_unique<ui::qt_gui::WorkScheduleEditor>();
+        std::make_unique<ui::qt_gui::WorkScheduleEditor>(dateConverter);
     workScheduleEditor->setPresenter(presenter);
     return workScheduleEditor;
 }

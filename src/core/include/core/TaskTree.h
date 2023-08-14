@@ -25,39 +25,78 @@
 #include "core/GoalProgress.h"
 #include "core/Task.h"
 #include "core/TaskType.h"
-#include "core/Tree.h"
+#include "core/TreeType.h"
 #include "date_wrapper/date_wrapper.h"
+#include <functional>
+#include <iterator>
 #include <vector>
 
 namespace sprint_timer {
 
-using TaskTree = Tree<std::string, Task>;
+// class TaskTree {
+// public:
+//     explicit TaskTree(ds::Tree<Task>&& tree_)
+//         : tree{std::move(tree)}
+//     {
+//     }
+//
+// private:
+//     ds::Tree<Task> tree;
+// };
 
-inline auto immediateTasks(const TaskTree& taskTree) -> std::vector<Task>
-{
-    return taskTree.leaves();
-}
+using TaskTree = TreeType<Task>;
 
-inline auto projects(const TaskTree& taskTree) -> TaskTree
-{
-    TaskTree subtree;
-    std::optional<std::string> parent;
-    auto fun = [&](const auto& key, const auto& payload) {
-        if (payload.kind() == TaskType::Project) {
-            subtree.addSubtree(taskTree.subTree(key), parent, std::nullopt);
-        }
+inline auto tree_handle = [](auto&& tree) {
+    return [&](auto func, auto&&... args) mutable {
+        return func(tree, std::forward<decltype(args)>(args)...);
     };
-    taskTree.dfs(fun);
-    return subtree;
+};
+
+inline auto find_by_uuid(const TaskTree& tree, const std::string& uuid)
+    -> TaskTree::const_iterator
+{
+    return std::ranges::find(
+        tree, uuid, [](const auto& node) { return node.uuid(); });
 }
 
-inline auto insertTask(TaskTree& taskTree,
-                       const Task& task,
-                       const std::optional<std::string>& parent = std::nullopt)
-    -> void
+inline auto find_by_uuid(TaskTree& tree, const std::string& uuid)
+    -> TaskTree::iterator
 {
-    taskTree.addChild(task.uuid(), task, parent);
+    return std::ranges::find_if(
+        tree, [&](const auto& node) { return node.uuid() == uuid; });
 }
+
+inline auto subtree(const TaskTree& tree, const std::string& uuid) -> TaskTree
+{
+    return tree.transform(find_by_uuid(tree, uuid), std::identity{});
+}
+
+// inline auto immediateTasks(const TaskTree& taskTree) -> std::vector<Task>
+// {
+//     return taskTree.leaves();
+// }
+
+// inline auto projects(const TaskTree& taskTree) -> TaskTree
+// {
+//     TaskTree subtree;
+//     std::optional<std::string> parent;
+//     auto fun = [&](const auto& key, const auto& payload) {
+//         if (payload.kind() == TaskType::Project) {
+//             subtree.addSubtree(taskTree.subTree(key), parent, std::nullopt);
+//         }
+//     };
+//     taskTree.dfs(fun);
+//     return subtree;
+// }
+
+// inline auto insertTask(TaskTree& taskTree,
+//                        const Task& task,
+//                        const std::optional<std::string>& parent =
+//                        std::nullopt)
+//     -> void
+// {
+//     taskTree.addChild(task.uuid(), task, parent);
+// }
 
 // class TaskTree {
 // public:

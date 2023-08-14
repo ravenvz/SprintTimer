@@ -21,7 +21,6 @@
 *********************************************************************************/
 #include "qt_gui/TreeModel.h"
 #include "qt_gui/TreeItem.h"
-
 #include <QtWidgets>
 
 namespace sprint_timer::ui::qt_gui {
@@ -50,12 +49,7 @@ auto TreeModel::data(const QModelIndex& index, int role) const -> QVariant
         return {};
     }
 
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
-        return {};
-    }
-
     TreeItem* item = getItem(index);
-
     return item->data(index.column());
 }
 
@@ -203,6 +197,11 @@ auto TreeModel::moveRows(const QModelIndex& sourceParent,
             throw std::runtime_error{"destination is null"};
         }
 
+        qDebug() << sourceParent.data(Qt::DisplayRole);
+        qDebug() << destinationParent.data(Qt::DisplayRole);
+        qDebug() << parent->data(0);
+        qDebug() << destination->data(0);
+
         moveRowsBetweenChildren(
             parent, sourceRow, count, destination, destinationChild);
         endMoveRows();
@@ -225,15 +224,11 @@ auto TreeModel::setData(const QModelIndex& index,
                         const QVariant& value,
                         int role) -> bool
 {
-    if (role != Qt::EditRole) {
-        return false;
-    }
-
     TreeItem* item = getItem(index);
     bool result = item->setData(index.column(), value);
 
     if (result) {
-        emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+        emit dataChanged(index, index, {role});
     }
 
     return result;

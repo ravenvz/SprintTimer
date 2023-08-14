@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "qt_storage/QtTaskStorageWriter.h"
 #include "api/GatewayException.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include "qt_storage/DatabaseDescription.h"
 #include "qt_storage/TransactionGuard.h"
 #include "qt_storage/utils.h"
@@ -189,8 +189,6 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
 
 auto QtTaskStorageWriter::save(const Task& task) -> void
 {
-    using sprint_timer::utils::inspect;
-
     const QString uuid = QString::fromStdString(task.uuid());
     createTaskQuery.bindValue(":name", QString::fromStdString(task.name()));
     createTaskQuery.bindValue(":estimated_cost", task.estimatedCost());
@@ -206,7 +204,8 @@ auto QtTaskStorageWriter::save(const Task& task) -> void
     tryExecute(createTaskQuery);
     insertTags(uuid, task.tags());
 
-    inspect(task.notes(), [&](const auto& note) { insertNotes(uuid, note); });
+    alg::inspect(task.notes(),
+                 [&](const auto& note) { insertNotes(uuid, note); });
     insertTimeframe(uuid, task.timeFrame());
     for (const auto& sprint : task.sprints()) {
         insertSprint(uuid, sprint);
@@ -224,8 +223,6 @@ auto QtTaskStorageWriter::remove(const std::string& uuid) -> void
 auto QtTaskStorageWriter::edit(const Task& oldTask, const Task& editedTask)
     -> void
 {
-    using namespace utils;
-
     const QString taskUuid = QString::fromStdString(oldTask.uuid());
 
     editTaskQuery.bindValue(":name", QString::fromStdString(editedTask.name()));
@@ -275,12 +272,12 @@ auto QtTaskStorageWriter::edit(const Task& oldTask, const Task& editedTask)
     std::vector<Tag> tagsToRemove;
     std::vector<Tag> tagsToInsert;
 
-    twoWayDiff(cbegin(oldTags),
-               cend(oldTags),
-               cbegin(newTags),
-               cend(newTags),
-               std::back_inserter(tagsToRemove),
-               std::back_inserter(tagsToInsert));
+    utils::twoWayDiff(cbegin(oldTags),
+                      cend(oldTags),
+                      cbegin(newTags),
+                      cend(newTags),
+                      std::back_inserter(tagsToRemove),
+                      std::back_inserter(tagsToInsert));
 
     TransactionGuard guard{connectionName};
     tryExecute(editTaskQuery);
@@ -352,7 +349,7 @@ auto QtTaskStorageWriter::saveTree(const TaskTree& taskTree) -> void
 
     for (const auto& node : flattenedTree) {
         insertIntoTaskTreeQuery.bindValue(
-            ":uuid", node ? QString::fromStdString(node->first) : QVariant{});
+            ":uuid", node ? QString::fromStdString(node->uuid()) : QVariant{});
         tryExecute(insertIntoTaskTreeQuery);
     }
 
@@ -383,21 +380,21 @@ auto QtTaskStorageWriter::insertNotes(const QString& taskUuid,
 auto QtTaskStorageWriter::insertTimeframe(const QString& taskUuid,
                                           TaskTimeframe timeFrame) -> void
 {
-    using sprint_timer::utils::inspect;
-    using sprint_timer::utils::transform;
-
     insertTimeframeQuery.bindValue(":task_uuid", QVariant(taskUuid));
     insertTimeframeQuery.bindValue(
         ":start", QVariant(dateTimeConverter(timeFrame.start)));
-    insertTimeframeQuery.bindValue(
-        ":due", transform(timeFrame.due, [&](const auto& dateTime) {
-                    return QVariant(dateTimeConverter(dateTime));
-                }).value_or(QVariant{}));
-    inspect(timeFrame.remindAt, [&](dw::DateTime remind) {
+    insertTimeframeQuery.bindValue(":due",
+                                   timeFrame.due
+                                       .transform([&](const auto& dateTime) {
+                                           return QVariant(
+                                               dateTimeConverter(dateTime));
+                                       })
+                                       .value_or(QVariant{}));
+    alg::inspect(timeFrame.remindAt, [&](dw::DateTime remind) {
         insertTimeframeQuery.bindValue(":reminder",
                                        QVariant(dateTimeConverter(remind)));
     });
-    inspect(timeFrame.recurrence, [&](const Recurrence& recurrence) {
+    alg::inspect(timeFrame.recurrence, [&](const Recurrence& recurrence) {
         insertTimeframeQuery.bindValue(
             ":recurrence",
             QVariant(QString::fromStdString(recurrence.pattern())));

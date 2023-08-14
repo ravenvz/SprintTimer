@@ -23,12 +23,12 @@
 
 namespace sprint_timer::api {
 
-auto NoteMapper::convert(const Note& note) const -> NoteDTO
+auto NoteMapper::make_dto_impl(const Note& note) const -> NoteDTO
 {
     return NoteDTO{note.textNotes()};
 }
 
-auto NoteMapper::convert(const NoteDTO& dto) const -> Note
+auto NoteMapper::make_entity_impl(const NoteDTO& dto) const -> Note
 {
     return Note{dto.text};
 }

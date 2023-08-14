@@ -144,6 +144,7 @@
 #include "qt_gui/dialogs/WorkScheduleEditor.h"
 #include "qt_gui/models/HistoryModel.h"
 #include "qt_gui/models/PlannerModel.h"
+// #include "qt_gui/models/PlannerTreeModel.h"
 #include "qt_gui/models/SprintModel.h"
 #include "qt_gui/models/TagModel.h"
 #include "qt_gui/models/TaskModel.h"
@@ -357,22 +358,24 @@ int main(int argc, char* argv[])
 
     QApplication app(argc, argv);
 
+    api::BoostUUIDGenerator uuidGenerator;
+    api::DefaultDateTimeProvider dateTimeProvider;
+
     const QString sqliteFile =
         QString::fromStdString(dataDirectory + "/test_sprint.db");
+
     {
         MigrationManager migrationManager;
         migrationManager.addMigration(2, std::make_unique<Migration_v3>());
         migrationManager.addMigration(3, std::make_unique<Migration_v4>());
         migrationManager.addMigration(4, std::make_unique<Migration_v5>());
         migrationManager.addMigration(5, std::make_unique<Migration_v6>());
-        migrationManager.addMigration(6, std::make_unique<Migration_v7>());
+        migrationManager.addMigration(
+            6, std::make_unique<Migration_v7>(uuidGenerator));
         DatabaseInitializer initializer{sqliteFile, migrationManager};
     }
 
     riften::Thiefpool threadPool{6};
-
-    api::BoostUUIDGenerator uuidGenerator;
-    api::DefaultDateTimeProvider dateTimeProvider;
 
     api::NoteMapper noteMapper;
     api::SprintDatetimeMapper sprintDateTimeMapper;
@@ -386,6 +389,9 @@ int main(int argc, char* argv[])
                                taskTypeMapper,
                                sprintDateTimeMapper};
     api::TaskTreeMapper taskTreeMapper{taskMapper};
+
+    utils::DateConverter dateConverter;
+    utils::DateTimeConverter dateTimeConverter;
 
     compose::ThreadConnectionHelper threadConnectionHelper{dataDirectory +
                                                            "/test_sprint.db"};
@@ -683,7 +689,10 @@ int main(int argc, char* argv[])
     ui::RegisterSprintControlPresenter registerSprintControlPresenter{
         *registerSprintBulkHandler};
     compose::AddSprintDialogProxy addSprintDialog{
-        registerSprintControlPresenter, activeTaskModel, applicationSettings};
+        registerSprintControlPresenter,
+        activeTaskModel,
+        applicationSettings,
+        dateTimeConverter};
 
     SprintModel todaySprintsModel;
     todaySprintsModel.setPresenter(todaySprintsPresenter);
@@ -734,7 +743,8 @@ int main(int argc, char* argv[])
         bestWorkdayPresenter,
         bestWorktimePresenter,
         tagPieDiagramPresenter,
-        dateRangeSelectorPresenter};
+        dateRangeSelectorPresenter,
+        dateConverter};
 
     compose::WorkScheduleEditorPresenterProxy workScheduleEditorPresenter{
         *workScheduleHandler,
@@ -792,7 +802,7 @@ int main(int argc, char* argv[])
         *requestMonthlyProgressHandler};
 
     compose::WorkScheduleEditorLifestyleProxy workScheduleEditor{
-        workScheduleEditorPresenter};
+        workScheduleEditorPresenter, dateConverter};
 
     compose::ProgressMonitorProxy progressWindow{dailyProgressPresenter,
                                                  weeklyProgressPresenter,
@@ -841,8 +851,10 @@ int main(int argc, char* argv[])
     ui::DataExportPresenter dataExportPresenter{
         *exportSprintsHandler, *exportTasksHandler, historyMediator};
 
-    compose::HistoryWindowProxy historyWindow{
-        historyRangeSelectorPresenter, historyPresenter, dataExportPresenter};
+    compose::HistoryWindowProxy historyWindow{historyRangeSelectorPresenter,
+                                              historyPresenter,
+                                              dataExportPresenter,
+                                              dateConverter};
 
     ui::AddTaskContext addTaskContext;
     ui::EditTaskContext editTaskContext;
@@ -874,6 +886,8 @@ int main(int argc, char* argv[])
                                           *readPlannerHandler,
                                           *savePlannerHandler,
                                           *deleteTaskHandler,
+                                          *editTaskHandler,
+                                          *toggleCompletionHandler,
                                           addTaskContext,
                                           editTaskContext,
                                           dateTimeProvider};
@@ -928,8 +942,8 @@ int main(int argc, char* argv[])
 
     ui::TaskSprintsPresenter taskSprintsPresenter{*sprintsForTaskHandler,
                                                   taskSelectionMediator};
-    compose::TaskSprintsViewProxy taskSprintsView{taskSprintsPresenter,
-                                                  historyItemDelegate};
+    compose::TaskSprintsViewProxy taskSprintsView{
+        taskSprintsPresenter, historyItemDelegate, dateConverter};
     compose::TagEditorProxy tagEditor{tagModel};
     TaskItemDelegate taskItemDelegate;
     auto taskView = std::make_unique<TaskView>(taskSprintsView,
@@ -948,10 +962,10 @@ int main(int argc, char* argv[])
 
     compose::ProfilingCompositeDataFetcher compositeDataFetcher{
         threadPool,
-        {activeTasksPresenter,
+        {plannerPresenter,
+         activeTasksPresenter,
          dateRangeSelectorPresenter,
          bestWorkdayPresenter,
-         plannerPresenter,
          historyRangeSelectorPresenter,
          dailyProgressPresenter,
          weeklyProgressPresenter,

@@ -55,6 +55,10 @@ private:
 
     auto showContextMenu(const QPoint& pos) const -> void;
 
+    auto handleEdit(const QModelIndex& index) const -> void;
+
+    auto handleToggle(const QModelIndex& index) const -> void;
+
     [[nodiscard]] auto selectedTaskUuid() const -> std::string;
 };
 

@@ -23,6 +23,7 @@
 #define PLANNERCONTRACT_H_FYB5GGKL
 
 #include "api/dtos/TaskTreeDTO.h"
+#include "core/TreeType.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 
@@ -56,13 +57,14 @@ struct PlannerItem {
     std::string notes;
     Item reminder;
     bool finished;
+    bool recurrent;
     api::TaskTypeDTO type;
 
     friend auto operator==(const PlannerItem&, const PlannerItem&)
         -> bool = default;
 };
 
-using PlannerTree = Tree<std::string, PlannerItem>;
+using PlannerTree = TreeType<PlannerItem>;
 
 struct TaskParent {
     std::string parent;
@@ -87,6 +89,7 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os,
     displayItem(plannerItem.reminder);
     os << '\t' << plannerItem.notes << '\n';
     os << '\t' << plannerItem.finished << '\n';
+    os << '\t' << plannerItem.recurrent << '\n';
     os << '\t' << plannerItem.type << '\n';
     os << "}";
     return os;
@@ -108,12 +111,18 @@ public:
                                            bool isSubtask) -> void = 0;
 
     virtual auto changeTaskEditionContext(const std::string& uuid) -> void = 0;
+
+    virtual auto quickEditTask(std::string&& uuid,
+                               std::string&& name,
+                               std::vector<std::string>&& tags,
+                               int cost) -> void = 0;
+
+    virtual auto toggleTask(const std::string& uuid) -> void = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> {
 public:
-    virtual void
-    displayPlanner(const Tree<std::string, PlannerItem>& taskTree) = 0;
+    virtual void displayPlanner(const PlannerTree& taskTree) = 0;
 };
 
 } // namespace sprint_timer::ui::contracts::PlannerContract

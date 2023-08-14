@@ -151,6 +151,8 @@ TEST_F(RecurrenceFixture, returns_next_recurrence)
     EXPECT_EQ(
         (DateTime{Date{Year{2023}, Month{3}, Day{17}}} + 13h + 40min + 38s),
         Recurrence{"*-*-* *:*:38"}.nextRecurrence(referenceTimeStamp));
+    EXPECT_EQ((DateTime{Date{Year{2023}, Month{4}, Day{10}}} + 21h + 20min),
+              Recurrence{"*-*-10 21:20:00"}.nextRecurrence(referenceTimeStamp));
 
     // DateTime referenceTimeStamp{DateTime{Date{Year{2023}, Month{3}, Day{17}}}
     // +

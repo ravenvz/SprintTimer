@@ -25,7 +25,7 @@
 #include "api/SprintStorageReader.h"
 #include "api/com_query/QueryHandler.h"
 #include "api/requests/RequestSprintsQuery.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 
 namespace sprint_timer::api {
 
@@ -33,14 +33,14 @@ class RequestSprintsHandler : public asp::QueryHandler<RequestSprintsQuery> {
 public:
     explicit RequestSprintsHandler(
         SprintStorageReader& reader_,
-        const Converter<SprintDTO, SprintRecord>& sprintMapper_);
+        const patterns::Converter<SprintDTO, SprintRecord>& sprintMapper_);
 
     RequestSprintsQuery::Result
     handle(const RequestSprintsQuery& query) override;
 
 private:
     SprintStorageReader& reader;
-    const Converter<SprintDTO, SprintRecord>& sprintMapper;
+    const patterns::Converter<SprintDTO, SprintRecord>& sprintMapper;
 };
 
 } // namespace sprint_timer::api

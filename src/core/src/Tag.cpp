@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "core/Tag.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 
 namespace {
 
@@ -49,7 +49,7 @@ std::string prefixTags(std::span<const Tag> tags)
         tags, std::back_inserter(prefixedTags), [](const auto& tag) {
             return tag.nameWithPrefix();
         });
-    return utils::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
+    return alg::join(prefixedTags.cbegin(), prefixedTags.cend(), " ");
 }
 
 std::string Tag::nameWithPrefix() const

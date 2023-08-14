@@ -23,7 +23,7 @@
 
 namespace sprint_timer::ui::qt_gui::utils {
 
-auto DateTimeConverter::convert(const QDateTime& qDateTime) const
+auto DateTimeConverter::make_entity_impl(const QDateTime& qDateTime) const
     -> dw::DateTime
 {
     return dw::DateTime{std::chrono::system_clock::time_point{
@@ -31,7 +31,7 @@ auto DateTimeConverter::convert(const QDateTime& qDateTime) const
            std::chrono::seconds{qDateTime.offsetFromUtc()};
 }
 
-auto DateTimeConverter::convert(const dw::DateTime& dateTime) const -> QDateTime
+auto DateTimeConverter::make_dto_impl(const dw::DateTime& dateTime) const -> QDateTime
 {
     return QDateTime::fromMSecsSinceEpoch(
         dw::to_time_point<std::chrono::milliseconds>(dateTime)
@@ -40,7 +40,7 @@ auto DateTimeConverter::convert(const dw::DateTime& dateTime) const -> QDateTime
         Qt::OffsetFromUTC);
 }
 
-auto DateConverter::convert(const QDate& qDate) const -> dw::Date
+auto DateConverter::make_entity_impl(const QDate& qDate) const -> dw::Date
 {
     using namespace dw;
     return Date{Year{qDate.year()},
@@ -48,7 +48,7 @@ auto DateConverter::convert(const QDate& qDate) const -> dw::Date
                 Day{static_cast<unsigned>(qDate.day())}};
 }
 
-auto DateConverter::convert(const dw::Date& date) const -> QDate
+auto DateConverter::make_dto_impl(const dw::Date& date) const -> QDate
 {
     return {static_cast<int>(date.year()),
             static_cast<int>(static_cast<unsigned>(date.month())),

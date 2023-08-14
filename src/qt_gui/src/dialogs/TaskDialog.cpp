@@ -20,10 +20,10 @@
 **
 *********************************************************************************/
 #include "qt_gui/dialogs/TaskDialog.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "qt_gui/dialogs/DateRangePickDialog.h"
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
-
 #include <QAbstractItemModel>
 #include <QCalendarWidget>
 #include <QCheckBox>
@@ -57,7 +57,6 @@ auto taskTypeFrom(int type) -> sprint_timer::api::TaskTypeDTO;
 
 namespace sprint_timer::ui::qt_gui {
 
-using namespace utils;
 using api::TaskDTO;
 
 TaskDialog::TaskDialog(dw::Weekday firstDayOfWeek_, QWidget* parent_)
@@ -168,14 +167,14 @@ TaskDialog::TaskDialog(dw::Weekday firstDayOfWeek_, QWidget* parent_)
 
 auto TaskDialog::parseFormFields() const -> TaskDTO
 {
-    using sprint_timer::utils::parseWords;
     TaskDTO task;
     task.name = name->text().toStdString();
     task.kind = taskTypeFrom(typesBox->currentIndex());
     task.expectedCost = cost->value();
     task.tags.clear();
     const auto tagStr = tagsField->text().toStdString();
-    parseWords(cbegin(tagStr), cend(tagStr), std::back_inserter(task.tags));
+    alg::parseWords(
+        cbegin(tagStr), cend(tagStr), std::back_inserter(task.tags));
     const auto startTime = dateTimeConverter(start->dateTime());
     const auto dueTime = maybeDateTime(due);
     const auto reminderTime = maybeDateTime(reminder);
@@ -198,29 +197,26 @@ auto TaskDialog::parseFormFields() const -> TaskDTO
 
 auto TaskDialog::fillFormFields(const TaskDTO& task) -> void
 {
-    using sprint_timer::utils::inspect;
-    using sprint_timer::utils::join;
-
     typesBox->setCurrentIndex(intFrom(task.kind));
     name->setText(QString::fromStdString(task.name));
     cost->setValue(task.expectedCost);
-    QString joined_tags =
-        QString::fromStdString(join(task.tags.cbegin(), task.tags.cend(), " "));
+    QString joined_tags = QString::fromStdString(
+        alg::join(task.tags.cbegin(), task.tags.cend(), " "));
     tagsField->setText(joined_tags);
     const auto& frame = task.timeFrame;
     start->setDateTime(dateTimeConverter(frame.start));
-    inspect(frame.due, [this](const auto& dateTime) {
+    alg::inspect(frame.due, [this](const auto& dateTime) {
         dueFrame->setChecked(true);
         due->setDateTime(dateTimeConverter(dateTime));
     });
-    inspect(frame.remindAt, [this](const auto& dateTime) {
+    alg::inspect(frame.remindAt, [this](const auto& dateTime) {
         reminderFrame->setChecked(true);
         reminder->setDateTime(dateTimeConverter(dateTime));
     });
-    inspect(frame.recurrence, [this](const auto& recStr) {
+    alg::inspect(frame.recurrence, [this](const auto& recStr) {
         recurrence->setText(QString::fromStdString(recStr));
     });
-    inspect(task.notes, [this](const auto& note) {
+    alg::inspect(task.notes, [this](const auto& note) {
         notes->setText(QString::fromStdString(note.text));
     });
 }

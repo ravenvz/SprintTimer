@@ -23,12 +23,12 @@
 
 namespace sprint_timer::api {
 
-auto TagMapper::convert(const Tag& tag) const -> std::string
+auto TagMapper::make_dto_impl(const Tag& tag) const -> std::string
 {
     return tag.name();
 }
 
-auto TagMapper::convert(const std::string& dto) const -> Tag
+auto TagMapper::make_entity_impl(const std::string& dto) const -> Tag
 {
     return Tag{dto};
 }

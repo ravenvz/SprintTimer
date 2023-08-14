@@ -25,7 +25,7 @@
 #include "api/dtos/NoteDTO.h"
 #include "api/dtos/TaskTimeframeDTO.h"
 #include "api/dtos/TaskTypeDTO.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
 #include <string>
@@ -52,9 +52,6 @@ template <class CharT, class Traits>
 auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
     -> std::basic_ostream<CharT, Traits>&
 {
-    using utils::inspect;
-    using utils::or_else;
-
     os << "TaskDTO{" << task.uuid << ", ";
     for (const auto& element : task.tags) {
         os << '#' << element << ' ';
@@ -63,8 +60,8 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
     os << task.sprints.size() << '/' << task.expectedCost << ", ";
     os << (task.finished ? "finished, " : "pending, ");
     os << "type: " << static_cast<int>(task.kind) << ", ";
-    inspect(task.notes,
-            [&](const auto& note) { os << '"' << note.text << "\", "; });
+    alg::inspect(task.notes,
+                 [&](const auto& note) { os << '"' << note.text << "\", "; });
     os << " start: " << task.timeFrame.start << ", due: ";
     if (auto due = task.timeFrame.due; due) {
         os << *due;
@@ -73,10 +70,10 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
         os << "unlimited ";
     }
     // os << frame.due.value_or(std::string{"unlimited"});
-    inspect(task.timeFrame.remindAt, [&](const auto& reminder) {
+    alg::inspect(task.timeFrame.remindAt, [&](const auto& reminder) {
         os << " reminder: " << reminder << ", ";
     });
-    inspect(task.timeFrame.recurrence, [&](const auto& recurrence) {
+    alg::inspect(task.timeFrame.recurrence, [&](const auto& recurrence) {
         os << " recurrence: " << '"' << recurrence << "\", ";
     });
     os << task.modificationStamp << '}';

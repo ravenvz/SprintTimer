@@ -1,6 +1,7 @@
 # Download date_wrapper lib at configure time then add as subdirectory
 include(CMakeLists-datewrapper.txt)
 include(CMakeLists-threadpool.txt)
+include(CMakeLists-cpp_utils.txt)
 
 add_library(${CORE_LIB} SHARED)
 
@@ -35,8 +36,7 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Sprint.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Tag.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Task.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/Algutils.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/StringUtils.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/TreeType.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/threadsafe_queue.h"
 
     PRIVATE
@@ -54,7 +54,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/RequestForMonthsBack.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintConflictException.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintRecord.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/StringUtils.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/TagTop.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/WeekSchedule.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/WorkSchedule.cpp"
@@ -71,6 +70,10 @@ target_include_directories(${CORE_LIB}
 target_include_directories(${CORE_LIB}
     SYSTEM INTERFACE
         ${thread_pool_INCLUDE_DIRS}
+)
+target_include_directories(${CORE_LIB}
+    SYSTEM INTERFACE
+        ${cpp_utils_INCLUDE_DIRS}
 )
 
 # used to silence warnings from thiefpool
@@ -98,6 +101,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         PUBLIC
             date_wrapper
             stdc++fs
+            cpp_utils
         INTERFACE
             RiftenThiefpool::RiftenThiefpool
 )
@@ -109,6 +113,7 @@ else()
             sprint_timer_warnings
         PUBLIC
             date_wrapper
+            cpp_utils
         PRIVATE INTERFACE
             RiftenThiefpool::RiftenThiefpool
 )

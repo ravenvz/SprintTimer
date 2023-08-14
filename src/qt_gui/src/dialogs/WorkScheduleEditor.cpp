@@ -40,7 +40,7 @@ template <typename First, typename Second>
 void replaceModelContent(
     QAbstractItemModel& model,
     const std::vector<std::pair<First, Second>>& data,
-    const sprint_timer::Converter<QDate, dw::Date>& dateConverter);
+    const patterns::Converter<QDate, dw::Date>& dateConverter);
 
 constexpr size_t daysInWeek{7};
 
@@ -48,11 +48,14 @@ constexpr size_t daysInWeek{7};
 
 namespace sprint_timer::ui::qt_gui {
 
-WorkScheduleEditor::WorkScheduleEditor(QDialog* parent_)
+WorkScheduleEditor::WorkScheduleEditor(
+    const patterns::Converter<QDate, dw::Date>& dateConverter_,
+    QDialog* parent_)
     : DisplayableDialog{parent_}
     , ui{std::make_unique<Ui::WorkScheduleEditor>()}
     , exceptionalDaysModel{std::make_unique<ExtraDayModel>()}
     , roasterBufferModel{std::make_unique<WeekScheduleModel>()}
+    , dateConverter{dateConverter_}
 {
     ui->setupUi(this);
 
@@ -178,12 +181,15 @@ void WorkScheduleEditor::displayAddExceptionalDaysDialog(
     dw::Weekday firstDayOfWeek, dw::Date preselectedDate)
 {
     AddExceptionalDayDialog::OutputData outputData;
-    AddExceptionalDayDialog dialog{firstDayOfWeek, preselectedDate, outputData};
+    AddExceptionalDayDialog dialog{
+        firstDayOfWeek == dw::Weekday::Monday ? Qt::Monday : Qt::Sunday,
+        dateConverter(preselectedDate),
+        outputData};
     if (dialog.exec() == QDialog::Accepted) {
         auto [startDate, numDays, sprintsPerDay] = outputData;
         if (auto p = presenter(); p) {
             p.value()->onExceptionalDaysAdded(
-                startDate, numDays, sprintsPerDay);
+                dateConverter(startDate), numDays, sprintsPerDay);
         }
     }
 }
@@ -265,7 +271,7 @@ template <typename First, typename Second>
 void replaceModelContent(
     QAbstractItemModel& model,
     const std::vector<std::pair<First, Second>>& data,
-    const sprint_timer::Converter<QDate, dw::Date>& dateConverter)
+    const patterns::Converter<QDate, dw::Date>& dateConverter)
 {
     model.removeRows(0, model.rowCount());
     model.insertRows(0, static_cast<int>(data.size()));

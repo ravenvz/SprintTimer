@@ -42,7 +42,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os,
            const SaveTaskTreeCommand& command)
 {
     // os << "SaveTaskTreeCommand{**tree omitted from output**}";
-    os << "SaveTaskTreeCommand{" << command.taskTree << "}";
+    os << "SaveTaskTreeCommand{" << command.taskTree.to_string() << "}";
     return os;
 }
 

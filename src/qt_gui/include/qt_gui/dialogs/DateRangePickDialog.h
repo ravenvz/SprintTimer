@@ -22,7 +22,6 @@
 #ifndef DATEPICKDIALOG_H
 #define DATEPICKDIALOG_H
 
-#include "date_wrapper/date_wrapper.h"
 #include <QDialog>
 #include <memory>
 
@@ -35,13 +34,13 @@ namespace sprint_timer::ui::qt_gui {
 class DateRangePickDialog : public QDialog {
 
 public:
-    DateRangePickDialog(dw::Weekday firstDayOfWeek,
-                        const dw::DateRange& dateRange,
+    DateRangePickDialog(Qt::DayOfWeek firstDayOfWeek,
+                        const std::pair<QDate, QDate>& dateRange,
                         QWidget* parent = nullptr);
 
     ~DateRangePickDialog() override;
 
-    dw::DateRange selectedRange();
+    auto selectedRange() -> std::pair<QDate, QDate>;
 
 private:
     std::unique_ptr<Ui::DateRangePickDialog> ui;

@@ -86,9 +86,9 @@ TEST_F(RetrievingOperationRangeFixture, retrieves_operation_range)
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{
         "0", {add_offset(DateTimeRange{timestamp, timestamp}, -Years{4})}});
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{
-        "0", {add_offset(DateTimeRange{timestamp, timestamp}, +Years{5})}});
+        "0", {add_offset(DateTimeRange{timestamp, timestamp}, +Years{5000})}});
     const DateRange expected{Date{Year{2014}, Month{12}, Day{1}},
-                             Date{Year{2023}, Month{12}, Day{1}}};
+                             Date{Year{7018}, Month{12}, Day{1}}};
 
     const auto actual = operationalRangeHandler.handle(OperationalRangeQuery{});
 

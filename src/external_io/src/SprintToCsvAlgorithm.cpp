@@ -20,17 +20,16 @@
 **
 *********************************************************************************/
 #include "external_io/SprintToCsvAlgorithm.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 
 namespace sprint_timer::external_io {
 
 std::vector<std::string>
 SprintToCsvAlgorithm::toRecords(const api::SprintDTO& sprint) const
 {
-    using sprint_timer::utils::join;
     std::vector<std::string> records;
     const auto& tags = sprint.tags;
-    records.emplace_back(join(cbegin(tags), cend(tags), ","));
+    records.emplace_back(alg::join(cbegin(tags), cend(tags), ","));
     records.emplace_back(dw::to_string(sprint.timeRange, "dd.MM.yyyy hh:mm"));
     records.emplace_back(sprint.taskName);
     return records;

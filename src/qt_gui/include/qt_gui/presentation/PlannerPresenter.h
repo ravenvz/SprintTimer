@@ -31,6 +31,7 @@
 #include "api/requests/EditTaskCommand.h"
 #include "api/requests/ReadTaskTreeQuery.h"
 #include "api/requests/SaveTaskTreeCommand.h"
+#include "api/requests/ToggleTaskCompletedCommand.h"
 #include "qt_gui/presentation/AddTaskContext.h"
 #include "qt_gui/presentation/EditTaskContext.h"
 #include "qt_gui/presentation/PlannerContract.h"
@@ -56,14 +57,20 @@ public:
     using read_planner_handler_t = asp::QueryHandler<api::ReadTaskTreeQuery>;
     using save_planner_handler_t = asp::QueryHandler<api::SaveTaskTreeCommand>;
     using delete_task_handler_t = asp::CommandHandler<api::DeleteTaskCommand>;
+    using edit_task_handler_t = asp::CommandHandler<api::EditTaskCommand>;
+    using toggle_task_completed_handler_t =
+        asp::CommandHandler<api::ToggleTaskCompletedCommand>;
 
-    PlannerPresenter(PlannerColors colors_,
-                     read_planner_handler_t& readPlannerHandler_,
-                     save_planner_handler_t& savePlannerHandler_,
-                     delete_task_handler_t& deleteTaskHandler_,
-                     AddTaskContext& addTaskContext_,
-                     EditTaskContext& editTaskContext_,
-                     const api::DateTimeProvider& timeProvider_);
+    PlannerPresenter(
+        PlannerColors colors_,
+        read_planner_handler_t& readPlannerHandler_,
+        save_planner_handler_t& savePlannerHandler_,
+        delete_task_handler_t& deleteTaskHandler_,
+        edit_task_handler_t& editTaskHandler_,
+        toggle_task_completed_handler_t& toggleTaskCompletedHandler_,
+        AddTaskContext& addTaskContext_,
+        EditTaskContext& editTaskContext_,
+        const api::DateTimeProvider& timeProvider_);
 
     auto moveNodes(const std::optional<std::string>& sourceParent,
                    int64_t sourceRow,
@@ -78,11 +85,20 @@ public:
 
     auto changeTaskEditionContext(const std::string& uuid) -> void override;
 
+    auto quickEditTask(std::string&& uuid,
+                       std::string&& name,
+                       std::vector<std::string>&& tags,
+                       int cost) -> void override;
+
+    virtual auto toggleTask(const std::string& uuid) -> void override;
+
 private:
     PlannerColors colors;
     read_planner_handler_t& readPlannerHandler;
     save_planner_handler_t& savePlannerHandler;
     delete_task_handler_t& deleteTaskHandler;
+    edit_task_handler_t& editTaskHandler;
+    toggle_task_completed_handler_t& toggleTaskCompletedHandler;
     AddTaskContext& addTaskContext;
     EditTaskContext& editTaskContext;
     const api::DateTimeProvider& timeProvider;

@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/ProgressPresenter.h"
+#include <format>
 #include <string_view>
 
 namespace {
@@ -74,21 +75,18 @@ namespace {
 
 LegendData composeLegendData(const ProgressOverPeriod& progress)
 {
-    using sprint_timer::utils::formatDecimal;
-    std::stringstream ss;
-    ss << progress.actual() << "/" << progress.estimated();
-    const std::string count{ss.str()};
-    ss.clear();
+    const std::string count{
+        std::format("{}/{}", progress.actual(), progress.estimated())};
     const std::string left{progress.isOverwork() ? "Overwork:"
                                                  : "Left to complete:"};
     const std::string difference{
         std::to_string(std::abs(progress.difference()))};
     const std::string average{
         progress.averagePerGroupPeriod()
-            ? formatDecimal(*progress.averagePerGroupPeriod())
+            ? std::format("{:.2f}", *progress.averagePerGroupPeriod())
             : "n/a"};
     const std::string percentage{
-        progress.percentage() ? formatDecimal(*progress.percentage()) + "%"
+        progress.percentage() ? std::format("{:.2f}%", *progress.percentage())
                               : "n/a"};
     LegendData legendData{count, left, difference, average, percentage};
     return legendData;

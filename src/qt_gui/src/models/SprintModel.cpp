@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/models/SprintModel.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "qt_gui/metatypes/SprintDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 
@@ -132,13 +132,8 @@ QString sprintToString(const sprint_timer::api::SprintDTO& sprint)
 {
     const auto& timeSpan = sprint.timeRange;
     const auto& tags = sprint.tags;
-    const auto prefixedTags =
-        sprint_timer::utils::transformJoin(tags, " ", [](const auto& el) {
-            std::string out;
-            out += "#";
-            out += el;
-            return out;
-        });
+    const auto prefixedTags = alg::join(
+        tags, " ", [](const auto& el) { return std::format("#{}", el); });
     return QString("%1 - %2 %3 %4")
         .arg(QString::fromStdString(dw::to_string(timeSpan.start(), "hh:mm")))
         .arg(QString::fromStdString(dw::to_string(timeSpan.finish(), "hh:mm")))

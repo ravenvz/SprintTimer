@@ -94,14 +94,15 @@ TEST_F(CreatingTasksFixture, undoing_task_creation_cleans_up_associated_tags)
         ::testing::UnorderedElementsAre("Tag1", "Tag2", "Tag3", "ProjectTag1"));
 }
 
-TEST_F(CreatingTasksFixture, creating_subtask_inherits_parents_due_date)
+TEST_F(CreatingTasksFixture,
+       creating_subtask_inherits_parents_start_date_and_due_date)
 {
     using namespace std::chrono_literals;
     using namespace dw;
     const auto tree = fixtures::givenTaskTreeWithDueDatesCreated(
         createTaskHandler, registerSprintsHandler);
-    const auto time =
-        DateTime{Date{Year{2023}, Month{6}, Day{19}}} + Days{10} + 4h;
+    const auto startTime = DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h;
+    const auto dueDateTime = startTime + Days{10};
     const TaskDTO expected{
         "6", // Generated uuid after fixture tree has been created
         {},
@@ -111,8 +112,7 @@ TEST_F(CreatingTasksFixture, creating_subtask_inherits_parents_due_date)
         false,
         dw::current_date_time_local(),
         std::nullopt,
-        TaskTimeframeDTO{
-            dw::current_date_time_local(), time, std::nullopt, std::nullopt},
+        TaskTimeframeDTO{startTime, dueDateTime, std::nullopt, std::nullopt},
         TaskTypeDTO::Regular};
     const auto treeBefore = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
 
@@ -126,5 +126,9 @@ TEST_F(CreatingTasksFixture, creating_subtask_inherits_parents_due_date)
                                                TaskTimeframeDTO{}});
 
     const auto updatedTree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
-    EXPECT_EQ(expected, updatedTree.payload("6").value());
+    const auto actual_it = std::ranges::find(
+        updatedTree, "6", [](const auto& node) { return node.uuid; });
+
+    EXPECT_FALSE(actual_it == updatedTree.cend());
+    EXPECT_EQ(expected, *actual_it);
 }

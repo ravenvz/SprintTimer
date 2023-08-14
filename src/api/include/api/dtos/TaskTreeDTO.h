@@ -23,12 +23,13 @@
 #define TASKTREEDTO_H_JN159NM6
 
 #include "api/dtos/TaskDTO.h"
-#include "core/Tree.h"
+#include "core/TaskTree.h"
+// #include "cpp_utils/datastructures/Tree.h"
 #include <string>
 
 namespace sprint_timer::api {
 
-using TaskTreeDTO = Tree<std::string, TaskDTO>;
+using TaskTreeDTO = TreeType<TaskDTO>;
 
 } // namespace sprint_timer::api
 

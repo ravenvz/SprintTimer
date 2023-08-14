@@ -74,10 +74,11 @@ TEST_F(EditingTaskFixture, throws_when_no_task_with_given_uuid_exists)
 TEST_F(EditingTaskFixture,
        updates_timestamp_but_does_not_change_sprints_uuid_and_completion_status)
 {
+    auto uuid_projection = [](const auto& node) { return node.uuid; };
     const auto tree = fixtures::givenSomeTaskTreeCreated(
         createTaskHandler, registerSprintsHandler);
     const std::string uuid{"5"}; // from fixture
-    const auto originalTask = tree.payload(uuid);
+    const auto originalTask = *std::ranges::find(tree, uuid, uuid_projection);
     const TaskTimeframeDTO changedFrame{current_date_time_local() - dw::Days{3},
                                         current_date_time_local() + Days{20},
                                         current_date_time_local() + Days{10},
@@ -96,17 +97,20 @@ TEST_F(EditingTaskFixture,
                            {"ChangedTag"},
                            "Changed task name",
                            77,
-                           originalTask.value().get().sprints,
-                           originalTask.value().get().finished,
+                           originalTask.sprints,
+                           originalTask.finished,
                            current_date_time_local(),
                            NoteDTO{"Changed note"},
                            changedFrame,
                            TaskTypeDTO::Project};
 
     editTaskHandler.handle(EditTaskCommand{editedTask});
+    const auto updatedTree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+    const auto actual_it =
+        std::ranges::find(updatedTree, uuid, uuid_projection);
 
-    EXPECT_EQ(expected,
-              readTaskTreeHandler.handle(ReadTaskTreeQuery{}).payload(uuid));
+    EXPECT_FALSE(actual_it == updatedTree.cend());
+    EXPECT_EQ(expected, *actual_it);
 }
 
 TEST_F(
@@ -134,25 +138,24 @@ TEST_F(
                              updatedTimeFrame,
                              TaskTypeDTO::Project};
     auto extractTimeFrame = [](const auto& node) { return node.timeFrame; };
-    Tree<std::string, TaskTimeframeDTO> expected;
-    expected.addChild("0", TaskTimeframeDTO{}, std::nullopt);
-    expected.addChild("1", updatedTimeFrame, "0");
-    expected.addChild(
-        "2",
+    sprint_timer::TreeType<TaskTimeframeDTO> expected;
+    auto node_1 = expected.insert(expected.end(), TaskTimeframeDTO{});
+    auto node_2 = expected.insert(node_1, updatedTimeFrame);
+    expected.insert(
+        node_2,
         TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h,
                          DateTime{Date{Year{2023}, Month{6}, Day{19}}} +
                              Days{10} + 4h,
                          std::nullopt,
-                         std::nullopt},
-        "1");
-    expected.addChild("3", updatedTimeFrame, "1");
-    expected.addChild("4", updatedTimeFrame, "3");
-    expected.addChild("5", TaskTimeframeDTO{}, std::nullopt);
+                         std::nullopt});
+    auto node_3 = expected.insert(node_2, updatedTimeFrame);
+    expected.insert(node_3, updatedTimeFrame);
+    expected.insert(expected.end(), TaskTimeframeDTO{});
 
     editTaskHandler.handle(EditTaskCommand{editedTask});
 
     const auto editedTree = readTaskTreeHandler.handle(ReadTaskTreeQuery{})
-                                .mapped(extractTimeFrame);
+                                .transform(extractTimeFrame);
     EXPECT_EQ(expected, editedTree);
 }
 

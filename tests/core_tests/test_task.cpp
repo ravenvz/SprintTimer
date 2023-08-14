@@ -414,24 +414,3 @@ TEST(TestTask,
     EXPECT_FALSE(task.nextRecurrence("12345", currentTime));
 }
 
-TEST(TestTask, throws_when_recurrence_is_set_without_due_date)
-{
-    constexpr auto modificationStamp =
-        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
-
-    ASSERT_THROW(Task("Some task",
-                      7,
-                      {},
-                      "123",
-                      {},
-                      false,
-                      modificationStamp,
-                      TaskType::Regular,
-                      std::nullopt,
-                      TaskTimeframe{modificationStamp + Days{10},
-                                    std::nullopt,
-                                    std::nullopt,
-                                    Recurrence{"*-*-10 21:20:00"}}),
-                 std::runtime_error);
-}
-

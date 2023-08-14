@@ -39,6 +39,7 @@ endif()
 target_sources(${GUI_LIB}
     PUBLIC
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Displayable.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/PlannerColumn.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/QtConfig.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/StandaloneDisplayable.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/Synchronizable.h"
@@ -67,6 +68,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/ExtraDayModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/HistoryModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/PlannerModel.h"
+        # "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/PlannerTreeModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/SprintModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/SprintModel.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/qt_gui/models/TagModel.h"
@@ -191,6 +193,7 @@ target_sources(${GUI_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/models/ExtraDayModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/HistoryModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/PlannerModel.cpp"
+        # "${CMAKE_CURRENT_LIST_DIR}/src/models/PlannerTreeModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/SprintModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/SprintModel.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/models/TagModel.cpp"

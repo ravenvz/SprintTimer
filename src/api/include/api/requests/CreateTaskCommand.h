@@ -25,7 +25,7 @@
 #include "api/dtos/NoteDTO.h"
 #include "api/dtos/TaskTimeframeDTO.h"
 #include "api/dtos/TaskTypeDTO.h"
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include <cstdint>
 #include <vector>
 
@@ -53,8 +53,6 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os,
                 const CreateTaskCommand& command)
     -> std::basic_ostream<CharT, Traits>&
 {
-    using utils::inspect;
-
     os << "CreateTaskCommand{";
     os << command.name << ", ";
     for (const auto& tag : command.tags) {
@@ -64,20 +62,21 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os,
 
     os << "type: " << static_cast<int>(command.type) << ", ";
 
-    inspect(command.notes,
-            [&](const auto& /* dto */) { os << "notes present, "; });
+    alg::inspect(command.notes,
+                 [&](const auto& /* dto */) { os << "notes present, "; });
 
-    inspect(command.parent,
-            [&](const auto& uuid) { os << "parent: " << uuid << ", "; });
-    inspect(command.insertBeforePos,
-            [&](auto pos) { os << ", pos: " << pos << ", "; });
+    alg::inspect(command.parent,
+                 [&](const auto& uuid) { os << "parent: " << uuid << ", "; });
+    alg::inspect(command.insertBeforePos,
+                 [&](auto pos) { os << ", pos: " << pos << ", "; });
 
     const auto& frame = command.timeFrame;
     os << "start: " << frame.start;
-    inspect(frame.due, [&](dw::DateTime due) { os << " due: " << due; });
-    inspect(frame.remindAt,
-            [&](const auto& remind) { os << " reminder: " << remind << ", "; });
-    inspect(frame.recurrence, [&](const auto& recurrence) {
+    alg::inspect(frame.due, [&](dw::DateTime due) { os << " due: " << due; });
+    alg::inspect(frame.remindAt, [&](const auto& remind) {
+        os << " reminder: " << remind << ", ";
+    });
+    alg::inspect(frame.recurrence, [&](const auto& recurrence) {
         os << " recurrence: " << recurrence;
     });
 

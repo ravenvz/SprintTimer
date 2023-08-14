@@ -44,8 +44,8 @@ public:
     auto fillTags(std::span<const std::string> tags) -> void override;
 
 private:
-    std::optional<std::string> parent;
-    std::optional<int64_t> insertBeforePos;
+    std::optional<std::string> parent{std::nullopt};
+    std::optional<int64_t> insertBeforePos{std::nullopt};
 };
 
 } // namespace sprint_timer::ui::qt_gui

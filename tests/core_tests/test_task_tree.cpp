@@ -227,70 +227,73 @@ public:
                Note{"Some notes for task 7"},
                TaskTimeframe{}};
 
-    [[nodiscard]] auto buildSampleTree() const -> TaskTree
-    {
-        /*
-         * folder1
-         *    folder2
-         *       project1
-         *          project2
-         *          project3
-         *             folder3
-         *                task1
-         * project4
-         *    task2
-         *       task3
-         *       task4
-         *          task5
-         *          recurringTask1
-         *    task6
-         * task7
-         */
-        TaskTree tree;
-        insertTask(tree, folder1, std::nullopt);
-        insertTask(tree, folder2, "f1");
-        insertTask(tree, project1, "f2");
-        insertTask(tree, project2, "p1");
-        insertTask(tree, project3, "p1");
-        insertTask(tree, folder3, "p3");
-        insertTask(tree, task1, "f3");
-        insertTask(tree, project4, std::nullopt);
-        insertTask(tree, task2, "p4");
-        insertTask(tree, task3, "t2");
-        insertTask(tree, task4, "t2");
-        insertTask(tree, task5, "t4");
-        insertTask(tree, recurringTask1, "t4");
-        insertTask(tree, task6, "p4");
-        insertTask(tree, task7, std::nullopt);
-        return tree;
-    }
+    // [[nodiscard]] auto buildSampleTree() const -> TaskTree
+    // {
+    //     #<{(|
+    //      * folder1
+    //      *    folder2
+    //      *       project1
+    //      *          project2
+    //      *          project3
+    //      *             folder3
+    //      *                task1
+    //      * project4
+    //      *    task2
+    //      *       task3
+    //      *       task4
+    //      *          task5
+    //      *          recurringTask1
+    //      *    task6
+    //      * task7
+    //      |)}>#
+    //     TaskTree tree;
+    //     insertTask(tree, folder1, std::nullopt);
+    //     insertTask(tree, folder2, "f1");
+    //     insertTask(tree, project1, "f2");
+    //     insertTask(tree, project2, "p1");
+    //     insertTask(tree, project3, "p1");
+    //     insertTask(tree, folder3, "p3");
+    //     insertTask(tree, task1, "f3");
+    //     insertTask(tree, project4, std::nullopt);
+    //     insertTask(tree, task2, "p4");
+    //     insertTask(tree, task3, "t2");
+    //     insertTask(tree, task4, "t2");
+    //     insertTask(tree, task5, "t4");
+    //     insertTask(tree, recurringTask1, "t4");
+    //     insertTask(tree, task6, "p4");
+    //     insertTask(tree, task7, std::nullopt);
+    //     return tree;
+    // }
 };
 
 TEST_F(TaskTreeFixture, returns_immediate_tasks)
 {
-    const TaskTree tree = buildSampleTree();
-    std::vector<Task> expected{
-        project2, task1, task3, task5, recurringTask1, task6, task7};
-
-    EXPECT_EQ(expected, immediateTasks(tree));
+    FAIL();
+    // const TaskTree tree = buildSampleTree();
+    // std::vector<Task> expected{
+    //     project2, task1, task3, task5, recurringTask1, task6, task7};
+    //
+    // EXPECT_EQ(expected, immediateTasks(tree));
 }
 
 TEST_F(TaskTreeFixture, returns_projects_subtrees)
 {
-    const TaskTree tree = buildSampleTree();
-    TaskTree expected;
-    insertTask(expected, project1, std::nullopt);
-    insertTask(expected, project2, "p1");
-    insertTask(expected, project3, "p1");
-    insertTask(expected, folder3, "p3");
-    insertTask(expected, task1, "f3");
-    insertTask(expected, project4, std::nullopt);
-    insertTask(expected, task2, "p4");
-    insertTask(expected, task3, "t2");
-    insertTask(expected, task4, "t2");
-    insertTask(expected, task5, "t4");
-    insertTask(expected, recurringTask1, "t4");
-    insertTask(expected, task6, "p4");
+    FAIL();
 
-    EXPECT_EQ(expected, projects(tree));
+    // const TaskTree tree = buildSampleTree();
+    // TaskTree expected;
+    // insertTask(expected, project1, std::nullopt);
+    // insertTask(expected, project2, "p1");
+    // insertTask(expected, project3, "p1");
+    // insertTask(expected, folder3, "p3");
+    // insertTask(expected, task1, "f3");
+    // insertTask(expected, project4, std::nullopt);
+    // insertTask(expected, task2, "p4");
+    // insertTask(expected, task3, "t2");
+    // insertTask(expected, task4, "t2");
+    // insertTask(expected, task5, "t4");
+    // insertTask(expected, recurringTask1, "t4");
+    // insertTask(expected, task6, "p4");
+    //
+    // EXPECT_EQ(expected, projects(tree));
 }

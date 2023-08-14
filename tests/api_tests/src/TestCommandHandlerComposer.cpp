@@ -30,10 +30,10 @@ TestCommandHandlerComposer::TestCommandHandlerComposer(
     WorkScheduleWriter& scheduleStorage_,
     api::UUIDGenerator& generator_,
     api::DateTimeProvider& dateTimeProvider_,
-    const Converter<api::TaskDTO, Task>& taskMapper_,
+    const patterns::Converter<api::TaskDTO, Task>& taskMapper_,
     // const Converter<std::string, Tag>& tagMapper_,
-    const Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
-    const Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
+    const patterns::Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_)
     : createTask{std::make_unique<api::CreateTaskHandler>(taskStorage_,
                                                           actionInvoker_,
                                                           generator_,

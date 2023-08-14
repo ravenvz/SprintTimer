@@ -25,8 +25,6 @@
 namespace {
 
 using sprint_timer::api::CreateTaskCommand;
-using sprint_timer::utils::and_then;
-using sprint_timer::utils::transform;
 
 } // namespace
 
@@ -37,7 +35,7 @@ CreateTaskHandler::CreateTaskHandler(
     ActionInvoker& actionInvoker_,
     UUIDGenerator& uuidGenerator_,
     DateTimeProvider& dateTimeProvider_,
-    const Converter<TaskDTO, Task>& taskMapper_)
+    const patterns::Converter<TaskDTO, Task>& taskMapper_)
     : taskStorage{taskStorage_}
     , actionInvoker{actionInvoker_}
     , uuidGenerator{uuidGenerator_}

@@ -31,6 +31,7 @@ ReordableTreeView::ReordableTreeView(QWidget* parent)
     : QTreeView{parent}
 {
     setSelectionMode(QAbstractItemView::SingleSelection);
+    setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
     setDragEnabled(true);
     viewport()->setAcceptDrops(true);
     setDragDropMode(QAbstractItemView::InternalMove);
@@ -96,7 +97,7 @@ auto ReordableTreeView::dropEvent(QDropEvent* event) -> void
         break;
     }
 
-    setDropIndicatorShown(false);
+    // setDropIndicatorShown(false);
 }
 
 } // namespace sprint_timer::ui::qt_gui

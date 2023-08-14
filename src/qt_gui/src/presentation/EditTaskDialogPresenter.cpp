@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/EditTaskDialogPresenter.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 
 namespace sprint_timer::ui {
 
@@ -42,7 +43,7 @@ auto EditTaskDialogPresenter::onEditTaskAccepted(api::TaskDTO&& editedTask)
 
 auto EditTaskDialogPresenter::updateViewImpl() -> void
 {
-    utils::inspect(view(), [&](auto* view) {
+    alg::inspect(view(), [&](auto* view) {
         const auto tags = allTagsHandler.handle(api::AllTagsQuery{});
         view->fillTags(tags);
         view->fillTaskDetails(editTaskContext.task());

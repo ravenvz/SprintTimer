@@ -20,8 +20,7 @@
 **
 *********************************************************************************/
 #include "core/Recurrence.h"
-#include "core/utils/Algutils.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include <array>
 #include <format>
 #include <functional>
@@ -32,7 +31,6 @@
 #include <variant>
 
 using namespace dw;
-using sprint_timer::utils::split;
 using namespace std::literals::string_view_literals;
 
 namespace {
@@ -148,12 +146,12 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const Component& component);
 auto findNextRecurrence(const RecurrenceSpec& spec, dw::DateTime refTimeStamp)
     -> Maybe<dw::DateTime>;
 
-auto component_to_str(const Component& component) -> std::string;
+auto makeYears(const Components& components) -> std::vector<int>;
 
 template <typename Selectable>
 auto fillSelectable(const Components& cs) -> Selectable;
 
-auto makeYears(const Components& components) -> std::vector<int>;
+auto component_to_str(const Component& component) -> std::string;
 
 auto weekdaysToString(const SelectedWeekdays& weekdays) -> std::string;
 
@@ -163,15 +161,19 @@ auto parseComponents(Pattern pattern) -> Components;
 
 auto parseComponent(std::string_view pattern) -> Component;
 
+auto validateSpec(const Spec& spec) -> void;
+
+auto validate(const Components& components, const IntRange& intRange) -> void;
+
+constexpr auto contains(Pattern pattern, char ch) noexcept -> bool;
+
 auto parseWeekdays(std::string_view daysPattern) -> SelectedWeekdays;
 
 auto parseGroup(Pattern pattern, char delimiter) -> std::vector<Components>;
 
-auto validate(const Components& components, const IntRange& intRange) -> bool;
+constexpr auto fixComponentYear(Component& component) noexcept -> void;
 
-auto validateSpec(const Spec& spec) -> void;
-
-auto contains(Pattern pattern, char ch) -> bool;
+constexpr auto fixYear(auto year) noexcept -> uint16_t;
 
 constexpr auto operator<(Month lhs, Month rhs) noexcept -> bool;
 
@@ -243,10 +245,6 @@ auto findNextRecurrence(const RecurrenceSpec& spec, dw::DateTime refTimeStamp)
                spec.weekdays.test(static_cast<unsigned>(weekday(date)));
     };
 
-    auto suitableHour = [&](auto x) {
-
-    };
-
     using namespace std::chrono;
     using std::views::cartesian_product;
     using std::views::filter;
@@ -296,31 +294,6 @@ auto findNextRecurrence(const RecurrenceSpec& spec, dw::DateTime refTimeStamp)
     return std::nullopt;
 }
 
-template <typename Selectable>
-auto fillSelectable(const Components& cs) -> Selectable
-{
-    Selectable selectable;
-
-    if (cs.empty()) {
-        selectable.set();
-        return selectable;
-    }
-
-    for (const auto& component : cs) {
-        std::cout << component_to_str(component) << std::endl;
-        if (component.start == component.stop) {
-            selectable.set(component.start);
-            continue;
-        }
-        for (auto start = component.start; start <= component.stop;
-             start += component.step) {
-            selectable.set(start);
-        }
-    }
-
-    return selectable;
-}
-
 auto component_to_str(const Component& component) -> std::string
 {
     const auto [start, stop, step] = component;
@@ -336,8 +309,7 @@ auto component_to_str(const Component& component) -> std::string
 
 auto join_components(const auto& components) -> std::string
 {
-    return sprint_timer::utils::transformJoin(
-        cbegin(components), cend(components), ",", component_to_str);
+    return alg::join(components, ",", component_to_str);
 };
 
 template <class CharT, class Traits>
@@ -374,8 +346,8 @@ auto parseWeekdays(Pattern daysPattern) -> SelectedWeekdays
 
     SelectedWeekdays result;
 
-    for (auto part : split(daysPattern, ',')) {
-        const auto p = split(part, "..");
+    for (auto part : alg::split(daysPattern, ',')) {
+        const auto p = alg::split(part, "..");
         auto start = std::ranges::find(dayNames, p.front());
         auto stop =
             p.size() == 2 ? std::ranges::find(dayNames, p.back()) : start;
@@ -395,8 +367,8 @@ auto parseWeekdays(Pattern daysPattern) -> SelectedWeekdays
 
 auto parseComponent(std::string_view pattern) -> Component
 {
-    auto parts = split(pattern, '/');
-    auto p = split(parts.front(), "..");
+    auto parts = alg::split(pattern, '/');
+    auto p = alg::split(parts.front(), "..");
 
     auto start = std::stoul(std::string{p.front()});
     auto stop = p.size() == 2 ? std::stoul(std::string{p.back()}) : start;
@@ -421,7 +393,7 @@ auto parseComponents(std::string_view pattern) -> Components
         return components;
     }
 
-    auto parts = split(pattern, ',');
+    auto parts = alg::split(pattern, ',');
     components.reserve(parts.size());
 
     // return std::views::transform(split(pattern, ','), parseComponents) |
@@ -430,24 +402,6 @@ auto parseComponents(std::string_view pattern) -> Components
                       std::back_inserter(components));
 
     return components;
-}
-
-auto parseGroup(Pattern pattern, char delimiter) -> std::vector<Components>
-{
-    auto splitted = split(pattern, delimiter);
-    auto transformed = std::views::transform(splitted, parseComponents);
-    // std::vector<Components> result =
-    // std::ranges::to<std::vector>(transformed);
-    std::vector<Components> result;
-    std::ranges::copy(transformed, std::back_inserter(result));
-    std::ranges::for_each(result, [](auto& components) {
-        std::ranges::sort(components, [](const auto& left, const auto& right) {
-            return left.start < right.start;
-        });
-        auto last = std::unique(begin(components), end(components));
-        components.erase(last, end(components));
-    });
-    return result;
 }
 
 auto validateSpec(const Spec& spec) -> void
@@ -460,7 +414,7 @@ auto validateSpec(const Spec& spec) -> void
     validate(spec.seconds, validSecondRange);
 }
 
-auto validate(const Components& components, const IntRange& intRange) -> bool
+auto validate(const Components& components, const IntRange& intRange) -> void
 {
     for (const auto& component : components) {
         const auto [start, stop, step] = component;
@@ -468,12 +422,7 @@ auto validate(const Components& components, const IntRange& intRange) -> bool
             not intRange(stop)) {
             throw std::runtime_error{component_to_str(component)};
         }
-        // if (not intRange(start) || step > intRange.max - intRange.min ||
-        //     not intRange(stop) || start + step > stop) {
-        //     throw std::runtime_error{component_to_str(component)};
-        // }
     }
-    return true;
 }
 
 auto weekdaysToString(const SelectedWeekdays& weekdays) -> std::string
@@ -510,6 +459,17 @@ auto weekdaysToString(const SelectedWeekdays& weekdays) -> std::string
     return res;
 }
 
+RecurrenceSpec::RecurrenceSpec(const Spec& spec)
+    : weekdays{spec.weekdays}
+    , years{makeYears(spec.years)}
+    , months{fillSelectable<SelectedMonths>(spec.months)}
+    , days{fillSelectable<SelectedDays>(spec.days)}
+    , hours{fillSelectable<SelectedHours>(spec.hours)}
+    , minutes{fillSelectable<SelectedMinutes>(spec.minutes)}
+    , seconds{fillSelectable<SelectedSeconds>(spec.seconds)}
+{
+}
+
 auto makeYears(const Components& components) -> std::vector<int>
 {
     SelectedYears selectedYears;
@@ -526,15 +486,28 @@ auto makeYears(const Components& components) -> std::vector<int>
     return selectedYears;
 }
 
-RecurrenceSpec::RecurrenceSpec(const Spec& spec)
-    : weekdays{spec.weekdays}
-    , years{makeYears(spec.years)}
-    , months{fillSelectable<SelectedMonths>(spec.months)}
-    , days{fillSelectable<SelectedDays>(spec.days)}
-    , hours{fillSelectable<SelectedHours>(spec.hours)}
-    , minutes{fillSelectable<SelectedMinutes>(spec.minutes)}
-    , seconds{fillSelectable<SelectedSeconds>(spec.seconds)}
+template <typename Selectable>
+auto fillSelectable(const Components& cs) -> Selectable
 {
+    Selectable selectable;
+
+    if (cs.empty()) {
+        selectable.set();
+        return selectable;
+    }
+
+    for (const auto& component : cs) {
+        if (component.start == component.stop) {
+            selectable.set(component.start);
+            continue;
+        }
+        for (auto start = component.start; start <= component.stop;
+             start += component.step) {
+            selectable.set(start);
+        }
+    }
+
+    return selectable;
 }
 
 auto SpecParser::operator()(Pattern pattern) -> Spec
@@ -552,7 +525,7 @@ auto SpecParser::operator()(Pattern pattern) -> Spec
         pattern = dict.at(pattern);
     }
 
-    auto parts = split(pattern, ' ');
+    auto parts = alg::split(pattern, ' ');
     std::ranges::for_each(parts, [this](const auto& p) { parse(p); });
 
     // If time is omitted, set it to 00:00:00
@@ -601,6 +574,11 @@ auto SpecParser::parse(Pattern pattern) -> void
     }
 }
 
+constexpr auto contains(Pattern pattern, char ch) noexcept -> bool
+{
+    return pattern.find(ch) != pattern.npos;
+}
+
 auto SpecParser::parseTime(Pattern pattern) -> void
 {
     auto transformed = parseGroup(pattern, ':');
@@ -614,19 +592,6 @@ auto SpecParser::parseDate(Pattern pattern) -> void
 {
     auto transformed = parseGroup(pattern, '-');
     if (transformed.size() == 3) {
-        auto fixYear = [](auto year) -> uint16_t {
-            if (year >= 0 and year < 70) {
-                return year + 2000;
-            }
-            if (year >= 70 and year < 100) {
-                return year + 1900;
-            }
-            return year;
-        };
-        auto fixComponentYear = [&](auto& component) {
-            component.start = fixYear(component.start);
-            component.stop = fixYear(component.stop);
-        };
         std::ranges::for_each(transformed[0], fixComponentYear);
         spec.years = transformed[0];
         spec.months = transformed[1];
@@ -638,9 +603,39 @@ auto SpecParser::parseDate(Pattern pattern) -> void
     }
 }
 
-auto contains(Pattern pattern, char ch) -> bool
+constexpr auto fixComponentYear(Component& component) noexcept -> void
 {
-    return pattern.find(ch) != pattern.npos;
+    component.start = fixYear(component.start);
+    component.stop = fixYear(component.stop);
+}
+
+constexpr auto fixYear(auto year) noexcept -> uint16_t
+{
+    if (year >= 0 and year < 70) {
+        return year + 2000;
+    }
+    if (year >= 70 and year < 100) {
+        return year + 1900;
+    }
+    return year;
+}
+
+auto parseGroup(Pattern pattern, char delimiter) -> std::vector<Components>
+{
+    auto splitted = alg::split(pattern, delimiter);
+    auto transformed = std::views::transform(splitted, parseComponents);
+    // std::vector<Components> result =
+    // std::ranges::to<std::vector>(transformed);
+    std::vector<Components> result;
+    std::ranges::copy(transformed, std::back_inserter(result));
+    std::ranges::for_each(result, [](auto& components) {
+        std::ranges::sort(components, [](const auto& left, const auto& right) {
+            return left.start < right.start;
+        });
+        auto last = std::unique(begin(components), end(components));
+        components.erase(last, end(components));
+    });
+    return result;
 }
 
 constexpr auto operator<(Month lhs, Month rhs) noexcept -> bool

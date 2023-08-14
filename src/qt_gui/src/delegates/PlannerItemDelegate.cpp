@@ -21,18 +21,24 @@
 *********************************************************************************/
 #include "qt_gui/delegates/PlannerItemDelegate.h"
 #include "api/dtos/TaskTreeDTO.h"
+#include "qt_gui/PlannerColumn.h"
 #include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/presentation/PlannerContract.h"
+
 #include <QApplication>
+#include <QLineEdit>
 #include <QModelIndex>
 #include <QPainter>
+#include <QSpinBox>
 #include <QStyleOptionViewItem>
 
 #include <QDebug>
+#include <iostream>
 
 namespace {
 
 constexpr int checkerOffset{25};
+constexpr int finishedTaskAlpha{100};
 
 struct PainterGuard {
     explicit PainterGuard(QPainter* painter_)
@@ -47,41 +53,7 @@ private:
     QPainter* painter;
 };
 
-class ColorScheme {
-public:
-    virtual ~ColorScheme() = default;
-
-    [[nodiscard]] virtual auto tagColor() const -> QColor = 0;
-
-    [[nodiscard]] virtual auto commonColor() const -> QColor = 0;
-
-    [[nodiscard]] virtual auto overWorkColor() const -> QColor = 0;
-
-    [[nodiscard]] virtual auto delimiterColor() const -> QColor = 0;
-};
-
-class ColorSchemeQt : public ColorScheme {
-public:
-    [[nodiscard]] auto commonColor() const -> QColor override { return common; }
-
-    [[nodiscard]] auto tagColor() const -> QColor override { return tag; }
-
-    [[nodiscard]] auto overWorkColor() const -> QColor override
-    {
-        return overspent;
-    }
-
-    [[nodiscard]] auto delimiterColor() const -> QColor override
-    {
-        return delimiter;
-    }
-
-private:
-    QColor tag{Qt::blue};
-    QColor common{Qt::black};
-    QColor overspent{Qt::red};
-    QColor delimiter{Qt::gray};
-};
+auto isFolder(const QModelIndex& index) -> bool;
 
 } // namespace
 
@@ -92,24 +64,23 @@ PlannerItemDelegate::PlannerItemDelegate(QObject* parent_)
 {
 }
 
-// void PlannerItemDelegate::initStyleOption(QStyleOptionViewItem* option,
-//                                           const QModelIndex& index) const
-// {
-//     if (index.column() == 0) {
-//         QStyledItemDelegate::initStyleOption(option, index);
-//         option->decorationAlignment = Qt::AlignLeft;
-//         option->displayAlignment = Qt::AlignLeft;
-//     }
-//     if (index.column() == 2) {
-//         QStyledItemDelegate::initStyleOption(option, index);
-//         option->textElideMode = Qt::ElideMiddle;
-//         option->displayAlignment = Qt::AlignHCenter;
-//     }
-//     // QStyledItemDelegate::initStyleOption(option, index);
-//     qDebug() << "displayAlignment: " << option->displayAlignment;
-//     qDebug() << "decorationAlignment: " << option->decorationAlignment;
-//     // qDebug() << "textElide: " << option->textElideMode;
-// }
+void PlannerItemDelegate::initStyleOption(QStyleOptionViewItem* option,
+                                          const QModelIndex& index) const
+{
+    QStyledItemDelegate::initStyleOption(option, index);
+
+    if (index.data(Qt::CheckStateRole).toBool()) {
+        option->font.setStrikeOut(index.data(Qt::CheckStateRole).toBool());
+        auto fontColor = option->palette.color(QPalette::Text);
+        fontColor.setAlpha(finishedTaskAlpha);
+        option->palette.setColor(QPalette::All, QPalette::Text, fontColor);
+    }
+
+    if (static_cast<int>(PlannerColumn::Name) != index.column() or
+        isFolder(index)) {
+        option->features &= ~QStyleOptionViewItem::HasCheckIndicator;
+    }
+}
 
 auto PlannerItemDelegate::sizeHint(const QStyleOptionViewItem& option,
                                    const QModelIndex& index) const -> QSize
@@ -118,13 +89,8 @@ auto PlannerItemDelegate::sizeHint(const QStyleOptionViewItem& option,
         return {};
     }
 
-    const auto data = index.data(Qt::DisplayRole);
-    const auto [payload, pen, brush] =
-        data.value<std::tuple<QString, QColor, QColor>>();
+    const auto payload = index.data(Qt::DisplayRole).toString();
 
-    // if (index.column() == 0) {
-    //     return {};
-    // }
     if (index.column() == 1) {
         return {};
     }
@@ -135,71 +101,116 @@ auto PlannerItemDelegate::sizeHint(const QStyleOptionViewItem& option,
 
     const auto rect =
         metrics.boundingRect(0, 0, opt.rect.width(), 0, 0, payload);
-    if (index.column() == 0) {
+    if (static_cast<PlannerColumn>(index.column()) == PlannerColumn::Name) {
         return QSize{rect.width() + checkerOffset, rect.height()};
     }
     return QSize{rect.width() + 5, rect.height()};
 }
 
-auto PlannerItemDelegate::paint(QPainter* painter,
-                                const QStyleOptionViewItem& option,
-                                const QModelIndex& index) const -> void
+auto PlannerItemDelegate::setModelData(QWidget* editor,
+                                       QAbstractItemModel* model,
+                                       const QModelIndex& index) const -> void
 {
-    using contracts::PlannerContract::Colors;
-    using contracts::PlannerContract::PlannerItem;
-
-    if (index.column() > 4) {
+    if (not index.isValid()) {
         return;
     }
 
-    QStyleOptionViewItem opt{option};
-    initStyleOption(&opt, index);
+    using enum PlannerColumn;
 
-    QStyle* style =
-        opt.widget != nullptr ? opt.widget->style() : QApplication::style();
-
-    ColorSchemeQt colorScheme;
-
-    PainterGuard painterGuard{painter};
-
-    if (index.data(Qt::CheckStateRole) == Qt::Checked) {
-        QFont strikedOutFont{opt.font};
-        strikedOutFont.setStrikeOut(true);
-        painter->setFont(strikedOutFont);
+    switch (static_cast<PlannerColumn>(index.column())) {
+    case Name: {
+        auto* castedEditor = qobject_cast<QLineEdit*>(editor);
+        QString text = castedEditor->text();
+        editor->close();
+        model->setData(index, QVariant(castedEditor->text()));
+        break;
     }
-
-    auto paintDefaultDataTuple = [&](const auto& rect) {
-        const auto data = index.data(Qt::DisplayRole);
-        if (not data.isNull()) {
-            const auto [payload, foreground, background] =
-                data.value<std::tuple<QString, QColor, QColor>>();
-            painter->setPen(background);
-            painter->setBrush(background);
-            painter->drawRect(opt.rect);
-            painter->setPen(foreground);
-
-            style->drawItemText(
-                painter, rect, Qt::TextDontClip, opt.palette, true, payload);
-        }
-    };
-
-    // Displaying checkbox
-    if (index.column() == 0) {
-        const auto data =
-            index.model()
-                ->data(index.model()->index(index.row(), 5, index.parent()),
-                       Qt::DisplayRole)
-                .value<std::tuple<std::string, bool, api::TaskTypeDTO>>();
-        paintDefaultDataTuple(opt.rect.translated(checkerOffset, 0));
-        if (std::get<2>(data) == api::TaskTypeDTO::Folder) {
-            return;
-        }
-        QStyledItemDelegate::paint(painter, opt, index);
-        return;
+    case Progress: {
+        auto* castedEditor = qobject_cast<QSpinBox*>(editor);
+        model->setData(index, QVariant(castedEditor->value()));
+        break;
     }
-
-    paintDefaultDataTuple(opt.rect);
+    case Tags: {
+        auto* castedEditor = qobject_cast<QLineEdit*>(editor);
+        model->setData(index, QVariant(castedEditor->text()));
+        break;
+    }
+    default:
+        QStyledItemDelegate::setModelData(editor, model, index);
+    }
 }
+
+auto PlannerItemDelegate::createEditor(QWidget* parent,
+                                       const QStyleOptionViewItem& option,
+                                       const QModelIndex& index) const
+    -> QWidget*
+{
+    if (not index.isValid()) {
+        return nullptr;
+    }
+
+    using enum PlannerColumn;
+    switch (static_cast<PlannerColumn>(index.column())) {
+
+    case Name: {
+        auto* editor = std::make_unique<QLineEdit>(parent).release();
+        const auto oldValue = index.data(Qt::DisplayRole).toString();
+        editor->setText(oldValue);
+        return editor;
+    }
+
+    case Progress: {
+        auto* editor = std::make_unique<QSpinBox>(parent).release();
+        editor->setMinimum(1);
+        editor->setMaximum(1000);
+        editor->setValue(
+            index.data(Qt::DisplayRole).toString().split("/").back().toInt());
+        return editor;
+    }
+
+    case Tags: {
+        auto* editor = std::make_unique<QLineEdit>(parent).release();
+        const auto oldValue = index.data(Qt::DisplayRole).toString();
+        editor->setText(oldValue);
+        return editor;
+    }
+
+    case DueDate:
+    case Reminder:
+    case Recurrent:
+        return nullptr;
+    }
+
+    return nullptr;
+}
+
+auto PlannerItemDelegate::setEditorData(QWidget* editor,
+                                        const QModelIndex& index) const -> void
+{
+}
+
+auto PlannerItemDelegate::updateEditorGeometry(
+    QWidget* editor,
+    const QStyleOptionViewItem& option,
+    const QModelIndex& index) const -> void
+{
+    editor->setGeometry(option.rect);
+}
+
+auto PlannerItemDelegate::commitAndClose() -> void { }
 
 } // namespace sprint_timer::ui::qt_gui
 
+namespace {
+
+auto isFolder(const QModelIndex& index) -> bool
+{
+    const QVariant taskTypeVar = index.model()->data(index.model()->index(
+        index.row(),
+        static_cast<int>(sprint_timer::ui::qt_gui::PlannerColumn::Type),
+        index.parent()));
+    const auto taskType = taskTypeVar.value<sprint_timer::api::TaskTypeDTO>();
+    return taskType == sprint_timer::api::TaskTypeDTO::Folder;
+}
+
+} // namespace

@@ -37,8 +37,8 @@ EditTask::EditTask(TaskStorage& taskStorage_,
 auto EditTask::execute() -> void
 {
     if (auto due = editedTask.dueTo(); due and originalTask.dueTo() != due) {
-        originalSubtree = taskStorage.taskTree().subTree(originalTask.uuid());
-        auto updateTimeFrame = [&](const auto& /*uuid*/, const auto& task) {
+        originalSubtree = subtree(taskStorage.taskTree(), originalTask.uuid());
+        auto updateTimeFrame = [&](const auto& task) {
             if (task.dueTo() and task.dueTo() != due) {
                 return;
             }
@@ -46,21 +46,25 @@ auto EditTask::execute() -> void
                 task.inheritDateIfNotSet(editedTask, editedTask.lastModified());
             taskStorage.edit(task, t);
         };
-        originalSubtree.dfs(updateTimeFrame);
-        editedSubtree = taskStorage.taskTree().subTree(originalTask.uuid());
+        std::ranges::for_each(originalSubtree, updateTimeFrame);
+        editedSubtree = subtree(taskStorage.taskTree(), originalTask.uuid());
     }
     taskStorage.edit(originalTask, editedTask);
 }
 
 auto EditTask::undo() -> void
 {
-    for (auto [id, task] : originalSubtree.entriesView()) {
-        auto edited = editedSubtree.payload(id);
-        if (!edited) {
-            throw std::runtime_error{"Keys mismatch!"};
-        }
-        taskStorage.edit(edited.value().get(), task);
+    for (const auto& [original, edited] :
+         std::views::zip(originalSubtree, editedSubtree)) {
+        taskStorage.edit(edited, original);
     }
+    // for (auto [id, task] : originalSubtree.entriesView()) {
+    //     auto edited = editedSubtree.payload(id);
+    //     if (!edited) {
+    //         throw std::runtime_error{"Keys mismatch!"};
+    //     }
+    //     taskStorage.edit(edited.value().get(), task);
+    // }
     taskStorage.edit(editedTask, originalTask);
     // for (auto v : std::views::zip(originalSubtree.payloadView(),
     //                               editedSubtree.payloadView())) {

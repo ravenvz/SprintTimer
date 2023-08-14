@@ -23,7 +23,7 @@
 
 namespace sprint_timer::api {
 
-auto TaskTypeMapper::convert(const TaskType& kind) const -> TaskTypeDTO
+auto TaskTypeMapper::make_dto_impl(const TaskType& kind) const -> TaskTypeDTO
 {
     using enum TaskType;
 
@@ -39,7 +39,7 @@ auto TaskTypeMapper::convert(const TaskType& kind) const -> TaskTypeDTO
     }
 }
 
-auto TaskTypeMapper::convert(const TaskTypeDTO& dto) const -> TaskType
+auto TaskTypeMapper::make_entity_impl(const TaskTypeDTO& dto) const -> TaskType
 {
 
     using enum TaskTypeDTO;

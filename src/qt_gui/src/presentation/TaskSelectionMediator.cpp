@@ -40,8 +40,7 @@ auto TaskSelectionMediator::currentSelection() const
 
 auto TaskSelectionMediator::taskUuid() const -> std::optional<std::string>
 {
-    return utils::transform(selection,
-                            [](const auto& task) { return task.uuid; });
+    return selection.transform([](const auto& task) { return task.uuid; });
 }
 
 } // namespace sprint_timer::ui

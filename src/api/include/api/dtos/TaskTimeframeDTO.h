@@ -22,12 +22,10 @@
 #ifndef TASKTIMEFRAMEDTO_H_Z5XCFSPI
 #define TASKTIMEFRAMEDTO_H_Z5XCFSPI
 
-#include "core/utils/Algutils.h"
+#include "cpp_utils/algorithms/optional_ext.h"
 #include "date_wrapper/date_wrapper.h"
 #include <optional>
 #include <string>
-
-#include <iostream>
 
 namespace sprint_timer::api {
 
@@ -62,12 +60,11 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskTimeframeDTO& frame)
 {
     os << "TimeframeDTO{";
     os << "start: " << frame.start << " ";
-    utils::inspect(frame.due,
-                   [&](const auto& x) { os << "due: " << x << " "; });
-    utils::inspect(frame.remindAt,
-                   [&](const auto& x) { os << "remind: " << x << " "; });
-    utils::inspect(frame.recurrence,
-                   [&](const auto& x) { os << "recurrence: " << x; });
+    alg::inspect(frame.due, [&](const auto& x) { os << "due: " << x << " "; });
+    alg::inspect(frame.remindAt,
+                 [&](const auto& x) { os << "remind: " << x << " "; });
+    alg::inspect(frame.recurrence,
+                 [&](const auto& x) { os << "recurrence: " << x; });
     os << "}";
     return os;
 }

@@ -20,7 +20,7 @@
 **
 *********************************************************************************/
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include <regex>
 
 namespace {
@@ -103,7 +103,7 @@ decodeDescription(const std::string& description)
         }
     }
 
-    std::string name = sprint_timer::utils::join(nameParts, " ");
+    std::string name = alg::join(nameParts, " ");
 
     return {name, tags, estimatedCost};
 }

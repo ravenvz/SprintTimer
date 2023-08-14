@@ -25,7 +25,7 @@
 namespace sprint_timer::api {
 
 SprintsForTaskHandler::SprintsForTaskHandler(
-    TaskStorageReader& reader_, const Converter<std::string, Tag>& tagMapper_)
+    TaskStorageReader& reader_, const patterns::Converter<std::string, Tag>& tagMapper_)
     : reader{reader_}
     , tagMapper{tagMapper_}
 {

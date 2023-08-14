@@ -20,18 +20,18 @@
 **
 *********************************************************************************/
 #include "core/Tag.h"
-#include "core/utils/Converter.h"
+#include "cpp_utils/patterns/Converter.h"
 #include <ranges>
 #include <span>
 
 namespace sprint_timer::api {
 
-class TagMapper : public Converter<std::string, Tag> {
+class TagMapper : public patterns::Converter<std::string, Tag> {
 private:
-    [[nodiscard]] auto convert(const Tag& tag) const
+    [[nodiscard]] auto make_dto_impl(const Tag& tag) const
         -> std::string override;
 
-    [[nodiscard]] auto convert(const std::string& dto) const
+    [[nodiscard]] auto make_entity_impl(const std::string& dto) const
         -> Tag override;
 };
 

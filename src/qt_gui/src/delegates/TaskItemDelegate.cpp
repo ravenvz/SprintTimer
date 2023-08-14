@@ -21,7 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/delegates/TaskItemDelegate.h"
 #include "api/dtos/TaskDTO.h"
-#include "core/utils/StringUtils.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "qt_gui/metatypes/TaskDTOMetatype.h"
 #include "qt_gui/models/CustomRoles.h"
 #include <QApplication>
@@ -203,12 +203,9 @@ int contentWidth(const QRect& rect) { return rect.width() - 2 * offset; }
 std::tuple<QString, QString, QString>
 extractData(const sprint_timer::api::TaskDTO& item)
 {
-    using namespace sprint_timer::utils;
-    const QString tags{QString::fromStdString(
-        transformJoin(item.tags, " ", [](const auto& elem) {
-            std::string res{"#"};
-            res += elem;
-            return res;
+    const QString tags{
+        QString::fromStdString(alg::join(item.tags, " ", [](const auto& elem) {
+            return std::format("#{}", elem);
         }))};
     return {tags,
             QString::fromStdString(item.name),

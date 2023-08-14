@@ -51,12 +51,14 @@ public:
             bestWorktimePresenter_,
         ui::contracts::TopTagDiagramContract::Presenter& tagDiagramPresenter_,
         ui::contracts::DateRangeSelectorContract::Presenter&
-            dateRangeSelectorPresenter_)
+            dateRangeSelectorPresenter_,
+        const patterns::Converter<QDate, dw::Date>& dateConverter_)
         : dailyStatisticsGraphPresenter{dailyStatisticsGraphPresenter_}
         , bestWorkdayPresenter{bestWorkdayPresenter_}
         , bestWorktimePresenter{bestWorktimePresenter_}
         , tagDiagramPresenter{tagDiagramPresenter_}
         , dateRangeSelectorPresenter{dateRangeSelectorPresenter_}
+        , dateConverter{dateConverter_}
     {
     }
 
@@ -69,11 +71,12 @@ private:
     ui::contracts::TopTagDiagramContract::Presenter& tagDiagramPresenter;
     ui::contracts::DateRangeSelectorContract::Presenter&
         dateRangeSelectorPresenter;
+    const patterns::Converter<QDate, dw::Date>& dateConverter;
 
     std::unique_ptr<ui::qt_gui::StandaloneDisplayableWidget> create() override
     {
         using namespace sprint_timer::ui::qt_gui;
-        auto selector = std::make_unique<DateRangeSelector>();
+        auto selector = std::make_unique<DateRangeSelector>(dateConverter);
         selector->setPresenter(dateRangeSelectorPresenter);
         auto bestWorkdayView = std::make_unique<BestWorkdayWidget>();
         bestWorkdayView->setPresenter(bestWorkdayPresenter);

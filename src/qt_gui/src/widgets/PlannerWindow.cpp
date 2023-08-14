@@ -20,6 +20,8 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/PlannerWindow.h"
+#include "cpp_utils/algorithms/optional_ext.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "qt_gui/models/CustomRoles.h"
 #include "qt_gui/models/PlannerModel.h"
 #include "qt_gui/widgets/ReordableTreeView.h"
@@ -32,17 +34,27 @@
 #include <QVBoxLayout>
 #include <unordered_set>
 
+#include <iostream>
+
 namespace {
 
-constexpr size_t nameCol{0};
-constexpr size_t progressCol{1};
-constexpr size_t tagsCol{2};
-constexpr size_t dueCol{3};
-constexpr size_t reminderCol{4};
-constexpr size_t auxCol{5};
-
-constexpr int numColumns{5};
+constexpr int numColumns{6};
 constexpr int nameRightMargin{10};
+
+auto transformTags(const QString& raw_tags) -> std::vector<std::string>;
+
+auto transformProgress(const QString& raw_progress) -> int;
+
+auto uuidFromIndex =
+    [](const QModelIndex& index) -> std::optional<std::string> {
+    return index.isValid()
+               ? std::optional<std::string>{index
+                                                .data(sprint_timer::ui::qt_gui::
+                                                          CustomRoles::IdRole)
+                                                .value<std::string>()}
+               : std::optional<std::string>{};
+};
+
 } // namespace
 
 namespace sprint_timer::ui::qt_gui {
@@ -97,12 +109,6 @@ PlannerWindow::PlannerWindow(QAbstractItemModel& plannerModel_,
             this,
             &PlannerWindow::showContextMenu);
 
-    auto modelIndexToUuid =
-        [](const QModelIndex& index) -> std::optional<std::string> {
-        return index.isValid()
-                   ? index.data(CustomRoles::IdRole).value<std::string>()
-                   : std::optional<std::string>{};
-    };
     connect(&plannerModel,
             &QAbstractItemModel::rowsMoved,
             [&](const QModelIndex& sourceParent,
@@ -110,97 +116,86 @@ PlannerWindow::PlannerWindow(QAbstractItemModel& plannerModel_,
                 int sourceEnd,
                 const QModelIndex& destinationParent,
                 int destinationRow) {
-                utils::inspect(presenter(), [&](auto* presenter) {
-                    presenter->moveNodes(modelIndexToUuid(sourceParent),
+                alg::inspect(presenter(), [&](auto* presenter) {
+                    presenter->moveNodes(uuidFromIndex(sourceParent),
                                          sourceStart,
                                          sourceEnd - sourceStart + 1,
-                                         modelIndexToUuid(destinationParent),
+                                         uuidFromIndex(destinationParent),
                                          destinationRow);
                 });
             });
+    connect(&plannerModel,
+            &QAbstractItemModel::dataChanged,
+            [&](const QModelIndex& topLeft,
+                const QModelIndex& bottomRight,
+                const QList<int>& roles) {
+                if (roles.contains(Qt::EditRole)) {
+                    handleEdit(topLeft);
+                }
+                if (roles.contains(Qt::CheckStateRole)) {
+                    handleToggle(topLeft);
+                }
+            });
 }
 
-// auto setData(QAbstractItemModel& model,
-//              const contracts::PlannerContract::PlannerItem& payload,
-//              const QModelIndex& parent) -> void
-// {
-//     auto convertItem = [](const auto& itemDescriptor) {
-//         QVariant var;
-//         var.setValue(std::tuple<QString, QColor, QColor>{
-//             QString::fromStdString(itemDescriptor.description),
-//             QColor{
-//                 QString::fromStdString(std::string{itemDescriptor.foreground})},
-//             QColor{QString::fromStdString(
-//                 std::string{itemDescriptor.background})}});
-//         return var;
-//     };
-//
-//     const auto targetRow = model.rowCount(parent);
-//     model.insertRow(targetRow, parent);
-//
-//     model.setData(model.index(targetRow, 0, parent),
-//     convertItem(payload.name)); model.setData(model.index(targetRow, 1,
-//     parent),
-//                   convertItem(payload.progress));
-//     model.setData(model.index(targetRow, 2, parent),
-//     convertItem(payload.tags)); model.setData(model.index(targetRow, 3,
-//     parent),
-//                   convertItem(payload.dueDate));
-//     model.setData(model.index(targetRow, 4, parent),
-//                   convertItem(payload.reminder));
-//     QVariant var;
-//     var.setValue(std::tuple(payload.uuid, payload.finished, payload.type));
-//     model.setData(model.index(targetRow, 5, parent), var);
-// }
+auto PlannerWindow::handleEdit(const QModelIndex& index) const -> void
+{
+    QVariant var = index.data(Qt::EditRole);
+    auto payload =
+        var.value<std::tuple<std::string, QString, QString, QString>>();
+    ;
+    auto [uuid, raw_name, raw_progress, raw_tags] = payload;
+    alg::inspect(presenter(), [&](auto* presenter) {
+        qDebug() << "Transformed value: " << transformProgress(raw_progress);
+        presenter->quickEditTask(std::move(uuid),
+                                 raw_name.toStdString(),
+                                 transformTags(raw_tags),
+                                 transformProgress(raw_progress));
+    });
+}
+
+auto PlannerWindow::handleToggle(const QModelIndex& index) const -> void
+{
+    alg::inspect(presenter(), [&](auto* presenter) {
+        alg::inspect(uuidFromIndex(index),
+                     [&](const auto& uuid) { presenter->toggleTask(uuid); });
+    });
+}
 
 auto PlannerWindow::displayPlanner(
     const contracts::PlannerContract::PlannerTree& taskTree) -> void
 {
+    using contracts::PlannerContract::PlannerTree;
+    using namespace std::views;
+
     plannerModel.removeRows(0, plannerModel.rowCount());
 
-    std::stack<std::pair<QModelIndex, std::string>> frontier;
-    for (const auto& child : std::views::reverse(taskTree.children())) {
+    auto name_tree = taskTree.transform([](const auto& payload) {
+        return std::string{"Name: "} + payload.name.description;
+    });
+
+    std::cout << name_tree.to_string() << std::endl;
+
+    std::stack<std::pair<QModelIndex, PlannerTree::const_iterator>> frontier;
+
+    for (auto child : reverse(taskTree.children_iterators(taskTree.cend()))) {
         frontier.push({QModelIndex{}, child});
     }
 
     while (not frontier.empty()) {
-        const auto parent = frontier.top().first;
-        const auto uuid = std::move(frontier.top().second);
-        const auto& payload = taskTree.payload(uuid).value().get();
+        const auto [parent, it] = frontier.top();
         const auto targetRow = plannerModel.rowCount(parent);
         plannerModel.insertRow(targetRow, parent);
 
-        // setData(plannerModel, payload, parent);
+        QVariant var;
+        var.setValue(*it);
+        plannerModel.setData(plannerModel.index(targetRow, 0, parent),
+                             var,
+                             CustomRoles::ItemRole);
 
         frontier.pop();
 
-        auto convertItem = [](const auto& itemDescriptor) {
-            QVariant var;
-            var.setValue(std::tuple<QString, QColor, QColor>{
-                QString::fromStdString(itemDescriptor.description),
-                QColor{QString::fromStdString(
-                    std::string{itemDescriptor.foreground})},
-                QColor{QString::fromStdString(
-                    std::string{itemDescriptor.background})}});
-            return var;
-        };
-
-        plannerModel.setData(plannerModel.index(targetRow, nameCol, parent),
-                             convertItem(payload.name));
-        plannerModel.setData(plannerModel.index(targetRow, progressCol, parent),
-                             convertItem(payload.progress));
-        plannerModel.setData(plannerModel.index(targetRow, tagsCol, parent),
-                             convertItem(payload.tags));
-        plannerModel.setData(plannerModel.index(targetRow, dueCol, parent),
-                             convertItem(payload.dueDate));
-        plannerModel.setData(plannerModel.index(targetRow, reminderCol, parent),
-                             convertItem(payload.reminder));
-        QVariant var;
-        var.setValue(std::tuple(payload.uuid, payload.finished, payload.type));
-        plannerModel.setData(plannerModel.index(targetRow, auxCol, parent),
-                             var);
-
-        for (const auto& child : std::views::reverse(taskTree.children(uuid))) {
+        for (auto child : reverse(taskTree.children_iterators(it))) {
             frontier.push({plannerModel.index(targetRow, 0, parent), child});
         }
     }
@@ -218,12 +213,18 @@ auto PlannerWindow::showContextMenu(const QPoint& pos) const -> void
     auto globalPos = mapToGlobal(pos);
     QMenu contextMenu;
 
+    const bool treeIsEmpty{outlineView->model()->rowCount() == 0};
+
     auto* addSubtaskAction = contextMenu.addAction("Add Subtask");
     contextMenu.addSeparator();
+
     auto* addSiblingAction = contextMenu.addAction("Add Sibling Task");
+    addSiblingAction->setEnabled(not treeIsEmpty);
     contextMenu.addSeparator();
+
     auto* editAction = contextMenu.addAction("Edit");
     contextMenu.addSeparator();
+
     auto* deleteTaskAction = contextMenu.addAction("Delete");
 
     QAction* selectedEntry = contextMenu.exec(globalPos);
@@ -233,28 +234,30 @@ auto PlannerWindow::showContextMenu(const QPoint& pos) const -> void
     }
 
     if (selectedEntry == addSubtaskAction) {
-        utils::inspect(presenter(), [this](auto* presenter) {
-            presenter->changeTaskAdditionContext(selectedTaskUuid(), true);
+        alg::inspect(presenter(), [this, treeIsEmpty](auto* presenter) {
+            presenter->changeTaskAdditionContext(
+                treeIsEmpty ? std::optional<std::string>{} : selectedTaskUuid(),
+                true);
         });
         addTaskDialog.display();
     }
 
     if (selectedEntry == addSiblingAction) {
-        utils::inspect(presenter(), [this](auto* presenter) {
+        alg::inspect(presenter(), [this](auto* presenter) {
             presenter->changeTaskAdditionContext(selectedTaskUuid(), false);
             addTaskDialog.display();
         });
     }
 
     if (selectedEntry == editAction) {
-        utils::inspect(presenter(), [this](auto* presenter) {
+        alg::inspect(presenter(), [this](auto* presenter) {
             presenter->changeTaskEditionContext(selectedTaskUuid());
         });
         editTaskDialog.display();
     }
 
     if (selectedEntry == deleteTaskAction) {
-        utils::inspect(presenter(), [this](auto* presenter) {
+        alg::inspect(presenter(), [this](auto* presenter) {
             presenter->deleteTask(selectedTaskUuid());
         });
     }
@@ -268,3 +271,23 @@ auto PlannerWindow::selectedTaskUuid() const -> std::string
 }
 
 } // namespace sprint_timer::ui::qt_gui
+
+namespace {
+
+auto transformTags(const QString& raw_tags) -> std::vector<std::string>
+{
+    const std::string s_tags = raw_tags.toStdString();
+    std::vector<std::string> result;
+    alg::parseWords(cbegin(s_tags), cend(s_tags), std::back_inserter(result));
+    return result;
+    ;
+}
+
+auto transformProgress(const QString& raw_progress) -> int
+{
+    qDebug() << "Raw progress: " << raw_progress;
+    return raw_progress.split("/").back().toInt();
+}
+
+} // namespace
+

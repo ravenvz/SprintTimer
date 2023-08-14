@@ -21,18 +21,16 @@
 *********************************************************************************/
 #include "api/dtos/TaskMapper.h"
 #include "api/dtos/TaskTypeMapper.h"
-
-#include "core/utils/Algutils.h"
 #include <algorithm>
 
 namespace sprint_timer::api {
 
 TaskMapper::TaskMapper(
-    const Converter<NoteDTO, Note>& noteMapper_,
-    const Converter<std::string, Tag>& tagMapper_,
-    const Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper_,
-    const Converter<TaskTypeDTO, TaskType>& taskTypeMapper_,
-    const Converter<dw::DateTimeRange, Sprint>& sprintMapper_)
+    const patterns::Converter<NoteDTO, Note>& noteMapper_,
+    const patterns::Converter<std::string, Tag>& tagMapper_,
+    const patterns::Converter<TaskTimeframeDTO, TaskTimeframe>& timeFrameMapper_,
+    const patterns::Converter<TaskTypeDTO, TaskType>& taskTypeMapper_,
+    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper_)
     : noteMapper{noteMapper_}
     , tagMapper{tagMapper_}
     , timeFrameMapper{timeFrameMapper_}
@@ -41,7 +39,7 @@ TaskMapper::TaskMapper(
 {
 }
 
-auto TaskMapper::convert(const Task& task) const -> TaskDTO
+auto TaskMapper::make_dto_impl(const Task& task) const -> TaskDTO
 {
     std::vector<std::string> tags(task.tags().size());
     std::ranges::copy(tagMapper(task.tags()), begin(tags));
@@ -50,8 +48,8 @@ auto TaskMapper::convert(const Task& task) const -> TaskDTO
     std::ranges::copy(sprintMapper(task.sprints()),
                       std::back_inserter(sprints));
     const auto frame = timeFrameMapper(task.timeFrame());
-    const auto notes = utils::transform(
-        task.notes(), [this](const auto& nt) { return noteMapper(nt); });
+    const auto notes = task.notes().transform(
+        [this](const auto& nt) { return noteMapper(nt); });
     return api::TaskDTO{task.uuid(),
                         tags,
                         task.name(),
@@ -64,7 +62,7 @@ auto TaskMapper::convert(const Task& task) const -> TaskDTO
                         taskTypeMapper(task.kind())};
 }
 
-auto TaskMapper::convert(const TaskDTO& dto) const -> Task
+auto TaskMapper::make_entity_impl(const TaskDTO& dto) const -> Task
 {
     std::vector<Tag> tags;
     std::ranges::copy(tagMapper(dto.tags), std::back_inserter(tags));
@@ -72,18 +70,17 @@ auto TaskMapper::convert(const TaskDTO& dto) const -> Task
     sprints.reserve(dto.sprints.size());
     std::ranges::copy(sprintMapper(dto.sprints), std::back_inserter(sprints));
 
-    return Task{
-        dto.name,
-        dto.expectedCost,
-        sprints,
-        dto.uuid,
-        tags,
-        dto.finished,
-        dto.modificationStamp,
-        taskTypeMapper(dto.kind),
-        utils::transform(dto.notes,
-                         [this](const auto& note) { return noteMapper(note); }),
-        timeFrameMapper(dto.timeFrame)};
+    return Task{dto.name,
+                dto.expectedCost,
+                sprints,
+                dto.uuid,
+                tags,
+                dto.finished,
+                dto.modificationStamp,
+                taskTypeMapper(dto.kind),
+                dto.notes.transform(
+                    [this](const auto& note) { return noteMapper(note); }),
+                timeFrameMapper(dto.timeFrame)};
 }
 
 } // namespace sprint_timer::api

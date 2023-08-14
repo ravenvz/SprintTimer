@@ -20,9 +20,10 @@
 **
 *********************************************************************************/
 #include "qt_gui/widgets/TaskSprintsView.h"
-#include "core/utils/StringUtils.h"
-#include "qt_gui/utils/DateTimeConverter.h"
+#include "cpp_utils/algorithms/string_ext.h"
 #include "ui_sprints_for_task_view.h"
+#include <format>
+#include <ranges>
 
 namespace {
 
@@ -30,8 +31,9 @@ using sprint_timer::SprintRecord;
 using sprint_timer::api::SprintDTO;
 using sprint_timer::ui::qt_gui::HistoryModel;
 
-HistoryModel::HistoryData
-transformToHistoryData(const std::vector<SprintDTO>& sprints);
+HistoryModel::HistoryData transformToHistoryData(
+    const std::vector<SprintDTO>& sprints,
+    const patterns::Converter<QDate, dw::Date>& dateConverter);
 
 QString sprintToString(const SprintDTO&);
 
@@ -41,10 +43,13 @@ std::string prefixTags(const std::vector<std::string>& tags);
 
 namespace sprint_timer::ui::qt_gui {
 
-TaskSprintsView::TaskSprintsView(QStyledItemDelegate& delegate_,
-                                 QWidget* parent_)
+TaskSprintsView::TaskSprintsView(
+    QStyledItemDelegate& delegate_,
+    const patterns::Converter<QDate, dw::Date>& dateConverter_,
+    QWidget* parent_)
     : StandaloneDisplayableWidget{parent_}
     , ui{std::make_unique<Ui::TaskSprintsView>()}
+    , dateConverter{dateConverter_}
 {
     ui->setupUi(this);
     ui->treeView->setHeaderHidden(true);
@@ -56,7 +61,7 @@ TaskSprintsView::~TaskSprintsView() = default;
 
 void TaskSprintsView::displaySprints(const std::vector<SprintDTO>& sprints)
 {
-    historyModel.fill(transformToHistoryData(sprints));
+    historyModel.fill(transformToHistoryData(sprints, dateConverter));
     ui->treeView->expandAll();
 }
 
@@ -64,20 +69,17 @@ void TaskSprintsView::displaySprints(const std::vector<SprintDTO>& sprints)
 
 namespace {
 
-HistoryModel::HistoryData
-transformToHistoryData(const std::vector<SprintDTO>& sprints)
+HistoryModel::HistoryData transformToHistoryData(
+    const std::vector<SprintDTO>& sprints,
+    const patterns::Converter<QDate, dw::Date>& dateConverter)
 {
-    using sprint_timer::ui::qt_gui::utils::DateConverter;
     HistoryModel::HistoryData taskSprintsHistory;
     taskSprintsHistory.reserve(sprints.size());
-    std::transform(cbegin(sprints),
-                   cend(sprints),
-                   std::back_inserter(taskSprintsHistory),
-                   [](const auto& elem) {
-                       return std::make_pair(
-                           DateConverter{}(elem.timeRange.start().date()),
-                           sprintToString(elem));
-                   });
+    std::ranges::transform(
+        sprints, std::back_inserter(taskSprintsHistory), [&](const auto& elem) {
+            return std::make_pair(dateConverter(elem.timeRange.start().date()),
+                                  sprintToString(elem));
+        });
     return taskSprintsHistory;
 }
 
@@ -94,11 +96,8 @@ QString sprintToString(const SprintDTO& sprint)
 
 std::string prefixTags(const std::vector<std::string>& tags)
 {
-    return sprint_timer::utils::transformJoin(tags, " ", [](const auto& el) {
-        std::string res{"#"};
-        res += el;
-        return res;
-    });
+    return alg::join(
+        tags, " ", [](const auto& el) { return std::format("#{}", el); });
 }
 
 } // namespace

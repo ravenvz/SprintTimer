@@ -32,11 +32,11 @@ TestQueryHandlerComposer::TestQueryHandlerComposer(
     SprintDistributionReader& mondayFirstWeeklyDistReader_,
     SprintDistributionReader& sundayFirstWeeklyDistReader_,
     SprintDistributionReader& monthlyDistReader_,
-    const Converter<api::TaskDTO, Task>& taskMapper_,
-    const Converter<std::string, Tag>& tagMapper_,
+    const patterns::Converter<api::TaskDTO, Task>& taskMapper_,
+    const patterns::Converter<std::string, Tag>& tagMapper_,
     // const Converter<dw::DateTimeRange, Sprint>& sprintMapper_,
-    const Converter<api::SprintDTO, SprintRecord>& sprintMapper_,
-    const Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_)
+    const patterns::Converter<api::SprintDTO, SprintRecord>& sprintMapper_,
+    const patterns::Converter<api::TaskTreeDTO, TaskTree>& taskTreeMapper_)
     : activeTasks{taskStorage_, taskMapper_}
     , allTags{taskStorage_}
     , requestSprints{sprintStorage_, sprintMapper_}
