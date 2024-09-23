@@ -19,23 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#ifndef PLANNERVIEWS_H_VIALEI4G
+#define PLANNERVIEWS_H_VIALEI4G
 
-namespace sprint_timer::api {
+#include "qt_gui/presentation/PlannerViewsContract.h"
+#include <QAbstractItemModel>
+#include <QTreeView>
+#include <QWidget>
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
-{
-}
+namespace sprint_timer::ui::qt_gui {
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
-{
-    return taskTreeMapper(taskStorageReader.taskTree());
-}
+class PlannerViews : public QWidget,
+                     public ui::contracts::PlannerViewsContract::View {
+public:
+    explicit PlannerViews(QAbstractItemModel& plannerViewsModel_,
+                          QWidget* parent_ = nullptr);
 
-} // namespace sprint_timer::api
+    auto displayViews(const ui::contracts::PlannerViewsContract::ViewsTree&
+                          viewsTree) -> void override;
+
+private:
+    QAbstractItemModel& plannerViewsModel;
+    QTreeView* treeView;
+};
+
+} // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: PLANNERVIEWS_H_VIALEI4G */
+

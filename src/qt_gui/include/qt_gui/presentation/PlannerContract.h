@@ -60,8 +60,8 @@ struct PlannerItem {
     bool recurrent;
     api::TaskTypeDTO type;
 
-    friend auto operator==(const PlannerItem&, const PlannerItem&)
-        -> bool = default;
+    friend auto operator==(const PlannerItem&,
+                           const PlannerItem&) -> bool = default;
 };
 
 using PlannerTree = TreeType<PlannerItem>;

@@ -19,23 +19,34 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#include "core/TreeType.h"
+#include "qt_gui/mvp/BasePresenter.h"
+#include "qt_gui/mvp/BaseView.h"
 
-namespace sprint_timer::api {
+#ifndef PLANNERVIEWSCONTRACT_H_QUSKLZBW
+#define PLANNERVIEWSCONTRACT_H_QUSKLZBW
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
-{
-}
+namespace sprint_timer::ui::contracts::PlannerViewsContract {
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
-{
-    return taskTreeMapper(taskStorageReader.taskTree());
-}
+struct PlannerViewItem {
+    std::string name;
+    std::string iconPath;
+};
 
-} // namespace sprint_timer::api
+using ViewsTree = TreeType<PlannerViewItem>;
+
+class View;
+
+class Presenter : public mvp::BasePresenter<View> {
+public:
+    virtual auto viewClicked(const std::string& viewName) -> void = 0;
+};
+
+class View : public mvp::BaseView<View, Presenter> {
+public:
+    virtual auto displayViews(const ViewsTree& viewsTree) -> void = 0;
+};
+
+} // namespace sprint_timer::ui::contracts::PlannerViewsContract
+
+#endif /* end of include guard: PLANNERVIEWSCONTRACT_H_QUSKLZBW */

@@ -31,11 +31,11 @@ class Observable {
 public:
     virtual ~Observable() = default;
 
-    virtual void attach(Observer& observer);
+    void attach(Observer& observer);
 
-    virtual void detach(Observer& observer);
+    void detach(Observer& observer);
 
-    virtual void notify();
+    void notify();
 
 protected:
     std::unordered_set<Observer*> observers;

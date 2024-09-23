@@ -19,23 +19,31 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#ifndef PLANNERVIEWSPRESENTER_H_AE7IHF5O
+#define PLANNERVIEWSPRESENTER_H_AE7IHF5O
 
-namespace sprint_timer::api {
+#include "qt_gui/presentation/TaskTreeFilter.h"
+#include "core/TreeType.h"
+#include "qt_gui/presentation/PlannerViewsContract.h"
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
-{
-}
+namespace sprint_timer::ui {
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
-{
-    return taskTreeMapper(taskStorageReader.taskTree());
-}
+class PlannerViewsPresenter
+    : public contracts::PlannerViewsContract::Presenter {
+public:
+    explicit PlannerViewsPresenter(TaskTreeFilter& taskTreeFilter_);
 
-} // namespace sprint_timer::api
+    auto viewClicked(const std::string& name) -> void override;
+
+private:
+    TaskTreeFilter& taskTreeFilter;
+    TreeType<ui::contracts::PlannerViewsContract::PlannerViewItem> viewTree;
+
+    auto updateViewImpl() -> void override;
+
+    auto fetchDataImpl() -> void override;
+};
+
+} // namespace sprint_timer::ui
+
+#endif /* end of include guard: PLANNERVIEWSPRESENTER_H_AE7IHF5O */

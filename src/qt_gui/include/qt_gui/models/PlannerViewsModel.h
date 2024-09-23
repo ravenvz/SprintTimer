@@ -19,23 +19,25 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#ifndef PLANNERVIEWSMODEL_H_PT9GFURC
+#define PLANNERVIEWSMODEL_H_PT9GFURC
 
-namespace sprint_timer::api {
+#include "qt_gui/TreeModel.h"
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
-{
-}
+namespace sprint_timer::ui::qt_gui {
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
-{
-    return taskTreeMapper(taskStorageReader.taskTree());
-}
+class PlannerViewsModel : public TreeModel {
+public:
+    explicit PlannerViewsModel(QObject* parent_ = nullptr);
 
-} // namespace sprint_timer::api
+    auto setData(const QModelIndex& index, const QVariant& value, int role)
+        -> bool override;
+
+    auto data(const QModelIndex& index, int role) const -> QVariant override;
+private:
+};
+
+} // namespace sprint_timer::ui::qt_gui
+
+#endif /* end of include guard: PLANNERVIEWSMODEL_H_PT9GFURC */
+

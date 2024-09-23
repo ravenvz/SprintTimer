@@ -19,23 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#ifndef TASKVIEWFILTERSFACTORY_H_BPN62I8N
+#define TASKVIEWFILTERSFACTORY_H_BPN62I8N
 
-namespace sprint_timer::api {
+#include "api/DateTimeProvider.h"
+#include "qt_gui/presentation/TaskTreeFilter.h"
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
-{
-}
+namespace sprint_timer::ui {
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
-{
-    return taskTreeMapper(taskStorageReader.taskTree());
-}
+auto makeTaskViewFilters(const api::DateTimeProvider& dateTimeProvider)
+    -> ui::TaskTreeFilter::FilterMap;
 
-} // namespace sprint_timer::api
+} // namespace sprint_timer::ui
+
+#endif /* end of include guard: TASKVIEWFILTERSFACTORY_H_BPN62I8N */

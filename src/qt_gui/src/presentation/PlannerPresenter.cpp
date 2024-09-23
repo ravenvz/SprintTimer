@@ -112,14 +112,14 @@ public:
 
 class MakeItem {
 public:
-    explicit MakeItem(std::span<const MakeItemStrategy*> strategies_)
+    explicit MakeItem(std::span<std::unique_ptr<MakeItemStrategy>> strategies_)
         : strategies{strategies_}
     {
     }
 
     auto operator()(const TaskDTO& task) const -> PlannerItem
     {
-        const auto* strategy = strategies[static_cast<size_t>(task.kind)];
+        const auto& strategy = strategies[static_cast<size_t>(task.kind)];
         const auto& taskTags = task.tags;
         const auto tags = alg::join(cbegin(taskTags), cend(taskTags), ", ");
         return PlannerItem{task.uuid,
@@ -136,7 +136,7 @@ public:
     }
 
 private:
-    std::span<const MakeItemStrategy*> strategies;
+    std::span<std::unique_ptr<MakeItemStrategy>> strategies;
 };
 
 auto weekdayToString(dw::DateTime dateTime) -> std::string;
@@ -151,6 +151,7 @@ namespace sprint_timer::ui {
 
 PlannerPresenter::PlannerPresenter(
     PlannerColors colors_,
+    TaskTreeFilter& taskTreeFilter_,
     read_planner_handler_t& readPlannerHandler_,
     save_planner_handler_t& savePlannerHandler_,
     delete_task_handler_t& deleteTaskHandler_,
@@ -160,6 +161,7 @@ PlannerPresenter::PlannerPresenter(
     EditTaskContext& editTaskContext_,
     const api::DateTimeProvider& timeProvider_)
     : colors{colors_}
+    , taskTreeFilter{taskTreeFilter_}
     , readPlannerHandler{readPlannerHandler_}
     , savePlannerHandler{savePlannerHandler_}
     , deleteTaskHandler{deleteTaskHandler_}
@@ -169,30 +171,38 @@ PlannerPresenter::PlannerPresenter(
     , editTaskContext{editTaskContext_}
     , timeProvider{timeProvider_}
 {
+    taskTreeFilter.attach(*this);
 }
+
+PlannerPresenter::~PlannerPresenter() { taskTreeFilter.detach(*this); }
 
 void PlannerPresenter::updateViewImpl()
 {
     if (auto v = view(); v) {
-        std::array<const MakeItemStrategy*, 3> strategies{
+        std::array<std::unique_ptr<MakeItemStrategy>, 3> strategies{
             std::make_unique<MakeProjectStrategy>(
-                data, colors, timeProvider.dateTimeLocalNow())
-                .release(),
+                data, colors, timeProvider.dateTimeLocalNow()),
             std::make_unique<MakeFolderStrategy>(
-                data, colors, timeProvider.dateTimeLocalNow())
-                .release(),
+                data, colors, timeProvider.dateTimeLocalNow()),
             std::make_unique<MakeRegularStrategy>(
-                data, colors, timeProvider.dateTimeLocalNow())
-                .release(),
+                data, colors, timeProvider.dateTimeLocalNow()),
         };
         const auto itemMaker = MakeItem{strategies};
-        v.value()->displayPlanner(data.transform(itemMaker));
+        if (auto filtered = filteredData; filteredData) {
+            v.value()->displayPlanner(filteredData->transform(itemMaker));
+        }
+        else {
+            v.value()->displayPlanner(data.transform(itemMaker));
+        }
     }
 }
 
 void PlannerPresenter::fetchDataImpl()
 {
     data = readPlannerHandler.handle(api::ReadTaskTreeQuery{});
+    if (taskTreeFilter.currentFilter()) {
+        filteredData = taskTreeFilter(data);
+    }
 }
 
 auto PlannerPresenter::moveNodes(
@@ -266,6 +276,21 @@ auto PlannerPresenter::toggleTask(const std::string& uuid) -> void
         toggleTaskCompletedHandler.handle(api::ToggleTaskCompletedCommand{
             uuid, timeProvider.dateTimeLocalNow()});
     }
+}
+
+// auto PlannerPresenter::installFilter(FilterFn filter) -> void
+// {
+//     dataFilter = filter;
+//     data = dataFilter.value()(data);
+//     updateView();
+// }
+
+auto PlannerPresenter::update() -> void
+{
+    filteredData = taskTreeFilter.currentFilter()
+                       ? taskTreeFilter(data)
+                       : std::optional<api::TaskTreeDTO>{};
+    updateView();
 }
 
 } // namespace sprint_timer::ui

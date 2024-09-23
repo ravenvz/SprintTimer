@@ -32,9 +32,11 @@
 #include "api/requests/ReadTaskTreeQuery.h"
 #include "api/requests/SaveTaskTreeCommand.h"
 #include "api/requests/ToggleTaskCompletedCommand.h"
+#include "core/Observer.h"
 #include "qt_gui/presentation/AddTaskContext.h"
 #include "qt_gui/presentation/EditTaskContext.h"
 #include "qt_gui/presentation/PlannerContract.h"
+#include "qt_gui/presentation/TaskTreeFilter.h"
 
 namespace sprint_timer::ui {
 
@@ -52,7 +54,8 @@ struct PlannerColors {
     std::string_view tag;
 };
 
-class PlannerPresenter : public contracts::PlannerContract::Presenter {
+class PlannerPresenter : public contracts::PlannerContract::Presenter,
+                         public Observer {
 public:
     using read_planner_handler_t = asp::QueryHandler<api::ReadTaskTreeQuery>;
     using save_planner_handler_t = asp::QueryHandler<api::SaveTaskTreeCommand>;
@@ -63,6 +66,7 @@ public:
 
     PlannerPresenter(
         PlannerColors colors_,
+        TaskTreeFilter& taskTreeFilter_,
         read_planner_handler_t& readPlannerHandler_,
         save_planner_handler_t& savePlannerHandler_,
         delete_task_handler_t& deleteTaskHandler_,
@@ -71,6 +75,8 @@ public:
         AddTaskContext& addTaskContext_,
         EditTaskContext& editTaskContext_,
         const api::DateTimeProvider& timeProvider_);
+
+    ~PlannerPresenter() override;
 
     auto moveNodes(const std::optional<std::string>& sourceParent,
                    int64_t sourceRow,
@@ -90,10 +96,13 @@ public:
                        std::vector<std::string>&& tags,
                        int cost) -> void override;
 
-    virtual auto toggleTask(const std::string& uuid) -> void override;
+    auto toggleTask(const std::string& uuid) -> void override;
+
+    auto update() -> void override;
 
 private:
     PlannerColors colors;
+    TaskTreeFilter& taskTreeFilter;
     read_planner_handler_t& readPlannerHandler;
     save_planner_handler_t& savePlannerHandler;
     delete_task_handler_t& deleteTaskHandler;
@@ -103,6 +112,7 @@ private:
     EditTaskContext& editTaskContext;
     const api::DateTimeProvider& timeProvider;
     api::TaskTreeDTO data;
+    std::optional<api::TaskTreeDTO> filteredData;
 
     void updateViewImpl() override;
 

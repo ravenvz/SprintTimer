@@ -210,6 +210,46 @@ auto Migration_v7::run(const QString& connectionName) const -> void
     // "WHERE sprint.deleted = 0 AND task.deleted = 0 "
     // "GROUP BY task.id;"
 
+    // tryExecute(query,
+    //            "CREATE TABLE IF NOT EXISTS planner_views (view_name STRING "
+    //            "UNIQUE NOT NULL);");
+    // tryExecute(query, "INSERT INTO planner_views(view_name) VALUES(NULL);");
+    // tryExecute(query, "INSERT INTO planner_views(view_name) VALUES(NULL);");
+    // tryExecute(query, "INSERT INTO planner_views(view_name)
+    // VALUES('Inbox');"); tryExecute(query,
+    //            "INSERT INTO planner_views(view_name) VALUES('Starred');");
+    // tryExecute(query,
+    //            "INSERT INTO planner_views(view_name) VALUES('Outline');");
+    // tryExecute(query, "INSERT INTO planner_views(view_name)
+    // VALUES('TODO');"); tryExecute(query, "INSERT INTO
+    // planner_views(view_name) VALUES('Recent');"); tryExecute(query, "INSERT
+    // INTO planner_views(view_name) VALUES(NULL);"); tryExecute(query,
+    //            "INSERT INTO planner_views(view_name) VALUES('All Tasks');");
+    // tryExecute(query,
+    //            "INSERT INTO planner_views(view_name) VALUES('Projects');");
+    // tryExecute(query, "INSERT INTO planner_views(view_name)
+    // VALUES('Goals');"); tryExecute(query, "INSERT INTO
+    // planner_views(view_name) VALUES('Review');"); tryExecute(query, "INSERT
+    // INTO planner_views(view_name) VALUES(NULL);"); tryExecute(query, "INSERT
+    // INTO planner_views(view_name) VALUES(NULL);"); tryExecute(
+    //     query,
+    //     "INSERT INTO planner_views(view_name) VALUES('Active Actions');");
+    // tryExecute(
+    //     query,
+    //     "INSERT INTO planner_views(view_name) VALUES('Active by context');");
+    // tryExecute(
+    //     query,
+    //     "INSERT INTO planner_views(view_name) VALUES('Active by project');");
+    // tryExecute(
+    //     query,
+    //     "INSERT INTO planner_views(view_name) VALUES('Due next 7 days');");
+    // tryExecute(
+    //     query,
+    //     "INSERT INTO planner_views(view_name) VALUES('Missed reminders');");
+    // tryExecute(query, "INSERT INTO planner_views(view_name) VALUES(NULL);");
+    // tryExecute(query, "INSERT INTO planner_views(view_name) VALUES(NULL);");
+    // tryExecute(query, "INSERT INTO planner_views(view_name) VALUES(NULL);");
+
     tryExecute(
         query,
         "CREATE TRIGGER instead_task_tag_view_insert "

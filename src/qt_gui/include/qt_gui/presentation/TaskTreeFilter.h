@@ -19,23 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#ifndef TASKTREEFILTER_H_ZRBSFCL4
+#define TASKTREEFILTER_H_ZRBSFCL4
 
-namespace sprint_timer::api {
+#include "api/dtos/TaskTreeDTO.h"
+#include "core/Observable.h"
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
-{
-}
+#include <optional>
+#include <unordered_map>
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
-{
-    return taskTreeMapper(taskStorageReader.taskTree());
-}
+namespace sprint_timer::ui {
 
-} // namespace sprint_timer::api
+class TaskTreeFilter : public Observable {
+public:
+    using FilterId = std::string;
+    using Filter = std::function<api::TaskTreeDTO(const api::TaskTreeDTO&)>;
+    using FilterMap = std::unordered_map<FilterId, Filter>;
+
+    explicit TaskTreeFilter(FilterMap&& filterMap);
+
+    auto operator()(const api::TaskTreeDTO& taskTree) const -> api::TaskTreeDTO;
+
+    auto select(const FilterId& filter) -> void;
+
+    auto currentFilter() const -> std::optional<FilterId>;
+
+    auto clear() -> void;
+
+private:
+    FilterMap filterMap;
+    std::optional<FilterId> selectedFilter;
+};
+
+} // namespace sprint_timer::ui
+
+#endif /* end of include guard: TASKTREEFILTER_H_ZRBSFCL4 */

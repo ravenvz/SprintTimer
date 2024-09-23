@@ -36,8 +36,8 @@ struct TaskTimeframeDTO {
     std::optional<std::string> recurrence{};
 };
 
-inline auto operator==(const TaskTimeframeDTO& lhs, const TaskTimeframeDTO& rhs)
-    -> bool
+inline auto operator==(const TaskTimeframeDTO& lhs,
+                       const TaskTimeframeDTO& rhs) -> bool
 {
     auto date_time_equal = [](const auto& left, const auto& right) {
         return std::tuple(

@@ -227,73 +227,142 @@ public:
                Note{"Some notes for task 7"},
                TaskTimeframe{}};
 
-    // [[nodiscard]] auto buildSampleTree() const -> TaskTree
-    // {
-    //     #<{(|
-    //      * folder1
-    //      *    folder2
-    //      *       project1
-    //      *          project2
-    //      *          project3
-    //      *             folder3
-    //      *                task1
-    //      * project4
-    //      *    task2
-    //      *       task3
-    //      *       task4
-    //      *          task5
-    //      *          recurringTask1
-    //      *    task6
-    //      * task7
-    //      |)}>#
-    //     TaskTree tree;
-    //     insertTask(tree, folder1, std::nullopt);
-    //     insertTask(tree, folder2, "f1");
-    //     insertTask(tree, project1, "f2");
-    //     insertTask(tree, project2, "p1");
-    //     insertTask(tree, project3, "p1");
-    //     insertTask(tree, folder3, "p3");
-    //     insertTask(tree, task1, "f3");
-    //     insertTask(tree, project4, std::nullopt);
-    //     insertTask(tree, task2, "p4");
-    //     insertTask(tree, task3, "t2");
-    //     insertTask(tree, task4, "t2");
-    //     insertTask(tree, task5, "t4");
-    //     insertTask(tree, recurringTask1, "t4");
-    //     insertTask(tree, task6, "p4");
-    //     insertTask(tree, task7, std::nullopt);
-    //     return tree;
-    // }
+    [[nodiscard]] auto buildSampleTree() const -> TaskTree
+    {
+        /*
+         * folder1
+         *    folder2
+         *       project1
+         *          project2
+         *          project3
+         *             folder3
+         *                task1
+         * project4
+         *    task2
+         *       task3
+         *       task4
+         *          task5
+         *          recurringTask1
+         *    task6
+         * task7
+         */
+        auto uuid_projection = [](const auto& node) { return node.uuid(); };
+        TaskTree tree;
+        tree.insert(tree.end(), folder1);
+        tree.insert(std::ranges::find(tree, folder1.uuid(), uuid_projection),
+                    folder2);
+        tree.insert(std::ranges::find(tree, folder2.uuid(), uuid_projection),
+                    project1);
+        tree.insert(std::ranges::find(tree, project1.uuid(), uuid_projection),
+                    project2);
+        tree.insert(std::ranges::find(tree, project1.uuid(), uuid_projection),
+                    project3);
+        tree.insert(std::ranges::find(tree, project3.uuid(), uuid_projection),
+                    folder3);
+        tree.insert(std::ranges::find(tree, folder3.uuid(), uuid_projection),
+                    task1);
+        tree.insert(tree.end(), project4);
+        tree.insert(std::ranges::find(tree, project4.uuid(), uuid_projection),
+                    task2);
+        tree.insert(std::ranges::find(tree, task2.uuid(), uuid_projection),
+                    task3);
+        tree.insert(std::ranges::find(tree, task2.uuid(), uuid_projection),
+                    task4);
+        tree.insert(std::ranges::find(tree, task4.uuid(), uuid_projection),
+                    task5);
+        tree.insert(std::ranges::find(tree, task4.uuid(), uuid_projection),
+                    recurringTask1);
+        tree.insert(std::ranges::find(tree, project4.uuid(), uuid_projection),
+                    task6);
+        tree.insert(tree.end(), task7);
+        return tree;
+    }
 };
 
-TEST_F(TaskTreeFixture, returns_immediate_tasks)
-{
-    FAIL();
-    // const TaskTree tree = buildSampleTree();
-    // std::vector<Task> expected{
-    //     project2, task1, task3, task5, recurringTask1, task6, task7};
-    //
-    // EXPECT_EQ(expected, immediateTasks(tree));
-}
-
-TEST_F(TaskTreeFixture, returns_projects_subtrees)
-{
-    FAIL();
-
-    // const TaskTree tree = buildSampleTree();
-    // TaskTree expected;
-    // insertTask(expected, project1, std::nullopt);
-    // insertTask(expected, project2, "p1");
-    // insertTask(expected, project3, "p1");
-    // insertTask(expected, folder3, "p3");
-    // insertTask(expected, task1, "f3");
-    // insertTask(expected, project4, std::nullopt);
-    // insertTask(expected, task2, "p4");
-    // insertTask(expected, task3, "t2");
-    // insertTask(expected, task4, "t2");
-    // insertTask(expected, task5, "t4");
-    // insertTask(expected, recurringTask1, "t4");
-    // insertTask(expected, task6, "p4");
-    //
-    // EXPECT_EQ(expected, projects(tree));
-}
+// auto immediateTasks(const TaskTree& tree) -> TaskTree
+// {
+//     return tree.leaves([](const auto& task) {
+//         return task.kind() != TaskType::Folder and task.isCompleted() == false;
+//     });
+// }
+//
+// auto projects(const TaskTree& tree) -> TaskTree {
+//     return tree.search([](const auto& task) {
+//         return task.kind() == TaskType::Project;
+//     });
+// }
+//
+// TEST_F(TaskTreeFixture, returns_immediate_tasks)
+// {
+//     const TaskTree tree = buildSampleTree();
+//     TaskTree expected;
+//     expected.insert(expected.end(), project2);
+//     expected.insert(expected.end(), task1);
+//     expected.insert(expected.end(), task3);
+//     expected.insert(expected.end(), task5);
+//     expected.insert(expected.end(), recurringTask1);
+//     expected.insert(expected.end(), task7);
+//
+//     EXPECT_EQ(expected, immediateTasks(tree));
+// }
+//
+// TEST_F(TaskTreeFixture, returns_projects_subtrees)
+// {
+//     #<{(|
+//      * folder1
+//      *    folder2
+//      *       project1
+//      *          project2
+//      *          project3
+//      *             folder3
+//      *                task1
+//      * project4
+//      *    task2
+//      *       task3
+//      *       task4
+//      *          task5
+//      *          recurringTask1
+//      *    task6
+//      * task7
+//      |)}>#
+//
+//     #<{(|
+//      * project1
+//      *    project2
+//      *    project3
+//      *       folder3
+//      *          task1
+//      * project2
+//      * project3
+//      *    folder3
+//      *       task1
+//      * project4
+//      *    task2
+//      *       task3
+//      *       task4
+//      *          task5
+//      *          recurringTask1
+//      *    task6
+//      |)}>#
+//
+//     const TaskTree tree = buildSampleTree();
+//     TaskTree expected;
+//     auto it1 = expected.insert(expected.end(), project1);
+//     expected.insert(it1, project2);
+//     auto it2 = expected.insert(it1, project3);
+//     auto it3 = expected.insert(it2, folder3);
+//     expected.insert(it3, task1);
+//     expected.insert(expected.end(), project2);
+//     auto it5 = expected.insert(expected.end(), project3);
+//     auto it6 = expected.insert(it5, folder3);
+//     expected.insert(it6, task1);
+//     auto it7 = expected.insert(expected.end(), project4);
+//     auto it8 = expected.insert(it7, task2);
+//     expected.insert(it8, task3);
+//     auto it9 = expected.insert(it8, task4);
+//     expected.insert(it9, task5);
+//     expected.insert(it9, recurringTask1);
+//     expected.insert(it7, task6);
+//
+//     EXPECT_EQ(expected, projects(tree));
+// }

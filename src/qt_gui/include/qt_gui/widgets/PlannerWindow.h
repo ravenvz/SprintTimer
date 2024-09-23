@@ -40,6 +40,7 @@ class PlannerWindow : public StandaloneDisplayableWidget,
 public:
     PlannerWindow(QAbstractItemModel& plannerModel_,
                   QAbstractItemDelegate& itemDelegate_,
+                  std::unique_ptr<QWidget> plannerViews_,
                   Displayable& addTaskDialog_,
                   Displayable& editTaskDialog_,
                   QWidget* parent_ = nullptr);
@@ -50,6 +51,7 @@ public:
 private:
     QAbstractItemModel& plannerModel;
     QTreeView* outlineView;
+    // QWidget& plannerViews;
     Displayable& addTaskDialog;
     Displayable& editTaskDialog;
 

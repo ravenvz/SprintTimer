@@ -19,23 +19,28 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "api/dtos/TaskTreeMapper.h"
 #include "api/requests/CreateTaskCommand.h"
 #include "api/requests/DeleteTaskCommand.h"
 #include "api/requests/EditTaskCommand.h"
 #include "api/requests/ReadTaskTreeQuery.h"
 #include "api/requests/SaveTaskTreeCommand.h"
 #include "api/requests/ToggleTaskCompletedCommand.h"
+#include "common_utils/TaskDtoTreeFixtures.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/PlannerPresenter.h"
+#include "qt_gui/presentation/PredefinedTaskViewFilters.h"
 #include "gmock/gmock.h"
 
 namespace {
 
 using sprint_timer::api::TaskTreeDTO;
+using sprint_timer::ui::contracts::PlannerContract::Item;
 using sprint_timer::ui::contracts::PlannerContract::PlannerItem;
+using sprint_timer::ui::contracts::PlannerContract::PlannerTree;
 
-constexpr std::string_view defaultBackround{"defaultBackground"};
+constexpr std::string_view defaultBackground{"defaultBackground"};
 constexpr std::string_view textColor{"textColor"};
 constexpr std::string_view contrastColor{"contrastColor"};
 constexpr std::string_view normalWorkColor{"normalWorkColor"};
@@ -50,17 +55,34 @@ constexpr std::string_view tagColor{"tagColor"};
 
 auto id_projection = [](const auto& node) { return node.uuid; };
 
+using Items = std::vector<PlannerItem>;
+using MappedItems = std::vector<std::pair<PlannerItem, Items>>;
+
+auto get_subchildren(const PlannerTree& tree) -> MappedItems
+{
+    auto map_iterator_to_children = [&](auto it) {
+        return std::pair{*it, tree.children(it) | std::ranges::to<Items>()};
+    };
+    return tree.children_iterators(tree.end()) |
+           std::views::transform(map_iterator_to_children) |
+           std::ranges::to<MappedItems>();
+};
+
 } // namespace
 
+using ::testing::_;
+using ::testing::AllOf;
+using ::testing::Field;
+using ::testing::NiceMock;
+using ::testing::Pair;
+using ::testing::ResultOf;
+using ::testing::Return;
+using namespace dw;
+using namespace sprint_timer::api;
+using namespace std::chrono_literals;
 using sprint_timer::ui::PlannerColors;
 using sprint_timer::ui::contracts::PlannerContract::PlannerItem;
 using sprint_timer::ui::contracts::PlannerContract::PlannerTree;
-using ::testing::_;
-using ::testing::NiceMock;
-using ::testing::Return;
-using namespace sprint_timer::api;
-using namespace dw;
-using namespace std::chrono_literals;
 
 class PlannerWindowMock
     : public sprint_timer::ui::contracts::PlannerContract::View {
@@ -68,15 +90,26 @@ public:
     MOCK_METHOD(void, displayPlanner, ((const PlannerTree&)), (override));
 };
 
-class MockDateTimeProvider : public DateTimeProvider {
+class StubDateTimeProvider : public sprint_timer::api::DateTimeProvider {
 public:
-    MOCK_METHOD(dw::Date, dateNow, (), (const override));
+    StubDateTimeProvider(dw::DateTime anchorTime_)
+        : anchorTime{anchorTime_}
+    {
+    }
 
-    MOCK_METHOD(dw::DateTime, dateTimeNow, (), (const override));
+    auto dateNow() const -> dw::Date override { return anchorTime.date(); }
 
-    MOCK_METHOD(dw::Date, dateLocalNow, (), (const override));
+    auto dateTimeNow() const -> dw::DateTime override { return anchorTime; }
 
-    MOCK_METHOD(dw::DateTime, dateTimeLocalNow, (), (const override));
+    auto dateLocalNow() const -> dw::Date override { return anchorTime.date(); }
+
+    auto dateTimeLocalNow() const -> dw::DateTime override
+    {
+        return anchorTime;
+    }
+
+private:
+    dw::DateTime anchorTime;
 };
 
 class PlannerPresenterFixture : public ::testing::Test {
@@ -93,12 +126,16 @@ public:
     NiceMock<mocks::CommandHandlerMock<
         sprint_timer::api::ToggleTaskCompletedCommand>>
         toggleTaskHandler;
-    NiceMock<MockDateTimeProvider> dateTimeProvider;
+    DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} + 10h};
+    std::unique_ptr<StubDateTimeProvider> dateTimeProvider =
+        std::make_unique<StubDateTimeProvider>(anchorTime);
+    // std::unique_ptr<DefaultDateTimeProvider> dateTimeProvider =
+    // std::make_unique<DefaultDateTimeProvider>();
     sprint_timer::ui::AddTaskContext addTaskContext;
     sprint_timer::ui::EditTaskContext editTaskContext;
     PlannerColors plannerColors{textColor,
                                 contrastColor,
-                                defaultBackround,
+                                defaultBackground,
                                 normalWorkColor,
                                 doneWorkColor,
                                 overworkWorkColor,
@@ -107,7 +144,10 @@ public:
                                 dueTodayColor,
                                 dueOverdueColor,
                                 tagColor};
+    sprint_timer::ui::TaskTreeFilter taskTreeFilter{
+        sprint_timer::ui::makeTaskViewFilters(*dateTimeProvider)};
     sprint_timer::ui::PlannerPresenter sut{plannerColors,
+                                           taskTreeFilter,
                                            readPlannerHandler,
                                            savePlannerHandler,
                                            deleteTaskHandler,
@@ -115,7 +155,37 @@ public:
                                            toggleTaskHandler,
                                            addTaskContext,
                                            editTaskContext,
-                                           dateTimeProvider};
+                                           *dateTimeProvider};
+    fixtures::TaskDtoTreeFixture taskDtoTreeFixture{anchorTime};
+
+    [[nodiscard]] auto buildSampleTree() const -> TaskTreeDTO
+    {
+        /*
+         * folder1
+         *    folder2
+         *       project1
+         *          project2
+         *          project3
+         *             folder3
+         *                task1
+         * project4
+         *    task2
+         *       task3
+         *       task4
+         *          task5
+         *          recurringTask1
+         *    task6
+         * task7
+         */
+        return taskDtoTreeFixture.tree;
+    }
+
+    auto setupSampleTree()
+    {
+        auto taskTree = buildSampleTree();
+        ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+            .WillByDefault(Return(taskTree));
+    }
 };
 
 TEST_F(PlannerPresenterFixture, does_nothing_when_view_is_not_attached)
@@ -130,8 +200,6 @@ TEST_F(PlannerPresenterFixture, updates_view_when_view_is_attached)
     auto matches_tree = [](const PlannerTree& tree) {
         return tree == PlannerTree{};
     };
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(dw::current_date_time_local()));
     ON_CALL(readPlannerHandler, handle(sprint_timer::api::ReadTaskTreeQuery{}))
         .WillByDefault(
             Return(::testing::ByMove(sprint_timer::api::TaskTreeDTO{})));
@@ -143,9 +211,6 @@ TEST_F(PlannerPresenterFixture, updates_view_when_view_is_attached)
 
 TEST_F(PlannerPresenterFixture, updates_view)
 {
-    using namespace sprint_timer::api;
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -164,20 +229,18 @@ TEST_F(PlannerPresenterFixture, updates_view)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"1",
-                    {"Some root task", textColor, defaultBackround},
-                    {"Tag9, Tag2", tagColor, defaultBackround},
-                    {"0/2", textColor, defaultBackround},
+                    {"Some root task", textColor, defaultBackground},
+                    {"Tag9, Tag2", tagColor, defaultBackground},
+                    {"0/2", textColor, defaultBackground},
                     anchorTime,
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     "Just some text note",
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Regular});
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(dw::current_date_time_local()));
 
     EXPECT_CALL(view, displayPlanner(plannerTree));
 
@@ -186,8 +249,6 @@ TEST_F(PlannerPresenterFixture, updates_view)
 
 TEST_F(PlannerPresenterFixture, displays_task_without_time_frame)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -206,18 +267,16 @@ TEST_F(PlannerPresenterFixture, displays_task_without_time_frame)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"1",
-                    {"Some root task", textColor, defaultBackround},
-                    {"Tag9, Tag2", tagColor, defaultBackround},
-                    {"0/2", textColor, defaultBackround},
+                    {"Some root task", textColor, defaultBackground},
+                    {"Tag9, Tag2", tagColor, defaultBackground},
+                    {"0/2", textColor, defaultBackground},
                     anchorTime,
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     "Just some text note",
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -228,8 +287,6 @@ TEST_F(PlannerPresenterFixture, displays_task_without_time_frame)
 
 TEST_F(PlannerPresenterFixture, displays_task_that_is_due_soon)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(taskTree.end(),
                     TaskDTO{"2",
@@ -248,19 +305,18 @@ TEST_F(PlannerPresenterFixture, displays_task_that_is_due_soon)
     PlannerTree plannerTree;
     plannerTree.insert(
         plannerTree.end(),
-        PlannerItem{"2",
-                    {"Some task that is due soon", textColor, defaultBackround},
-                    {"Tag1, Tag2", tagColor, defaultBackround},
-                    {"0/5", textColor, defaultBackround},
-                    anchorTime - Days{2},
-                    {"Saturday", contrastColor, dueSoonColor},
-                    "Just some text note",
-                    {"", textColor, defaultBackround},
-                    false,
-                    false,
-                    TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
+        PlannerItem{
+            "2",
+            {"Some task that is due soon", textColor, defaultBackground},
+            {"Tag1, Tag2", tagColor, defaultBackground},
+            {"0/5", textColor, defaultBackground},
+            anchorTime - Days{2},
+            {"Saturday", contrastColor, dueSoonColor},
+            "Just some text note",
+            {"", textColor, defaultBackground},
+            false,
+            false,
+            TaskTypeDTO::Regular});
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -271,8 +327,6 @@ TEST_F(PlannerPresenterFixture, displays_task_that_is_due_soon)
 
 TEST_F(PlannerPresenterFixture, displays_task_with_reminder)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(taskTree.end(),
                     TaskDTO{"3",
@@ -292,18 +346,16 @@ TEST_F(PlannerPresenterFixture, displays_task_with_reminder)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"3",
-                    {"Some task with reminder", textColor, defaultBackround},
-                    {"Tag1, Tag2", tagColor, defaultBackround},
-                    {"0/7", textColor, defaultBackround},
+                    {"Some task with reminder", textColor, defaultBackground},
+                    {"Tag1, Tag2", tagColor, defaultBackground},
+                    {"0/7", textColor, defaultBackground},
                     anchorTime - Days{2},
                     {"+5 Days", contrastColor, dueNotSoonColor},
                     "Task with reminder note",
-                    {"08:00 26.09.2022", textColor, defaultBackround},
+                    {"08:00 26.09.2022", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -314,8 +366,6 @@ TEST_F(PlannerPresenterFixture, displays_task_with_reminder)
 
 TEST_F(PlannerPresenterFixture, displays_project)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(taskTree.end(),
                     TaskDTO{"4",
@@ -389,67 +439,65 @@ TEST_F(PlannerPresenterFixture, displays_project)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"4",
-                    {"Project", tagColor, defaultBackround},
-                    {"Tag1, Tag2", tagColor, defaultBackround},
-                    {"", textColor, defaultBackround},
+                    {"Project", tagColor, defaultBackground},
+                    {"Tag1, Tag2", tagColor, defaultBackground},
+                    {"", textColor, defaultBackground},
                     anchorTime - Days{2},
                     {"+5 Days", contrastColor, dueNotSoonColor},
                     "Task with reminder note",
-                    {"08:00 26.09.2022", textColor, defaultBackround},
+                    {"08:00 26.09.2022", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Project});
     plannerTree.insert(std::ranges::find(plannerTree, "4", id_projection),
                        PlannerItem{"11",
-                                   {"Sub task 1", textColor, defaultBackround},
-                                   {"Tag3", tagColor, defaultBackround},
-                                   {"0/3", textColor, defaultBackround},
+                                   {"Sub task 1", textColor, defaultBackground},
+                                   {"Tag3", tagColor, defaultBackground},
+                                   {"0/3", textColor, defaultBackground},
                                    anchorTime,
-                                   {"", textColor, defaultBackround},
+                                   {"", textColor, defaultBackground},
                                    "",
-                                   {"", textColor, defaultBackround},
+                                   {"", textColor, defaultBackground},
                                    false,
                                    false,
                                    TaskTypeDTO::Regular});
     plannerTree.insert(
         std::ranges::find(plannerTree, "11", id_projection),
         PlannerItem{"12",
-                    {"Sub project 1", tagColor, defaultBackround},
-                    {"Tag2", tagColor, defaultBackround},
-                    {"", textColor, defaultBackround},
+                    {"Sub project 1", tagColor, defaultBackground},
+                    {"Tag2", tagColor, defaultBackground},
+                    {"", textColor, defaultBackground},
                     anchorTime,
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     "",
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Project});
     plannerTree.insert(std::ranges::find(plannerTree, "12", id_projection),
                        PlannerItem{"13",
-                                   {"Sub task 2", textColor, defaultBackround},
-                                   {"Tag7", tagColor, defaultBackround},
-                                   {"2/3", textColor, defaultBackround},
+                                   {"Sub task 2", textColor, defaultBackground},
+                                   {"Tag7", tagColor, defaultBackground},
+                                   {"2/3", textColor, defaultBackground},
                                    anchorTime,
-                                   {"", textColor, defaultBackround},
+                                   {"", textColor, defaultBackground},
                                    "",
-                                   {"", textColor, defaultBackround},
+                                   {"", textColor, defaultBackground},
                                    true,
                                    false,
                                    TaskTypeDTO::Regular});
     plannerTree.insert(std::ranges::find(plannerTree, "12", id_projection),
                        PlannerItem{"14",
-                                   {"Sub task 3", textColor, defaultBackround},
-                                   {"Tag8", tagColor, defaultBackround},
-                                   {"2/2", doneWorkColor, defaultBackround},
+                                   {"Sub task 3", textColor, defaultBackground},
+                                   {"Tag8", tagColor, defaultBackground},
+                                   {"2/2", doneWorkColor, defaultBackground},
                                    anchorTime,
-                                   {"", textColor, defaultBackround},
+                                   {"", textColor, defaultBackground},
                                    "",
-                                   {"", textColor, defaultBackround},
+                                   {"", textColor, defaultBackground},
                                    false,
                                    false,
                                    TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -460,8 +508,6 @@ TEST_F(PlannerPresenterFixture, displays_project)
 
 TEST_F(PlannerPresenterFixture, displays_overdue_task)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(taskTree.end(),
                     TaskDTO{"5",
@@ -481,18 +527,16 @@ TEST_F(PlannerPresenterFixture, displays_overdue_task)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"5",
-                    {"Overdue task", textColor, defaultBackround},
-                    {"Tag5, Tag1", tagColor, defaultBackround},
-                    {"0/8", textColor, defaultBackround},
+                    {"Overdue task", textColor, defaultBackground},
+                    {"Tag5, Tag1", tagColor, defaultBackground},
+                    {"0/8", textColor, defaultBackground},
                     anchorTime - Days{5},
                     {"-3 Days", contrastColor, dueOverdueColor},
                     "",
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -503,8 +547,6 @@ TEST_F(PlannerPresenterFixture, displays_overdue_task)
 
 TEST_F(PlannerPresenterFixture, displays_done_task)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -524,18 +566,16 @@ TEST_F(PlannerPresenterFixture, displays_done_task)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"6",
-                    {"Work done task", textColor, defaultBackround},
-                    {"Tag1, Tag4", tagColor, defaultBackround},
-                    {"2/2", doneWorkColor, defaultBackround},
+                    {"Work done task", textColor, defaultBackground},
+                    {"Tag1, Tag4", tagColor, defaultBackground},
+                    {"2/2", doneWorkColor, defaultBackground},
                     anchorTime,
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     "",
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -546,8 +586,6 @@ TEST_F(PlannerPresenterFixture, displays_done_task)
 
 TEST_F(PlannerPresenterFixture, displays_overwork_task)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -567,18 +605,16 @@ TEST_F(PlannerPresenterFixture, displays_overwork_task)
     plannerTree.insert(
         plannerTree.end(),
         PlannerItem{"7",
-                    {"Overwork task", textColor, defaultBackround},
-                    {"Tag3, Tag4", tagColor, defaultBackround},
-                    {"2/1", overworkWorkColor, defaultBackround},
+                    {"Overwork task", textColor, defaultBackground},
+                    {"Tag3, Tag4", tagColor, defaultBackground},
+                    {"2/1", overworkWorkColor, defaultBackground},
                     anchorTime,
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     "",
-                    {"", textColor, defaultBackround},
+                    {"", textColor, defaultBackground},
                     false,
                     false,
                     TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
 
@@ -589,8 +625,6 @@ TEST_F(PlannerPresenterFixture, displays_overwork_task)
 
 TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -643,8 +677,6 @@ TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
                 TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
     sut.attachView(view);
@@ -686,8 +718,6 @@ TEST_F(PlannerPresenterFixture, changes_task_edition_context)
     sprint_timer::ui::EditTaskContext expected{TaskDTO{task}};
     TaskTreeDTO taskTree;
     taskTree.insert(std::ranges::find(taskTree, "123", id_projection), task);
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(dw::current_date_time_local()));
     ON_CALL(readPlannerHandler, handle(_)).WillByDefault(Return(taskTree));
     sut.attachView(view);
 
@@ -699,8 +729,6 @@ TEST_F(PlannerPresenterFixture, changes_task_edition_context)
 TEST_F(PlannerPresenterFixture,
        throws_when_failing_to_find_task_for_quick_edition)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -728,8 +756,6 @@ TEST_F(PlannerPresenterFixture,
         std::nullopt,
         TaskTimeframeDTO{anchorTime, std::nullopt, std::nullopt, std::nullopt},
         TaskTypeDTO::Regular};
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
     sut.attachView(view);
@@ -742,8 +768,6 @@ TEST_F(PlannerPresenterFixture,
 
 TEST_F(PlannerPresenterFixture, relays_task_name_edition)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -771,8 +795,6 @@ TEST_F(PlannerPresenterFixture, relays_task_name_edition)
         std::nullopt,
         TaskTimeframeDTO{anchorTime, std::nullopt, std::nullopt, std::nullopt},
         TaskTypeDTO::Regular};
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
     sut.attachView(view);
@@ -785,8 +807,6 @@ TEST_F(PlannerPresenterFixture, relays_task_name_edition)
 
 TEST_F(PlannerPresenterFixture, relays_task_toggle)
 {
-    const DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} +
-                              10h};
     TaskTreeDTO taskTree;
     taskTree.insert(
         taskTree.end(),
@@ -802,8 +822,6 @@ TEST_F(PlannerPresenterFixture, relays_task_toggle)
                 TaskTimeframeDTO{
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
                 TaskTypeDTO::Regular});
-    ON_CALL(dateTimeProvider, dateTimeLocalNow)
-        .WillByDefault(Return(anchorTime));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
     sut.attachView(view);
@@ -812,4 +830,565 @@ TEST_F(PlannerPresenterFixture, relays_task_toggle)
                 handle(ToggleTaskCompletedCommand{"6", anchorTime}));
 
     sut.toggleTask("6");
+}
+
+TEST_F(PlannerPresenterFixture, updates_view_when_new_filter_is_installed)
+{
+    setupSampleTree();
+    sut.attachView(view);
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ElementsAre(
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project4.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task4.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task5.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.recurringTask1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task6.uuid))));
+
+    taskTreeFilter.select("Projects");
+}
+
+TEST_F(PlannerPresenterFixture,
+       applies_installed_filter_when_updating_view_by_external_call)
+{
+    setupSampleTree();
+    sut.attachView(view);
+    taskTreeFilter.select("Projects");
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ElementsAre(
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project4.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task4.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task5.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.recurringTask1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task6.uuid))));
+
+    sut.fetchData();
+    sut.updateView();
+}
+
+TEST_F(PlannerPresenterFixture,
+       updates_view_with_unfiltered_tree_when_filter_is_cleared)
+{
+    setupSampleTree();
+    sut.attachView(view);
+    taskTreeFilter.select("Projects");
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ElementsAre(
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.folder3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project4.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task4.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task5.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.recurringTask1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task6.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task7.uuid))));
+
+    taskTreeFilter.clear();
+}
+
+TEST_F(PlannerPresenterFixture, applies_active_actions_predefined_filter)
+{
+    setupSampleTree();
+    sut.attachView(view);
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(UnorderedElementsAre(
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.recurringTask1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task7.uuid))));
+
+    taskTreeFilter.select("Active Actions");
+}
+
+TEST_F(PlannerPresenterFixture, applies_active_actions_predefined_filter_2)
+{
+    auto taskTree = buildSampleTree();
+    std::ranges::find(taskTree, taskDtoTreeFixture.task1.uuid, id_projection)
+        ->finished = true;
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(taskTree));
+    sut.attachView(view);
+    EXPECT_CALL(
+        view,
+        displayPlanner(UnorderedElementsAre(
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project2.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.project3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task3.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.recurringTask1.uuid),
+            Field(&PlannerItem::uuid, taskDtoTreeFixture.task7.uuid))));
+
+    taskTreeFilter.select("Active Actions");
+}
+
+TEST_F(PlannerPresenterFixture, applies_active_actions_by_project_filter)
+{
+    /*
+     * Project: project1
+     *    project2
+     * Project: project3
+     *    task1
+     * Project: project4
+     *    task3
+     *    recurringTask1
+     * Project: None
+     *    task7
+     */
+    setupSampleTree();
+    sut.attachView(view);
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            UnorderedElementsAre(
+                Pair(
+                    Field(&PlannerItem::name,
+                          Item{"Project: " + taskDtoTreeFixture.project1.name +
+                                   "  [1]",
+                               tagColor,
+                               defaultBackground}),
+                    UnorderedElementsAre(Field(
+                        &PlannerItem::uuid, taskDtoTreeFixture.project2.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Project: " + taskDtoTreeFixture.project3.name +
+                                    "  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     UnorderedElementsAre(Field(
+                         &PlannerItem::uuid, taskDtoTreeFixture.task1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Project: " + taskDtoTreeFixture.project4.name +
+                                    "  [2]",
+                                tagColor,
+                                defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task3.uuid),
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.recurringTask1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Project: None  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task7.uuid)))))));
+
+    taskTreeFilter.select("Active By Project");
+}
+
+TEST_F(PlannerPresenterFixture,
+       predefined_projects_filter_handles_active_project)
+{
+    auto taskTree = buildSampleTree();
+    // Mark all subtree of folder3 as finished
+    taskTree.map(std::ranges::find(
+                     taskTree, taskDtoTreeFixture.folder3.uuid, id_projection),
+                 [](auto& payload) { payload.finished = true; });
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(taskTree));
+    sut.attachView(view);
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            UnorderedElementsAre(
+                Pair(Field(&PlannerItem::name,
+                           Item{"Project: " + taskDtoTreeFixture.project1.name +
+                                    "  [2]",
+                                tagColor,
+                                defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.project2.uuid),
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.project3.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Project: " + taskDtoTreeFixture.project4.name +
+                                    "  [2]",
+                                tagColor,
+                                defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task3.uuid),
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.recurringTask1.uuid)
+
+                             )),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Project: None  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task7.uuid)))))));
+
+    taskTreeFilter.select("Active By Project");
+}
+
+TEST_F(PlannerPresenterFixture, applies_active_actions_by_tag_predefined_filter)
+{
+    /*
+     * folder1
+     *    folder2
+     *       project1
+     *          project2
+     *          project3
+     *             folder3
+     *                task1 Tag1
+     * project4 Tag2
+     *    task2 Tag2
+     *       task3 Tag3
+     *       task4 Tag4
+     *          task5 Tag2, Tag5
+     *          recurringTask1 Tag1
+     *    task6 Tag6
+     * task7 Tag7
+     */
+
+    /* Possible arrangement -- header order and order of tasks in headers are
+     * irrelevant
+     *
+     *   No tag
+     *     project2
+     *   Tag1
+     *     task1
+     *     recurringTask1
+     *   Tag3
+     *     task3
+     *     recurringTask1
+     *   Tag7
+     *     task7
+     */
+    setupSampleTree();
+    sut.attachView(view);
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            UnorderedElementsAre(
+                Pair(
+                    Field(&PlannerItem::name,
+                          Item{"Tag: None  [1]", tagColor, defaultBackground}),
+                    UnorderedElementsAre(Field(
+                        &PlannerItem::uuid, taskDtoTreeFixture.project2.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Tag: Tag1  [2]", tagColor, defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task1.uuid),
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.recurringTask1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Tag: Tag3  [2]", tagColor, defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task3.uuid),
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.recurringTask1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Tag: Tag7  [1]", tagColor, defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.task7.uuid)))))));
+
+    taskTreeFilter.select("Active By Tag");
+}
+
+TEST_F(PlannerPresenterFixture,
+       active_actions_by_tag_filter_handles_case_when_all_tasks_are_tagged)
+{
+    auto initial_tree = buildSampleTree();
+    TaskTreeDTO tree = initial_tree.subtree(std::ranges::find(
+        initial_tree, taskDtoTreeFixture.task4.uuid, id_projection));
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(tree));
+    sut.attachView(view);
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            UnorderedElementsAre(
+                Pair(Field(&PlannerItem::name,
+                           Item{"Tag: Tag3  [1]", tagColor, defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.recurringTask1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Tag: Tag1  [1]", tagColor, defaultBackground}),
+                     UnorderedElementsAre(
+                         Field(&PlannerItem::uuid,
+                               taskDtoTreeFixture.recurringTask1.uuid)))))));
+
+    taskTreeFilter.select("Active By Tag");
+}
+
+TEST_F(PlannerPresenterFixture, recently_modified_predefined_filter)
+{
+    setupSampleTree();
+    sut.attachView(view);
+
+    /*
+
+    Today
+
+    project4
+    task4
+    folder3
+    folder2
+    folder1
+
+    Yesterday
+
+    task5
+    project2
+
+    Last week
+
+    task3 -2
+    recurringTask1 -4
+    task2 -5
+    task7 -6
+    project1 -7
+
+    Last month
+    task1 -15
+    project3 -30
+
+    */
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            ElementsAre(
+                Pair(Field(&PlannerItem::name,
+                           Item{"Modified: today (Sep 21)  [5]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project4.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task4.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.folder3.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.folder2.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.folder1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Modified: yesterday (Sep 20)  [2]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task5.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project2.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Modified: few days ago (Sep 14 - Sep 19)  [5]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task3.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.recurringTask1.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task2.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task7.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project1.uuid))),
+                Pair(
+                    Field(&PlannerItem::name,
+                          Item{"Modified: few weeks ago (Aug 22 - Sep 13)  [2]",
+                               tagColor,
+                               defaultBackground}),
+                    ElementsAre(Field(&PlannerItem::uuid,
+                                      taskDtoTreeFixture.task1.uuid),
+                                Field(&PlannerItem::uuid,
+                                      taskDtoTreeFixture.project3.uuid)))))));
+
+    taskTreeFilter.select("Recently Modified");
+}
+
+TEST_F(PlannerPresenterFixture, recently_finished_predefined_filter)
+{
+    auto tree = buildSampleTree();
+    std::ranges::for_each(tree, [](auto& task) { task.finished = true; });
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(tree));
+    sut.attachView(view);
+
+    /*
+
+    Today
+
+    project4
+    task4
+    folder3
+    folder2
+    folder1
+
+    Yesterday
+
+    task5
+    project2
+
+    Last week
+
+    task3 -2
+    recurringTask1 -4
+    task2 -5
+    task7 -6
+    project1 -7
+
+    Last month
+    task1 -15
+    project3 -30
+
+    */
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            ElementsAre(
+                Pair(Field(&PlannerItem::name,
+                           Item{"Finished: today (Sep 21)  [5]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project4.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task4.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.folder3.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.folder2.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.folder1.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Finished: yesterday (Sep 20)  [2]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task5.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project2.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Finished: few days ago (Sep 14 - Sep 19)  [5]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task3.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.recurringTask1.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task2.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task7.uuid),
+                                 Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project1.uuid))),
+                Pair(
+                    Field(&PlannerItem::name,
+                          Item{"Finished: few weeks ago (Aug 22 - Sep 13)  [2]",
+                               tagColor,
+                               defaultBackground}),
+                    ElementsAre(Field(&PlannerItem::uuid,
+                                      taskDtoTreeFixture.task1.uuid),
+                                Field(&PlannerItem::uuid,
+                                      taskDtoTreeFixture.project3.uuid)))))));
+
+    taskTreeFilter.select("Recently Finished");
+}
+
+TEST_F(PlannerPresenterFixture, due_next_seven_days_predefined_filter)
+{
+    auto tree = buildSampleTree();
+    auto set_due_date = [&](const auto& uuid, dw::DateTime due) {
+        auto it = std::ranges::find(tree, uuid, id_projection);
+        it->timeFrame = TaskTimeframeDTO{
+            anchorTime - Days{10}, due, std::nullopt, std::nullopt};
+    };
+    // These are all active actions
+    set_due_date(taskDtoTreeFixture.project2.uuid,
+                 anchorTime - Days{10}); // Should still be visible as overdue
+    set_due_date(taskDtoTreeFixture.task1.uuid, anchorTime + Days{7});
+    set_due_date(taskDtoTreeFixture.task3.uuid, anchorTime);
+    set_due_date(taskDtoTreeFixture.recurringTask1.uuid,
+                 anchorTime + Days{8}); // Should NOT be visible
+    set_due_date(taskDtoTreeFixture.task7.uuid,
+                 anchorTime - Days{8}); // Should be visible
+    ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
+        .WillByDefault(Return(tree));
+    sut.attachView(view);
+
+    EXPECT_CALL(
+        view,
+        displayPlanner(ResultOf(
+            get_subchildren,
+            ElementsAre(
+                Pair(Field(&PlannerItem::name,
+                           Item{"Sep 11 2022 (Sun)  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.project2.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Sep 13 2022 (Tue)  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task7.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Sep 21 2022 (Wed)  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task3.uuid))),
+                Pair(Field(&PlannerItem::name,
+                           Item{"Sep 28 2022 (Wed)  [1]",
+                                tagColor,
+                                defaultBackground}),
+                     ElementsAre(Field(&PlannerItem::uuid,
+                                       taskDtoTreeFixture.task1.uuid)))))));
+
+    taskTreeFilter.select("Due next 7 days");
 }

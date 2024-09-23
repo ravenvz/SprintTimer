@@ -23,7 +23,9 @@
 #define TASKTREEDTO_H_JN159NM6
 
 #include "api/dtos/TaskDTO.h"
-#include "core/TaskTree.h"
+#include "core/TreeType.h"
+
+// #include "core/TaskTree.h"
 // #include "cpp_utils/datastructures/Tree.h"
 #include <string>
 

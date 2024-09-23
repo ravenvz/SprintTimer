@@ -34,8 +34,6 @@
 #include <QVBoxLayout>
 #include <unordered_set>
 
-#include <iostream>
-
 namespace {
 
 constexpr int numColumns{6};
@@ -61,12 +59,14 @@ namespace sprint_timer::ui::qt_gui {
 
 PlannerWindow::PlannerWindow(QAbstractItemModel& plannerModel_,
                              QAbstractItemDelegate& itemDelegate_,
+                             std::unique_ptr<QWidget> plannerViews_,
                              Displayable& addTaskDialog_,
                              Displayable& editTaskDialog_,
                              QWidget* parent_)
     : StandaloneDisplayableWidget{parent_}
     , plannerModel{plannerModel_}
     , outlineView{std::make_unique<ReordableTreeView>().release()}
+    // , plannerViews{plannerViews_.release}
     , addTaskDialog{addTaskDialog_}
     , editTaskDialog{editTaskDialog_}
 {
@@ -78,13 +78,13 @@ PlannerWindow::PlannerWindow(QAbstractItemModel& plannerModel_,
     auto pbReview = std::make_unique<QPushButton>("Review");
     auto buttonLayout = std::make_unique<QVBoxLayout>();
 
-    auto buttonWidget = std::make_unique<QWidget>();
-    buttonLayout->addWidget(pbPlanner.release());
-    buttonLayout->addWidget(pbGoals.release());
-    buttonLayout->addWidget(pbProjects.release());
-    buttonLayout->addWidget(pbReview.release());
-    buttonWidget->setLayout(buttonLayout.release());
-    lt->addWidget(buttonWidget.release());
+    // auto buttonWidget = std::make_unique<QWidget>();
+    // buttonLayout->addWidget(pbPlanner.release());
+    // buttonLayout->addWidget(pbGoals.release());
+    // buttonLayout->addWidget(pbProjects.release());
+    // buttonLayout->addWidget(pbReview.release());
+    // buttonWidget->setLayout(buttonLayout.release());
+    lt->addWidget(plannerViews_.release());
     lt->addWidget(outlineView);
 
     setLayout(lt.release());
@@ -146,7 +146,6 @@ auto PlannerWindow::handleEdit(const QModelIndex& index) const -> void
     ;
     auto [uuid, raw_name, raw_progress, raw_tags] = payload;
     alg::inspect(presenter(), [&](auto* presenter) {
-        qDebug() << "Transformed value: " << transformProgress(raw_progress);
         presenter->quickEditTask(std::move(uuid),
                                  raw_name.toStdString(),
                                  transformTags(raw_tags),
@@ -173,8 +172,6 @@ auto PlannerWindow::displayPlanner(
     auto name_tree = taskTree.transform([](const auto& payload) {
         return std::string{"Name: "} + payload.name.description;
     });
-
-    std::cout << name_tree.to_string() << std::endl;
 
     std::stack<std::pair<QModelIndex, PlannerTree::const_iterator>> frontier;
 

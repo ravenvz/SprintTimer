@@ -71,12 +71,12 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
     }
     // os << frame.due.value_or(std::string{"unlimited"});
     alg::inspect(task.timeFrame.remindAt, [&](const auto& reminder) {
-        os << " reminder: " << reminder << ", ";
+        os << ", reminder: " << reminder << ", ";
     });
     alg::inspect(task.timeFrame.recurrence, [&](const auto& recurrence) {
-        os << " recurrence: " << '"' << recurrence << "\", ";
+        os << ", recurrence: " << '"' << recurrence << "\", ";
     });
-    os << task.modificationStamp << '}';
+    os << " , last modified: " << task.modificationStamp << '}';
     return os;
 }
 

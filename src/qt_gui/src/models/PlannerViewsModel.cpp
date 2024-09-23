@@ -19,23 +19,41 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/handlers/ReadTaskTreeHandler.h"
-#include "core/SprintTimerException.h"
+#include "qt_gui/models/PlannerViewsModel.h"
 
-namespace sprint_timer::api {
+namespace sprint_timer::ui::qt_gui {
 
-ReadTaskTreeHandler::ReadTaskTreeHandler(
-    TaskStorageReader& taskStorageReader_,
-    const patterns::Converter<TaskTreeDTO, TaskTree>& taskTreeMapper_)
-    : taskStorageReader{taskStorageReader_}
-    , taskTreeMapper{taskTreeMapper_}
+PlannerViewsModel::PlannerViewsModel(QObject* parent_)
+    : TreeModel{QStringList{"Name", "NumCompleted", "NumAll"}, parent_}
 {
 }
 
-auto ReadTaskTreeHandler::handle(const ReadTaskTreeQuery& /*query*/)
-    -> ReadTaskTreeQuery::Result
+auto PlannerViewsModel::data(const QModelIndex& index,
+                             int role) const -> QVariant
 {
-    return taskTreeMapper(taskStorageReader.taskTree());
+    if (not index.isValid()) {
+        return {};
+    }
+    if (role == Qt::DisplayRole) {
+        return TreeModel::data(index, role);
+    }
+
+    return {};
 }
 
-} // namespace sprint_timer::api
+auto PlannerViewsModel::setData(const QModelIndex& index,
+                                const QVariant& value,
+                                int role) -> bool
+{
+    if (not index.isValid()) {
+        return false;
+    }
+
+    if (role == Qt::EditRole) {
+        return TreeModel::setData(index, value, role);
+    }
+
+    return false;
+}
+
+} // namespace sprint_timer::ui::qt_gui

@@ -76,10 +76,13 @@
 #include "api/handlers/AllTagsHandler.h"
 #include "api/handlers/SaveTaskTreeHandler.h"
 #include "qt_gui/delegates/PlannerItemDelegate.h"
+#include "qt_gui/models/PlannerViewsModel.h"
 #include "qt_gui/presentation/AddTaskContext.h"
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
 #include "qt_gui/presentation/AddTaskDialogPresenter.h"
 #include "qt_gui/presentation/EditTaskContext.h"
+#include "qt_gui/presentation/PlannerViewsPresenter.h"
+#include "qt_gui/presentation/PredefinedTaskViewFilters.h"
 #include <QAbstractItemModelTester>
 #include <fstream>
 // #include "api/handlers/CancelTimerHandler.h"
@@ -882,7 +885,9 @@ int main(int argc, char* argv[])
                                                   "#2ea81b",
                                                   "#eb6c59",
                                                   "#1b4fa8"};
+    ui::TaskTreeFilter taskTreeFilter{ui::makeTaskViewFilters(dateTimeProvider)};
     ui::PlannerPresenter plannerPresenter{plannerColors,
+                                          taskTreeFilter,
                                           *readPlannerHandler,
                                           *savePlannerHandler,
                                           *deleteTaskHandler,
@@ -894,14 +899,19 @@ int main(int argc, char* argv[])
     PlannerItemDelegate plannerItemDelegate;
 
     PlannerModel plannerModel{};
+
+    PlannerViewsModel plannerViewsModel;
     // QAbstractItemModelTester* tester = new QAbstractItemModelTester(
     //     &plannerModel,
     //     QAbstractItemModelTester::FailureReportingMode::Warning);
 
     // plannerModel.setPresenter(plannerPresenter);
+    ui::PlannerViewsPresenter plannerViewsPresenter{taskTreeFilter};
     compose::PlannerWindowProxy plannerWindow{plannerPresenter,
                                               plannerModel,
                                               plannerItemDelegate,
+                                              plannerViewsPresenter,
+                                              plannerViewsModel,
                                               addTaskDialog,
                                               editTaskDialog};
 
