@@ -97,13 +97,17 @@ public:
     {
     }
 
-    auto dateNow() const -> dw::Date override { return anchorTime.date(); }
+private:
+    auto dateNowImpl() const -> dw::Date override { return anchorTime.date(); }
 
-    auto dateTimeNow() const -> dw::DateTime override { return anchorTime; }
+    auto dateTimeNowImpl() const -> dw::DateTime override { return anchorTime; }
 
-    auto dateLocalNow() const -> dw::Date override { return anchorTime.date(); }
+    auto dateLocalNowImpl() const -> dw::Date override
+    {
+        return anchorTime.date();
+    }
 
-    auto dateTimeLocalNow() const -> dw::DateTime override
+    auto dateTimeLocalNowImpl() const -> dw::DateTime override
     {
         return anchorTime;
     }
@@ -1245,7 +1249,7 @@ TEST_F(PlannerPresenterFixture, recently_modified_predefined_filter)
                                 Field(&PlannerItem::uuid,
                                       taskDtoTreeFixture.project3.uuid)))))));
 
-    taskTreeFilter.select("Recently Modified");
+    taskTreeFilter.select("Modified recently");
 }
 
 TEST_F(PlannerPresenterFixture, recently_finished_predefined_filter)
@@ -1336,7 +1340,7 @@ TEST_F(PlannerPresenterFixture, recently_finished_predefined_filter)
                                 Field(&PlannerItem::uuid,
                                       taskDtoTreeFixture.project3.uuid)))))));
 
-    taskTreeFilter.select("Recently Finished");
+    taskTreeFilter.select("Completed recently");
 }
 
 TEST_F(PlannerPresenterFixture, due_next_seven_days_predefined_filter)

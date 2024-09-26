@@ -30,13 +30,31 @@ class DateTimeProvider {
 public:
     virtual ~DateTimeProvider() = default;
 
-    virtual dw::Date dateNow() const = 0;
+    [[nodiscard]] auto dateNow() const -> dw::Date { return dateNowImpl(); }
 
-    virtual dw::DateTime dateTimeNow() const = 0;
+    [[nodiscard]] auto dateTimeNow() const -> dw::DateTime
+    {
+        return dateTimeNowImpl();
+    }
 
-    virtual dw::Date dateLocalNow() const = 0;
+    [[nodiscard]] auto dateLocalNow() const -> dw::Date
+    {
+        return dateLocalNowImpl();
+    }
 
-    virtual dw::DateTime dateTimeLocalNow() const = 0;
+    [[nodiscard]] auto dateTimeLocalNow() const -> dw::DateTime
+    {
+        return dateTimeLocalNowImpl();
+    }
+
+private:
+    virtual auto dateNowImpl() const -> dw::Date = 0;
+
+    virtual auto dateTimeNowImpl() const -> dw::DateTime = 0;
+
+    virtual auto dateLocalNowImpl() const -> dw::Date = 0;
+
+    virtual auto dateTimeLocalNowImpl() const -> dw::DateTime = 0;
 };
 
 } // namespace sprint_timer::api

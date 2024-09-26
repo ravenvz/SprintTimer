@@ -27,32 +27,33 @@
 namespace sprint_timer::api {
 
 class DefaultDateTimeProvider : public DateTimeProvider {
-public:
-    dw::Date dateNow() const override;
+private:
+    auto dateNowImpl() const -> dw::Date override;
 
-    dw::DateTime dateTimeNow() const override;
+    auto dateTimeNowImpl() const -> dw::DateTime override;
 
-    dw::Date dateLocalNow() const override;
+    auto dateLocalNowImpl() const -> dw::Date override;
 
-    dw::DateTime dateTimeLocalNow() const override;
+    auto dateTimeLocalNowImpl() const -> dw::DateTime override;
 };
 
-inline dw::Date DefaultDateTimeProvider::dateNow() const
+inline auto DefaultDateTimeProvider::dateNowImpl() const -> dw::Date
 {
     return dw::current_date();
 }
 
-inline dw::DateTime DefaultDateTimeProvider::dateTimeNow() const
+inline auto DefaultDateTimeProvider::dateTimeNowImpl() const -> dw::DateTime
 {
     return dw::current_date_time();
 }
 
-inline dw::Date DefaultDateTimeProvider::dateLocalNow() const
+inline auto DefaultDateTimeProvider::dateLocalNowImpl() const -> dw::Date
 {
     return dw::current_date_local();
 }
 
-inline dw::DateTime DefaultDateTimeProvider::dateTimeLocalNow() const
+inline auto
+DefaultDateTimeProvider::dateTimeLocalNowImpl() const -> dw::DateTime
 {
     return dw::current_date_time_local();
 }

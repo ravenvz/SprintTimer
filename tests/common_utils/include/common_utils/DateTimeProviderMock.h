@@ -29,13 +29,13 @@ namespace mocks {
 
 class DateTimeProviderMock : public sprint_timer::api::DateTimeProvider {
 public:
-    MOCK_METHOD(dw::Date, dateNow, (), (const override));
+    MOCK_METHOD(dw::Date, dateNowImpl, (), (const override));
 
-    MOCK_METHOD(dw::DateTime, dateTimeNow, (), (const override));
+    MOCK_METHOD(dw::DateTime, dateTimeNowImpl, (), (const override));
 
-    MOCK_METHOD(dw::Date, dateLocalNow, (), (const override));
+    MOCK_METHOD(dw::Date, dateLocalNowImpl, (), (const override));
 
-    MOCK_METHOD(dw::DateTime, dateTimeLocalNow, (), (const override));
+    MOCK_METHOD(dw::DateTime, dateTimeLocalNowImpl, (), (const override));
 };
 
 } // namespace mocks
