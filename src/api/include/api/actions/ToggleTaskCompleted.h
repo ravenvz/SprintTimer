@@ -50,6 +50,7 @@ private:
     UUIDGenerator& uuidGenerator;
     const DateTimeProvider& dateTimeProvider;
     std::optional<std::string> recurringTaskUuid;
+    std::optional<std::string> parentUuid;
 };
 
 } // namespace sprint_timer::api::actions

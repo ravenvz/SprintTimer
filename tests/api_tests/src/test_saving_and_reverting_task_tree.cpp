@@ -38,29 +38,29 @@ using namespace sprint_timer::compose;
 using namespace dw;
 using namespace std::chrono_literals;
 
-namespace sprint_timer {
-
-template <class CharT, class Traits>
-std::basic_ostream<CharT, Traits>&
-operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
-{
-    using enum TaskType;
-    os << "TaskType::";
-    switch (taskType) {
-    case Regular:
-        os << "Regular";
-        break;
-    case Project:
-        os << "Project";
-        break;
-    case Folder:
-        os << "Folder";
-        break;
-    }
-    return os;
-}
-
-} // namespace sprint_timer
+// namespace sprint_timer {
+//
+// template <class CharT, class Traits>
+// std::basic_ostream<CharT, Traits>&
+// operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
+// {
+//     using enum TaskType;
+//     os << "TaskType::";
+//     switch (taskType) {
+//     case Regular:
+//         os << "Regular";
+//         break;
+//     case Project:
+//         os << "Project";
+//         break;
+//     case Folder:
+//         os << "Folder";
+//         break;
+//     }
+//     return os;
+// }
+//
+// } // namespace sprint_timer
 
 class ChangingTaskTreeFixture : public ::testing::Test {
 public:
@@ -85,9 +85,7 @@ TEST_F(ChangingTaskTreeFixture, saving_tree_and_reverting)
     using namespace sprint_timer::api;
     const auto initialTree = fixtures::givenSomeTaskTreeCreated(
         createTaskHandler, registerSprintsHandler);
-    // std::cout << initialTree.to_string() << std::endl;
     auto reverted_tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
-    std::cout << reverted_tree.to_string() << std::endl;
     auto mutatedTree = initialTree;
     auto uuid_projection = [](const auto& node) { return node.uuid; };
     mutatedTree.move_nodes(std::ranges::find(mutatedTree, "1", uuid_projection),
@@ -95,14 +93,10 @@ TEST_F(ChangingTaskTreeFixture, saving_tree_and_reverting)
                            ds::Count{1},
                            std::ranges::find(mutatedTree, "0", uuid_projection),
                            ds::DestinationPosition{0});
-    // std::cout << mutatedTree.to_string() << std::endl;
 
     saveTaskTreeHandler.handle(SaveTaskTreeCommand{mutatedTree});
     EXPECT_EQ(mutatedTree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
 
-    // std::cout << initialTree.to_string() << std::endl;
     undoActionHandler.handle(UndoLastCommand{});
-    // auto reverted_tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
-    // std::cout << reverted_tree.to_string() << std::endl;
     EXPECT_EQ(initialTree, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
 }

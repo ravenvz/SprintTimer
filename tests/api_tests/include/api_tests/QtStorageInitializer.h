@@ -36,6 +36,7 @@
 #include "api_tests/TestCommandHandlerComposer.h"
 #include "api_tests/TestQueryHandlerComposer.h"
 #include "api_tests/constants.h"
+#include "common_utils/ConfigurableDateTimeProvider.h"
 #include "common_utils/DateTimeProviderMock.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
@@ -43,8 +44,11 @@
 #include <QCoreApplication>
 
 struct TestStorageInitializer {
-
+    // Creates initializer with default date time provider
     TestStorageInitializer();
+
+    // Creates initializer with fixed timepoint date time provider
+    TestStorageInitializer(dw::DateTime fixedTimepoint);
 
     sprint_timer::compose::CommandHandlerComposer& commandHandlerComposer()
     {
@@ -56,13 +60,14 @@ struct TestStorageInitializer {
         return *queryHandlerComp;
     }
 
-    const sprint_timer::api::DateTimeProvider& dateTimeProvider() const
+    auto getDateTimeProvider() -> ConfigurableDateTimeProvider&
     {
-        return dtProvider;
+        return *dtProvider;
     }
 
 private:
     QCoreApplication app;
+    std::unique_ptr<ConfigurableDateTimeProvider> dtProvider;
     const QString name{"file::memory:?cache=shared"};
     sprint_timer::storage::qt_storage::ConnectionGuard connectionGuard{
         name, "Keep alive conn"};
@@ -106,7 +111,7 @@ private:
                 *sprintStorage,
                 *workScheduleStorage,
                 uuidGenerator,
-                dtProvider,
+                *dtProvider,
                 taskMapper,
                 sprintDateTimeMapper,
                 taskTreeMapper)};
@@ -133,7 +138,6 @@ private:
                 tagMapper,
                 sprintMapper,
                 taskTreeMapper)};
-    sprint_timer::api::DefaultDateTimeProvider dtProvider;
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

@@ -31,7 +31,8 @@ using namespace std::chrono_literals;
 
 class FinishingTaskFixture : public ::testing::Test {
 public:
-    TestStorageInitializer initializer;
+    DateTime anchorTime{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
+    TestStorageInitializer initializer{anchorTime};
     CommandHandlerComposer& commandComposer{
         initializer.commandHandlerComposer()};
     QueryHandlerComposer& queryComposer{initializer.queryHandlerComposer()};
@@ -51,7 +52,7 @@ public:
 
 TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
 {
-    const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
+    const DateTime timeStamp = current_date_time_local();
     createTaskHandler.handle(CreateTaskCommand{"Name",
                                                {"Tag9"},
                                                7,
@@ -60,50 +61,56 @@ TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
                                                std::nullopt,
                                                std::nullopt,
                                                TaskTimeframeDTO{}});
-    const auto uuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const TaskDTO expected{uuid,
+    const std::string next_generated_uuid = "0";
+    const TaskDTO expected{next_generated_uuid,
                            {"Tag9"},
                            "Name",
                            7,
                            {},
                            true,
-                           current_date_time_local(),
+                           timeStamp,
                            std::nullopt,
                            TaskTimeframeDTO{},
                            TaskTypeDTO::Regular};
 
+    // NOTE date time provider timepoint is being altered here
+    TimePortalGuard timePortal{initializer.getDateTimeProvider(), timeStamp};
     toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{uuid, timeStamp});
+        ToggleTaskCompletedCommand{next_generated_uuid, timeStamp});
 
     EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
 }
 
-TEST_F(FinishingTaskFixture, undoing_task_completion_for_non_recurring_task)
+TEST_F(
+    FinishingTaskFixture,
+    undoing_task_completion_for_non_recurring_task_preserves_modification_stamp)
 {
-    const DateTime timeStamp{DateTime{Date{Year{2021}, Month{5}, Day{4}}}};
-    createTaskHandler.handle(CreateTaskCommand{"Name",
-                                               {"Tag9"},
-                                               7,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    const auto uuid =
-        activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const TaskDTO expected{uuid,
+    const dw::DateTime hundredDaysAgo = anchorTime - dw::Days{100};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   hundredDaysAgo};
+        createTaskHandler.handle(CreateTaskCommand{"Name",
+                                                   {"Tag9"},
+                                                   7,
+                                                   TaskTypeDTO::Regular,
+                                                   std::nullopt,
+                                                   std::nullopt,
+                                                   std::nullopt,
+                                                   TaskTimeframeDTO{}});
+    }
+    const auto task = activeTasksHandler.handle(ActiveTasksQuery{}).front();
+    const TaskDTO expected{task.uuid,
                            {"Tag9"},
                            "Name",
                            7,
                            {},
                            false,
-                           timeStamp,
+                           hundredDaysAgo,
                            std::nullopt,
                            TaskTimeframeDTO{},
                            TaskTypeDTO::Regular};
     toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{uuid, timeStamp});
+        ToggleTaskCompletedCommand{task.uuid, task.modificationStamp});
 
     undoHandler.handle(UndoLastCommand{});
 
@@ -133,12 +140,12 @@ TEST_F(FinishingTaskFixture,
     TaskTreeDTO expected;
     expected.insert(
         expected.end(),
-        TaskDTO{"0",
+        TaskDTO{"1",
                 {"Tag1"},
                 "Name",
                 7,
-                sprints,
-                true,
+                {},
+                false,
                 dw::current_date_time_local(),
                 std::nullopt,
                 TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2}, Day{5}}},
@@ -148,12 +155,12 @@ TEST_F(FinishingTaskFixture,
                 TaskTypeDTO::Regular});
     expected.insert(
         expected.end(),
-        TaskDTO{"1",
+        TaskDTO{"0",
                 {"Tag1"},
                 "Name",
                 7,
-                {},
-                false,
+                sprints,
+                true,
                 dw::current_date_time_local(),
                 std::nullopt,
                 TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2}, Day{5}}},

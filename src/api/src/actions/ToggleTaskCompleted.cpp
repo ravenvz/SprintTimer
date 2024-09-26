@@ -53,20 +53,28 @@ auto ToggleTaskCompleted::execute() -> void
     const auto task = matchingUuid.front();
     if (task.isCompleted()) {
         storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
+        return;
     }
-    else {
-        if (not task.recurrence()) {
-            storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
-        }
-        else {
-            auto nextTask = task.nextRecurrence(uuidGenerator.generateUUID(),
-                                                dw::current_date_time());
-            if (nextTask) {
-                storage.save(*nextTask);
-            }
-            storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
-        }
+    if (not task.recurrence()) {
+        storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
+        return;
     }
+
+    auto taskTree = storage.taskTree();
+    auto it = find_by_uuid(taskTree, uuid);
+    auto parent = taskTree.parent(it);
+    parentUuid = parent == taskTree.end()
+                     ? std::optional<std::string>{}
+                     : std::optional<std::string>{parent->uuid()};
+    auto nextTask = task.nextRecurrence(uuidGenerator.generateUUID(),
+                                        dateTimeProvider.dateTimeLocalNow());
+    auto pos = taskTree.position_in_children(it);
+    if (nextTask) {
+        storage.save(*nextTask);
+        taskTree.insert(parent, *nextTask, ds::DestinationPosition{pos});
+        storage.saveTree(taskTree);
+    }
+    storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
 }
 
 auto ToggleTaskCompleted::undo() -> void

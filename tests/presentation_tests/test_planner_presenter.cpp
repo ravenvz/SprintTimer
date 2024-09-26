@@ -19,6 +19,7 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "api/DefaultDateTimeProvider.h"
 #include "api/dtos/TaskTreeMapper.h"
 #include "api/requests/CreateTaskCommand.h"
 #include "api/requests/DeleteTaskCommand.h"
@@ -26,6 +27,7 @@
 #include "api/requests/ReadTaskTreeQuery.h"
 #include "api/requests/SaveTaskTreeCommand.h"
 #include "api/requests/ToggleTaskCompletedCommand.h"
+#include "common_utils/ConfigurableDateTimeProvider.h"
 #include "common_utils/TaskDtoTreeFixtures.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
@@ -131,8 +133,8 @@ public:
         sprint_timer::api::ToggleTaskCompletedCommand>>
         toggleTaskHandler;
     DateTime anchorTime{DateTime{Date{Year{2022}, Month{9}, Day{21}}} + 10h};
-    std::unique_ptr<StubDateTimeProvider> dateTimeProvider =
-        std::make_unique<StubDateTimeProvider>(anchorTime);
+    ConfigurableDateTimeProvider dateTimeProvider{
+        std::make_unique<DefaultDateTimeProvider>(), anchorTime};
     // std::unique_ptr<DefaultDateTimeProvider> dateTimeProvider =
     // std::make_unique<DefaultDateTimeProvider>();
     sprint_timer::ui::AddTaskContext addTaskContext;
@@ -149,7 +151,7 @@ public:
                                 dueOverdueColor,
                                 tagColor};
     sprint_timer::ui::TaskTreeFilter taskTreeFilter{
-        sprint_timer::ui::makeTaskViewFilters(*dateTimeProvider)};
+        sprint_timer::ui::makeTaskViewFilters(dateTimeProvider)};
     sprint_timer::ui::PlannerPresenter sut{plannerColors,
                                            taskTreeFilter,
                                            readPlannerHandler,
@@ -159,7 +161,7 @@ public:
                                            toggleTaskHandler,
                                            addTaskContext,
                                            editTaskContext,
-                                           *dateTimeProvider};
+                                           dateTimeProvider};
     fixtures::TaskDtoTreeFixture taskDtoTreeFixture{anchorTime};
 
     [[nodiscard]] auto buildSampleTree() const -> TaskTreeDTO

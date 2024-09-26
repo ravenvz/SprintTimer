@@ -31,5 +31,15 @@ char* dummyArgv[] = {argv};
 
 TestStorageInitializer::TestStorageInitializer()
     : app{dummyArgc, dummyArgv}
+    , dtProvider{std::make_unique<ConfigurableDateTimeProvider>(
+          std::make_unique<sprint_timer::api::DefaultDateTimeProvider>())}
+{
+}
+
+TestStorageInitializer::TestStorageInitializer(dw::DateTime fixedTimepoint)
+    : app{dummyArgc, dummyArgv}
+    , dtProvider{std::make_unique<ConfigurableDateTimeProvider>(
+          std::make_unique<sprint_timer::api::DefaultDateTimeProvider>(),
+          fixedTimepoint)}
 {
 }

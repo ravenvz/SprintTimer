@@ -2,6 +2,7 @@ add_library(common_utils INTERFACE)
 
 target_sources(common_utils
     INTERFACE
+        "${CMAKE_CURRENT_LIST_DIR}/include/common_utils/ConfigurableDateTimeProvider.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/common_utils/DateTimeProviderMock.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/common_utils/TaskDtoTreeFixtures.h"
 )

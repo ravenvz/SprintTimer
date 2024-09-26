@@ -59,8 +59,6 @@ public:
         queryComposer.readTaskTreeHandler()};
     asp::CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler{
         commandComposer.registerSprintBulkHandler()};
-    const sprint_timer::api::DateTimeProvider& dt{
-        initializer.dateTimeProvider()};
 };
 
 TEST_F(CreatingTasksFixture, creating_tasks)
