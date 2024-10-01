@@ -50,11 +50,9 @@ void ActiveTasksPresenter::deleteTask(const std::string& uuid)
     deleteTaskHandler.handle(api::DeleteTaskCommand{uuid});
 }
 
-void ActiveTasksPresenter::toggleFinished(
-    const std::string& uuid, dw::DateTime lastModificationTimestamp)
+void ActiveTasksPresenter::toggleFinished(const std::string& uuid)
 {
-    toggleFinishedHandler.handle(
-        api::ToggleTaskCompletedCommand{uuid, lastModificationTimestamp});
+    toggleFinishedHandler.handle(api::ToggleTaskCompletedCommand{uuid});
 }
 
 void ActiveTasksPresenter::reorderTasks(int32_t sourceRow,

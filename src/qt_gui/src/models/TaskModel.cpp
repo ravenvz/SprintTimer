@@ -132,8 +132,7 @@ bool TaskModel::setData(const QModelIndex& index,
 
     case static_cast<int>(CustomRoles::ToggleCheckedRole): {
         if (auto p = presenter(); p) {
-            p.value()->toggleFinished(storage[pos].uuid,
-                                      storage[pos].modificationStamp);
+            p.value()->toggleFinished(storage[pos].uuid);
             return true;
         }
         return false;

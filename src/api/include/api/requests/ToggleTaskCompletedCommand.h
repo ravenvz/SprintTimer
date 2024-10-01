@@ -32,7 +32,6 @@ struct ToggleTaskCompletedCommand {
     using Result = void;
 
     std::string taskUuid;
-    dw::DateTime lastModificationTimestamp;
 
     friend bool operator==(const ToggleTaskCompletedCommand&,
                            const ToggleTaskCompletedCommand&) = default;

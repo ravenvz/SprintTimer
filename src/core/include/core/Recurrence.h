@@ -29,21 +29,6 @@
 
 namespace sprint_timer {
 
-// enum class RecPeriod {
-//     Minutes,
-//     Hours,
-//     Weekdays,
-//     Weeks,
-//     Months,
-//     Years,
-// };
-//
-// class Rec {
-// public:
-//     Rec()
-// private:
-// };
-
 class Recurrence {
 public:
     explicit Recurrence(std::string recPattern);
@@ -53,8 +38,8 @@ public:
 
     [[nodiscard]] auto pattern() const -> std::string;
 
-    friend auto operator==(const Recurrence&, const Recurrence&)
-        -> bool = default;
+    friend auto operator==(const Recurrence&,
+                           const Recurrence&) -> bool = default;
 
 private:
     std::string recPattern;

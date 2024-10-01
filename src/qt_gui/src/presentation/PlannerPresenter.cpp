@@ -273,8 +273,8 @@ auto PlannerPresenter::quickEditTask(std::string&& uuid,
 auto PlannerPresenter::toggleTask(const std::string& uuid) -> void
 {
     if (std::ranges::find(data, uuid, &TaskDTO::uuid) != data.cend()) {
-        toggleTaskCompletedHandler.handle(api::ToggleTaskCompletedCommand{
-            uuid, timeProvider.dateTimeLocalNow()});
+        toggleTaskCompletedHandler.handle(
+            api::ToggleTaskCompletedCommand{uuid});
     }
 }
 

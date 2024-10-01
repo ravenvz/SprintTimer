@@ -26,20 +26,25 @@
 
 using dw::DateTime;
 
+namespace {
+
+const auto id_projection = [](const auto& task) { return task.uuid(); };
+
+} // namespace
+
 namespace sprint_timer::api::actions {
 
 // TODO start with adding uuid generator and dateTimeProvider
 ToggleTaskCompleted::ToggleTaskCompleted(
     TaskStorage& taskStorage_,
     std::string uuid_,
-    dw::DateTime lastModified_,
     UUIDGenerator& uuidGenerator_,
     const DateTimeProvider& dateTimeProvider_)
     : storage{taskStorage_}
     , uuid{std::move(uuid_)}
-    , oldTimeStamp{lastModified_}
     , uuidGenerator{uuidGenerator_}
     , dateTimeProvider{dateTimeProvider_}
+    , oldTimeStamp{dateTimeProvider.dateLocalNow()}
 {
 }
 
@@ -51,35 +56,41 @@ auto ToggleTaskCompleted::execute() -> void
         throw std::runtime_error{"Can't find task with given uuid"};
     }
     const auto task = matchingUuid.front();
-    if (task.isCompleted()) {
-        storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
-        return;
-    }
-    if (not task.recurrence()) {
+    oldTimeStamp = task.lastModified();
+    if (task.isCompleted() or not task.recurrence()) {
         storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
         return;
     }
 
     auto taskTree = storage.taskTree();
     auto it = find_by_uuid(taskTree, uuid);
+    auto pos = taskTree.position_in_children(it);
     auto parent = taskTree.parent(it);
     parentUuid = parent == taskTree.end()
                      ? std::optional<std::string>{}
                      : std::optional<std::string>{parent->uuid()};
-    auto nextTask = task.nextRecurrence(uuidGenerator.generateUUID(),
-                                        dateTimeProvider.dateTimeLocalNow());
-    auto pos = taskTree.position_in_children(it);
-    if (nextTask) {
-        storage.save(*nextTask);
-        taskTree.insert(parent, *nextTask, ds::DestinationPosition{pos});
+    auto nextTask = task.nextRecurrent(uuidGenerator.generateUUID(),
+                                       dateTimeProvider.dateTimeLocalNow());
+    alg::inspect(nextTask, [&](const auto& t) {
+        addedTasks.push_back(t);
+        treeSnapshot = taskTree;
+        storage.save(t);
+        taskTree.insert(parent, t, ds::DestinationPosition{pos});
         storage.saveTree(taskTree);
-    }
+    });
     storage.toggleCompleted(uuid, dateTimeProvider.dateTimeLocalNow());
 }
 
 auto ToggleTaskCompleted::undo() -> void
 {
     storage.toggleCompleted(uuid, oldTimeStamp);
+    std::ranges::for_each(
+        addedTasks, [&](const auto& id) { storage.remove(id); }, id_projection);
+    if (treeSnapshot) {
+        storage.saveTree(*treeSnapshot);
+    }
+    treeSnapshot = std::nullopt;
+    addedTasks.clear();
 }
 
 auto ToggleTaskCompleted::describe() const -> std::string

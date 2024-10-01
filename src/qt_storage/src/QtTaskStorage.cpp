@@ -72,6 +72,11 @@ auto QtTaskStorage::saveTree(const TaskTree& taskTree) -> void
     writer->saveTree(taskTree);
 }
 
+auto QtTaskStorage::saveFullTree(const TaskTree& taskTree) -> void
+{
+    writer->saveFullTree(taskTree);
+}
+
 auto QtTaskStorage::remove(const std::string& uuid) -> void
 {
     writer->remove(uuid);

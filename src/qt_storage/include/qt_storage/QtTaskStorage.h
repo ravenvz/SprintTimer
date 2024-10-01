@@ -42,8 +42,8 @@ public:
 
     auto unfinishedTasks() -> std::vector<Task> final;
 
-    auto finishedTasks(const dw::DateRange& dateRange)
-        -> std::vector<Task> final;
+    auto
+    finishedTasks(const dw::DateRange& dateRange) -> std::vector<Task> final;
 
     auto allTasks(const dw::DateRange& dateRange) -> std::vector<Task> final;
 
@@ -51,8 +51,8 @@ public:
 
     auto findByUuid(const std::string& uuid) -> std::vector<Task> final;
 
-    auto findMatching(std::span<const std::string> uuids)
-        -> std::vector<Task> final;
+    auto
+    findMatching(std::span<const std::string> uuids) -> std::vector<Task> final;
 
     auto taskTree() -> TaskTree final;
 
@@ -60,18 +60,20 @@ public:
 
     auto saveTree(const TaskTree& taskTree) -> void final;
 
+    auto saveFullTree(const TaskTree& taskTree) -> void final;
+
     auto remove(const std::string& uuid) -> void final;
 
     auto edit(const Task& oldTask, const Task& editedTask) -> void final;
 
-    auto toggleCompleted(const std::string& uuid, const dw::DateTime& timeStamp)
-        -> void final;
+    auto toggleCompleted(const std::string& uuid,
+                         const dw::DateTime& timeStamp) -> void final;
 
-    auto updatePriorities(const std::vector<std::string>& priorities)
-        -> void final;
+    auto
+    updatePriorities(const std::vector<std::string>& priorities) -> void final;
 
-    auto editTag(const std::string& oldName, const std::string& newName)
-        -> void final;
+    auto editTag(const std::string& oldName,
+                 const std::string& newName) -> void final;
 
 private:
     std::unique_ptr<TaskStorageReader> reader;

@@ -327,7 +327,7 @@ TEST(TestTask, returns_none_recurrence_when_recurrence_is_not_set)
             someIrrelevantTimeStamp, std::nullopt, std::nullopt, std::nullopt}};
 
     EXPECT_EQ(std::nullopt,
-              nonRecurringTask.nextRecurrence("123", someIrrelevantTimeStamp));
+              nonRecurringTask.nextRecurrent("123", someIrrelevantTimeStamp));
 }
 
 TEST(TestTask, generates_next_recurrence_of_recurring_task)
@@ -336,7 +336,7 @@ TEST(TestTask, generates_next_recurrence_of_recurring_task)
         DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
     const Task task{"Some task",
                     7,
-                    {},
+                    {Sprint{modificationStamp - 25min, 25min}},
                     "123",
                     {},
                     false,
@@ -348,8 +348,10 @@ TEST(TestTask, generates_next_recurrence_of_recurring_task)
                                   std::nullopt,
                                   Recurrence{"*-*-10 21:20:00"}}};
     const std::string nextUuid{"345678"};
-    const auto nextRecurrenceDateTime =
+    const auto firstRecurrence =
         DateTime{Date{Year{2016}, Month{10}, Day{10}}} + 21h + 20min;
+    const auto nextRecurrent =
+        DateTime{Date{Year{2016}, Month{11}, Day{10}}} + 21h + 20min;
     const auto currentTime =
         DateTime{Date{Year{2016}, Month{10}, Day{1}}} + 10h;
     const Task expected{"Some task",
@@ -361,15 +363,96 @@ TEST(TestTask, generates_next_recurrence_of_recurring_task)
                         currentTime,
                         TaskType::Regular,
                         std::nullopt,
-                        TaskTimeframe{currentTime,
-                                      nextRecurrenceDateTime,
+                        TaskTimeframe{firstRecurrence,
+                                      nextRecurrent,
                                       std::nullopt,
                                       Recurrence{"*-*-10 21:20:00"}}};
 
-    const auto actual = task.nextRecurrence(nextUuid, currentTime);
+    const auto actual = task.nextRecurrent(nextUuid, currentTime);
 
-    EXPECT_TRUE(actual);
+    EXPECT_TRUE(actual.has_value());
     EXPECT_EQ(expected, actual.value());
+}
+
+TEST(TestTask, handles_multiple_completions_of_recurrent_task)
+{
+    // We create a task and finish it multiple times.
+    // Check if start time and recurrence shifts each time.
+    constexpr auto modification_stamp =
+        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
+    const auto current_time =
+        DateTime{Date{Year{2016}, Month{11}, Day{1}}} + 10h;
+    const auto first_recurrence =
+        DateTime{Date{Year{2016}, Month{10}, Day{10}}} + 21h + 20min;
+    const auto second_recurrence =
+        DateTime{Date{Year{2016}, Month{11}, Day{10}}} + 21h + 20min;
+    const auto third_recurrence =
+        DateTime{Date{Year{2016}, Month{12}, Day{10}}} + 21h + 20min;
+    const auto fourth_recurrence =
+        DateTime{Date{Year{2017}, Month{1}, Day{10}}} + 21h + 20min;
+    const Task task{"Some task",
+                    7,
+                    {},
+                    "0",
+                    {},
+                    false,
+                    modification_stamp,
+                    TaskType::Regular,
+                    std::nullopt,
+                    TaskTimeframe{modification_stamp + Days{10},
+                                  std::nullopt,
+                                  std::nullopt,
+                                  Recurrence{"*-*-10 21:20:00"}}};
+    const TaskTimeframe first_expected{first_recurrence,
+                                       second_recurrence,
+                                       std::nullopt,
+                                       Recurrence{"*-*-10 21:20:00"}};
+    const TaskTimeframe second_expected{second_recurrence,
+                                        third_recurrence,
+                                        std::nullopt,
+                                        Recurrence{"*-*-10 21:20:00"}};
+    const TaskTimeframe third_expected{third_recurrence,
+                                       fourth_recurrence,
+                                       std::nullopt,
+                                       Recurrence{"*-*-10 21:20:00"}};
+
+    const auto task_once_completed = task.nextRecurrent("1", current_time);
+    ASSERT_TRUE(task_once_completed.has_value());
+    ASSERT_EQ(first_expected, task_once_completed.value().timeFrame());
+
+    const auto two_times_completed =
+        task_once_completed->nextRecurrent("2", current_time);
+    ASSERT_TRUE(two_times_completed.has_value());
+    ASSERT_EQ(second_expected, two_times_completed.value().timeFrame());
+
+    const auto three_times_completed =
+        two_times_completed->nextRecurrent("3", current_time);
+    ASSERT_TRUE(three_times_completed.has_value());
+    ASSERT_EQ(third_expected, three_times_completed.value().timeFrame());
+}
+
+TEST(TestTask, next_recurrence_returns_nullopt_when_recurrence_ends)
+{
+    constexpr auto modificationStamp =
+        DateTime{Date{Year{2016}, Month{9}, Day{21}}} + 12h + 59min + 19s;
+    const Task task{"Some task",
+                    7,
+                    {Sprint{modificationStamp - 25min, 25min}},
+                    "123",
+                    {},
+                    false,
+                    modificationStamp,
+                    TaskType::Regular,
+                    std::nullopt,
+                    TaskTimeframe{modificationStamp + Days{10},
+                                  std::nullopt,
+                                  std::nullopt,
+                                  Recurrence{"2016-10-10 21:20:00"}}};
+    const std::string nextUuid{"345678"};
+    const auto currentTime =
+        DateTime{Date{Year{2016}, Month{10}, Day{1}}} + 10h;
+
+    EXPECT_EQ(std::nullopt, task.nextRecurrent(nextUuid, currentTime));
 }
 
 TEST(TestTask, recurrence_of_non_recurring_task_is_none)
@@ -389,11 +472,11 @@ TEST(TestTask, recurrence_of_non_recurring_task_is_none)
                                   std::nullopt,
                                   std::nullopt}};
 
-    EXPECT_FALSE(task.nextRecurrence("1234", current_date_time_local()));
+    EXPECT_FALSE(task.nextRecurrent("1234", current_date_time_local()));
 }
 
 TEST(TestTask,
-     recurrence_of_non_recurring_task_is_none_when_no_next_recurrence_possible)
+     recurrence_of_recurring_task_is_none_when_no_next_recurrence_possible)
 {
     const auto currentTime =
         DateTime{Date{Year{2016}, Month{10}, Day{1}}} + 10h;
@@ -411,6 +494,6 @@ TEST(TestTask,
                                   std::nullopt,
                                   Recurrence{"2016-01..09-10 21:20:00"}}};
 
-    EXPECT_FALSE(task.nextRecurrence("12345", currentTime));
+    EXPECT_FALSE(task.nextRecurrent("12345", currentTime));
 }
 

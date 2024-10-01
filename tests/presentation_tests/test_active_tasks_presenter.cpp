@@ -148,10 +148,9 @@ TEST_F(ActiveTasksPresenterFixture, toggles_task_completion)
     ActiveTasksPresenter sut{makePresenter()};
 
     EXPECT_CALL(toggleFinishedHandler,
-                handle(ToggleTaskCompletedCommand{someTask.uuid,
-                                                  someTask.modificationStamp}));
+                handle(ToggleTaskCompletedCommand{someTask.uuid}));
 
-    sut.toggleFinished(someTask.uuid, someTask.modificationStamp);
+    sut.toggleFinished(someTask.uuid);
 }
 
 TEST_F(ActiveTasksPresenterFixture,

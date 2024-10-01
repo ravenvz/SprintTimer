@@ -76,7 +76,7 @@ TEST_F(FinishingTaskFixture, toggling_task_completion_alters_timestamp)
     // NOTE date time provider timepoint is being altered here
     TimePortalGuard timePortal{initializer.getDateTimeProvider(), timeStamp};
     toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{next_generated_uuid, timeStamp});
+        ToggleTaskCompletedCommand{next_generated_uuid});
 
     EXPECT_EQ(expected, activeTasksHandler.handle(ActiveTasksQuery{}).front());
 }
@@ -109,8 +109,7 @@ TEST_F(
                            std::nullopt,
                            TaskTimeframeDTO{},
                            TaskTypeDTO::Regular};
-    toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{task.uuid, task.modificationStamp});
+    toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{task.uuid});
 
     undoHandler.handle(UndoLastCommand{});
 
@@ -120,92 +119,61 @@ TEST_F(
 TEST_F(FinishingTaskFixture,
        finishing_recurring_task_creates_another_task_instance)
 {
-    const DateTime timeStamp{DateTime{Date{Year{2023}, Month{5}, Day{8}}}};
-    createTaskHandler.handle(CreateTaskCommand{
-        "Name",
-        {"Tag1"},
-        7,
-        TaskTypeDTO::Regular,
-        std::nullopt,
-        std::nullopt,
-        std::nullopt,
-        TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2}, Day{5}}},
-                         std::nullopt,
-                         std::nullopt,
-                         "Mon *-6..12-*"}});
+    const DateTime firstRecurrence{Date{Year{2023}, Month{6}, Day{5}}};
+    const DateTime secondRecurrence{Date{Year{2023}, Month{6}, Day{12}}};
+    const DateTime initialStart = DateTime{Date{Year{2023}, Month{2}, Day{5}}};
+    const DateTime currentTime =
+        DateTime{Date{Year{2023}, Month{4}, Day{17}}} + 12h + 11min;
+    const std::string normalizedRecurrenceStr = "Mon *-06..12-* 00:00:00";
+    createTaskHandler.handle(
+        CreateTaskCommand{"Name",
+                          {"Tag1"},
+                          7,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{initialStart,
+                                           std::nullopt,
+                                           std::nullopt,
+                                           normalizedRecurrenceStr}});
     std::vector<dw::DateTimeRange> sprints{DateTimeRange{
         DateTime{Date{Year{2023}, Month{5}, Day{4}}} + 1h + 25min,
         DateTime{Date{Year{2023}, Month{5}, Day{4}}} + 1h + 50min}};
-    registerSprintsHandler.handle(RegisterSprintBulkCommand{"0", sprints});
     TaskTreeDTO expected;
-    expected.insert(
-        expected.end(),
-        TaskDTO{"1",
-                {"Tag1"},
-                "Name",
-                7,
-                {},
-                false,
-                dw::current_date_time_local(),
-                std::nullopt,
-                TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2}, Day{5}}},
-                                 std::nullopt,
-                                 std::nullopt,
-                                 "Mon *-6..12-*"},
-                TaskTypeDTO::Regular});
-    expected.insert(
-        expected.end(),
-        TaskDTO{"0",
-                {"Tag1"},
-                "Name",
-                7,
-                sprints,
-                true,
-                dw::current_date_time_local(),
-                std::nullopt,
-                TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2}, Day{5}}},
-                                 std::nullopt,
-                                 std::nullopt,
-                                 "Mon *-6..12-*"},
-                TaskTypeDTO::Regular});
+    expected.insert(expected.end(),
+                    TaskDTO{"1",
+                            {"Tag1"},
+                            "Name",
+                            7,
+                            {},
+                            false,
+                            currentTime,
+                            std::nullopt,
+                            TaskTimeframeDTO{firstRecurrence,
+                                             secondRecurrence,
+                                             std::nullopt,
+                                             normalizedRecurrenceStr},
+                            TaskTypeDTO::Regular});
+    expected.insert(expected.end(),
+                    TaskDTO{"0",
+                            {"Tag1"},
+                            "Name",
+                            7,
+                            sprints,
+                            true,
+                            currentTime,
+                            std::nullopt,
+                            TaskTimeframeDTO{initialStart,
+                                             firstRecurrence,
+                                             std::nullopt,
+                                             normalizedRecurrenceStr},
+                            TaskTypeDTO::Regular});
 
-    std::cout << expected.to_string() << std::endl;
-
-    // std::vector<TaskDTO> expected{
-    //     TaskDTO{"0",
-    //             {"Tag1"},
-    //             "Name",
-    //             7,
-    //             sprints,
-    //             true,
-    //             dw::current_date_time_local(),
-    //             std::nullopt,
-    //             TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2},
-    //             Day{5}}},
-    //                              std::nullopt,
-    //                              std::nullopt,
-    //                              "Mon *-6..12-*"},
-    //             TaskTypeDTO::Regular},
-    //     TaskDTO{"1",
-    //             {"Tag1"},
-    //             "Name",
-    //             7,
-    //             {},
-    //             false,
-    //             dw::current_date_time_local(),
-    //             std::nullopt,
-    //             TaskTimeframeDTO{DateTime{Date{Year{2023}, Month{2},
-    //             Day{5}}},
-    //                              std::nullopt,
-    //                              std::nullopt,
-    //                              "Mon *-6..12-*"},
-    //             TaskTypeDTO::Regular}};
-
-    toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{"0", dw::current_date_time_local()});
+    TimePortalGuard timePortal{initializer.getDateTimeProvider(), currentTime};
+    registerSprintsHandler.handle(RegisterSprintBulkCommand{"0", sprints});
+    toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{"0"});
     const auto tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
-    std::cout << tree.to_string() << std::endl;
-    // const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
 
     EXPECT_EQ(expected, tree);
 }
@@ -213,12 +181,163 @@ TEST_F(FinishingTaskFixture,
 TEST_F(FinishingTaskFixture,
        undoing_finishing_recurring_task_removes_created_task_instance)
 {
-    FAIL();
+    const DateTime firstRecurrence{Date{Year{2023}, Month{6}, Day{5}}};
+    const DateTime secondRecurrence{Date{Year{2023}, Month{6}, Day{12}}};
+    const DateTime initialStart = DateTime{Date{Year{2023}, Month{2}, Day{5}}};
+    const DateTime modificationTime =
+        DateTime{Date{Year{2023}, Month{4}, Day{17}}} + 12h + 11min;
+    const DateTime taskCompletionTime =
+        DateTime{Date{Year{2023}, Month{4}, Day{18}}} + 1h;
+    std::vector<dw::DateTimeRange> sprints{DateTimeRange{
+        DateTime{Date{Year{2023}, Month{5}, Day{4}}} + 1h + 25min,
+        DateTime{Date{Year{2023}, Month{5}, Day{4}}} + 1h + 50min}};
+    const std::string normalizedRecurrenceStr = "Mon *-06..12-* 00:00:00";
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   modificationTime};
+        createTaskHandler.handle(
+            CreateTaskCommand{"Name",
+                              {"Tag1"},
+                              7,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{initialStart,
+                                               std::nullopt,
+                                               std::nullopt,
+                                               normalizedRecurrenceStr}});
+        registerSprintsHandler.handle(RegisterSprintBulkCommand{"0", sprints});
+    }
+    TaskTreeDTO expected;
+    expected.insert(expected.end(),
+                    TaskDTO{"0",
+                            {"Tag1"},
+                            "Name",
+                            7,
+                            sprints,
+                            false,
+                            modificationTime,
+                            std::nullopt,
+                            TaskTimeframeDTO{initialStart,
+                                             firstRecurrence,
+                                             std::nullopt,
+                                             normalizedRecurrenceStr},
+                            TaskTypeDTO::Regular});
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   taskCompletionTime};
+        toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{"0"});
+        undoHandler.handle(UndoLastCommand{});
+    }
+
+    const auto tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
+
+    EXPECT_EQ(expected, tree);
 }
 
-TEST_F(
-    FinishingTaskFixture,
-    finishing_recurring_task_regenerates_all_completed_subtasks_and_updates_due_time_for_all_tasks)
+TEST_F(FinishingTaskFixture,
+       finishing_recurring_task_regenerates_finished_nonrecurring_subtasks)
 {
-    FAIL();
+    const DateTime startTime{DateTime{Date{Year{2024}, Month{10}, Day{3}}} +
+                             11h + 12min};
+    const DateTime modificationTime{
+        DateTime{Date{Year{2024}, Month{15}, Day{4}}} + 11h + 12min};
+    const DateTime completionTime{
+        DateTime{Date{Year{2024}, Month{15}, Day{5}}} + 1h};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   startTime};
+        // uuid = 0
+        createTaskHandler.handle(CreateTaskCommand{
+            "Recurring parent task",
+            {},
+            1,
+            TaskTypeDTO::Regular,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            TaskTimeframeDTO{
+                startTime, std::nullopt, std::nullopt, "*-*-* 00:04:00"}});
+        // uuid = 1
+        createTaskHandler.handle(CreateTaskCommand{
+            "Non recurring subtask",
+            {},
+            4,
+            TaskTypeDTO::Regular,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            TaskTimeframeDTO{
+                startTime, std::nullopt, std::nullopt, std::nullopt}});
+        // uuid = 2
+        createTaskHandler.handle(CreateTaskCommand{
+            "Recurring subtask",
+            {},
+            1,
+            TaskTypeDTO::Regular,
+            std::nullopt,
+            std::nullopt,
+            std::nullopt,
+            TaskTimeframeDTO{
+                startTime, std::nullopt, std::nullopt, "*-*-12 00:07:00"}});
+    }
+    {
+
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   modificationTime};
+        registerSprintsHandler.handle(RegisterSprintBulkCommand{
+            "1",
+            {DateTimeRange{modificationTime - 25min, modificationTime - 50min},
+             DateTimeRange{modificationTime, modificationTime - 25min}}});
+        toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{"1"});
+    }
+    TaskTreeDTO expected;
+    auto parent = expected.insert(
+        expected.end(),
+        TaskDTO{
+            "0",
+            {},
+            "Recurring parent task",
+            1,
+            {},
+            false,
+            completionTime,
+            std::nullopt,
+            TaskTimeframeDTO{DateTime{Date{Year{2024}, Month{10}, Day{4}}} + 4h,
+                             DateTime{Date{Year{2024}, Month{10}, Day{5}}} + 4h,
+                             std::nullopt,
+                             "*-*-* 00:04:00"},
+            TaskTypeDTO::Regular});
+    expected.insert(
+        parent,
+        TaskDTO{"1",
+                {},
+                "Non recurring subtask",
+                4,
+                {},
+                false,
+                completionTime,
+                std::nullopt,
+                TaskTimeframeDTO{
+                    completionTime, std::nullopt, std::nullopt, std::nullopt},
+                TaskTypeDTO::Regular});
+    expected.insert(
+        parent,
+        TaskDTO{"2",
+                {},
+                "Recurrent subtask",
+                1,
+                {},
+                false,
+                startTime,
+                std::nullopt,
+                TaskTimeframeDTO{
+                    startTime, std::nullopt, std::nullopt, "*-*-12 00:07:00"},
+                TaskTypeDTO::Regular});
+
+    toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{"0"});
+
+    EXPECT_EQ(expected, readTaskTreeHandler.handle(ReadTaskTreeQuery{}));
 }
+

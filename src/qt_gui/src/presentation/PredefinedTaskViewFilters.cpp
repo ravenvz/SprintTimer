@@ -174,9 +174,12 @@ public:
     auto make_tree() const -> sprint_timer::TreeType<T>
     {
         sprint_timer::TreeType<T> res;
-        for (const auto& bucket : nodes) {
-            auto it = insert_header(res, bucket.first);
-            for (const auto& item : bucket.second) {
+        for (auto& [header, vals] : nodes) {
+            if (vals.empty()) {
+                continue;
+            }
+            auto it = insert_header(res, header);
+            for (const auto& item : vals) {
                 res.insert(it, item);
             }
         }
@@ -335,8 +338,12 @@ auto makeTaskViewFilters(const api::DateTimeProvider& dateTimeProvider)
 
     auto recently_modified_filter =
         [&](const TaskTreeDTO& tree) -> TaskTreeDTO {
-        return group_by_previous_dates(
+        auto res = group_by_previous_dates(
             dateTimeProvider.dateLocalNow(), tree, modified_prefix);
+        std::cout << res.to_string() << std::endl;
+        return res;
+        // return group_by_previous_dates(
+        //     dateTimeProvider.dateLocalNow(), tree, modified_prefix);
     };
 
     auto recently_finished_filter =
@@ -364,8 +371,8 @@ auto makeTaskViewFilters(const api::DateTimeProvider& dateTimeProvider)
     filters.insert({"Active Actions", active_actions_filter});
     filters.insert({"Active By Project", actions_by_project_filter});
     filters.insert({"Active By Tag", actions_by_tag_filter});
-    filters.insert({"Recently Modified", recently_modified_filter});
-    filters.insert({"Recently Finished", recently_finished_filter});
+    filters.insert({"Modified recently", recently_modified_filter});
+    filters.insert({"Completed recently", recently_finished_filter});
     filters.insert({"Due next 7 days", due_next_seven_days_filter});
 
     return filters;
@@ -445,7 +452,6 @@ auto group_by_previous_dates(dw::Date today,
                              std::ranges::input_range auto&& nodes,
                              std::string_view header_prefix) -> TaskTreeDTO
 {
-
     auto grouper = [&](const auto& task) -> int {
         const auto days_ago =
             dw::DateRange{task.modificationStamp.date(), today}
@@ -500,69 +506,69 @@ auto group_by_previous_dates(dw::Date today,
     group_tree.sort_buckets(by_date_descending);
     return group_tree.make_tree();
 
-    TaskTreeDTO res;
-
-    std::array<std::vector<TaskDTO>, 4> buckets{};
-
-    auto selector = [&](const TaskDTO& task) -> void {
-        const auto days_ago =
-            dw::DateRange{task.modificationStamp.date(), today}
-                .duration()
-                .count();
-        if (days_ago == 0) {
-            buckets[0].push_back(task);
-        }
-        else if (days_ago == 1) {
-            buckets[1].push_back(task);
-        }
-        else if (2 <= days_ago and days_ago <= 7) {
-            buckets[2].push_back(task);
-        }
-        else if (7 < days_ago and days_ago <= 30) {
-            buckets[3].push_back(task);
-        }
-    };
-
-    std::ranges::for_each(nodes, selector);
-
-    const std::string today_header = std::format("{}: today ({})  [{}]",
-                                                 header_prefix,
-                                                 stringify_date(today),
-                                                 buckets[0].size());
-    const std::string yesterday_header =
-        std::format("{}: yesterday ({})  [{}]",
-                    header_prefix,
-                    stringify_date(today - dw::Days{1}),
-                    buckets[1].size());
-    const std::string few_days_ago_header =
-        std::format("{}: few days ago ({} - {})  [{}]",
-                    header_prefix,
-                    stringify_date(today - dw::Days{7}),
-                    stringify_date(today - dw::Days{2}),
-                    buckets[2].size());
-    const std::string few_weeks_ago_header =
-        std::format("{}: few weeks ago ({} - {})  [{}]",
-                    header_prefix,
-                    stringify_date(today - dw::Days{30}),
-                    stringify_date(today - dw::Days{8}),
-                    buckets[3].size());
-
-    std::vector<std::string> headers{today_header,
-                                     yesterday_header,
-                                     few_days_ago_header,
-                                     few_weeks_ago_header};
-
-    for (auto&& [tasks, header] : std::views::zip(buckets, headers)) {
-        if (tasks.empty()) {
-            continue;
-        }
-        std::ranges::sort(tasks, by_date_descending);
-        auto it = insert_header(res, header);
-        std::ranges::for_each(
-            tasks, [&](auto&& task) { res.insert(it, std::move(task)); });
-    }
-
-    return res;
+    // TaskTreeDTO res;
+    //
+    // std::array<std::vector<TaskDTO>, 4> buckets{};
+    //
+    // auto selector = [&](const TaskDTO& task) -> void {
+    //     const auto days_ago =
+    //         dw::DateRange{task.modificationStamp.date(), today}
+    //             .duration()
+    //             .count();
+    //     if (days_ago == 0) {
+    //         buckets[0].push_back(task);
+    //     }
+    //     else if (days_ago == 1) {
+    //         buckets[1].push_back(task);
+    //     }
+    //     else if (2 <= days_ago and days_ago <= 7) {
+    //         buckets[2].push_back(task);
+    //     }
+    //     else if (7 < days_ago and days_ago <= 30) {
+    //         buckets[3].push_back(task);
+    //     }
+    // };
+    //
+    // std::ranges::for_each(nodes, selector);
+    //
+    // const std::string today_header = std::format("{}: today ({})  [{}]",
+    //                                              header_prefix,
+    //                                              stringify_date(today),
+    //                                              buckets[0].size());
+    // const std::string yesterday_header =
+    //     std::format("{}: yesterday ({})  [{}]",
+    //                 header_prefix,
+    //                 stringify_date(today - dw::Days{1}),
+    //                 buckets[1].size());
+    // const std::string few_days_ago_header =
+    //     std::format("{}: few days ago ({} - {})  [{}]",
+    //                 header_prefix,
+    //                 stringify_date(today - dw::Days{7}),
+    //                 stringify_date(today - dw::Days{2}),
+    //                 buckets[2].size());
+    // const std::string few_weeks_ago_header =
+    //     std::format("{}: few weeks ago ({} - {})  [{}]",
+    //                 header_prefix,
+    //                 stringify_date(today - dw::Days{30}),
+    //                 stringify_date(today - dw::Days{8}),
+    //                 buckets[3].size());
+    //
+    // std::vector<std::string> headers{today_header,
+    //                                  yesterday_header,
+    //                                  few_days_ago_header,
+    //                                  few_weeks_ago_header};
+    //
+    // for (auto&& [tasks, header] : std::views::zip(buckets, headers)) {
+    //     if (tasks.empty()) {
+    //         continue;
+    //     }
+    //     std::ranges::sort(tasks, by_date_descending);
+    //     auto it = insert_header(res, header);
+    //     std::ranges::for_each(
+    //         tasks, [&](auto&& task) { res.insert(it, std::move(task)); });
+    // }
+    //
+    // return res;
 }
 
 auto due_next_seven_days_filter_impl(std::ranges::input_range auto&& r,

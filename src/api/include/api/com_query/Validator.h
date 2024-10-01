@@ -22,7 +22,7 @@
 #ifndef VALIDATOR_H_FXQUVDDC
 #define VALIDATOR_H_FXQUVDDC
 
-#include <optional>
+#include <expected>
 #include <string>
 
 namespace asp {
@@ -31,7 +31,7 @@ template <typename RequestT> class Validator {
 public:
     virtual ~Validator() = default;
 
-    virtual std::optional<std::string> validate(const RequestT& request) const = 0;
+    virtual auto validate(const RequestT& request) const -> std::expected<bool, std::string> = 0;
 };
 
 } // namespace asp

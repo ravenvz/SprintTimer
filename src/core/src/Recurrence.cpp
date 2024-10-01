@@ -143,8 +143,8 @@ template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const Component& component);
 
-auto findNextRecurrence(const RecurrenceSpec& spec, dw::DateTime refTimeStamp)
-    -> Maybe<dw::DateTime>;
+auto findNextRecurrence(const RecurrenceSpec& spec,
+                        dw::DateTime refTimeStamp) -> Maybe<dw::DateTime>;
 
 auto makeYears(const Components& components) -> std::vector<int>;
 
@@ -222,8 +222,8 @@ auto Recurrence::pattern() const -> std::string { return recPattern; }
 
 namespace {
 
-auto findNextRecurrence(const RecurrenceSpec& spec, dw::DateTime refTimeStamp)
-    -> Maybe<dw::DateTime>
+auto findNextRecurrence(const RecurrenceSpec& spec,
+                        dw::DateTime refTimeStamp) -> Maybe<dw::DateTime>
 {
     const auto startYear = static_cast<int>(refTimeStamp.year());
 
@@ -388,20 +388,12 @@ auto parseComponent(std::string_view pattern) -> Component
 
 auto parseComponents(std::string_view pattern) -> Components
 {
-    Components components;
     if (pattern == "*") {
-        return components;
+        return Components{};
     }
 
-    auto parts = alg::split(pattern, ',');
-    components.reserve(parts.size());
-
-    // return std::views::transform(split(pattern, ','), parseComponents) |
-    //        std::ranges::to<std::vector>();
-    std::ranges::copy(std::views::transform(parts, parseComponent),
-                      std::back_inserter(components));
-
-    return components;
+    return alg::split(pattern, ',') | std::views::transform(parseComponent) |
+           std::ranges::to<std::vector>();
 }
 
 auto validateSpec(const Spec& spec) -> void
@@ -622,12 +614,9 @@ constexpr auto fixYear(auto year) noexcept -> uint16_t
 
 auto parseGroup(Pattern pattern, char delimiter) -> std::vector<Components>
 {
-    auto splitted = alg::split(pattern, delimiter);
-    auto transformed = std::views::transform(splitted, parseComponents);
-    // std::vector<Components> result =
-    // std::ranges::to<std::vector>(transformed);
-    std::vector<Components> result;
-    std::ranges::copy(transformed, std::back_inserter(result));
+    auto result = alg::split(pattern, delimiter) |
+                  std::views::transform(parseComponents) |
+                  std::ranges::to<std::vector>();
     std::ranges::for_each(result, [](auto& components) {
         std::ranges::sort(components, [](const auto& left, const auto& right) {
             return left.start < right.start;

@@ -40,13 +40,15 @@ public:
     virtual auto toggleCompleted(const std::string& uuid,
                                  const dw::DateTime& timeStamp) -> void = 0;
 
-    virtual auto updatePriorities(const std::vector<std::string>& priorities)
-        -> void = 0;
+    virtual auto
+    updatePriorities(const std::vector<std::string>& priorities) -> void = 0;
 
-    virtual auto editTag(const std::string& oldName, const std::string& newName)
-        -> void = 0;
+    virtual auto editTag(const std::string& oldName,
+                         const std::string& newName) -> void = 0;
 
     virtual auto saveTree(const TaskTree& taskTree) -> void = 0;
+
+    virtual auto saveFullTree(const TaskTree& taskTree) -> void = 0;
 };
 
 } // namespace sprint_timer

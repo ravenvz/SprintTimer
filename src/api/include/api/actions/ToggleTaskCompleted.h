@@ -33,7 +33,6 @@ class ToggleTaskCompleted {
 public:
     ToggleTaskCompleted(TaskStorage& taskStorage,
                         std::string uuid,
-                        dw::DateTime lastModificationTimestamp,
                         UUIDGenerator& uuidGenerator,
                         const DateTimeProvider& dateTimeProvider);
 
@@ -45,12 +44,14 @@ public:
 
 private:
     TaskStorage& storage;
-    const std::string uuid;
-    const dw::DateTime oldTimeStamp;
+    std::string uuid;
     UUIDGenerator& uuidGenerator;
     const DateTimeProvider& dateTimeProvider;
+    dw::DateTime oldTimeStamp;
     std::optional<std::string> recurringTaskUuid;
     std::optional<std::string> parentUuid;
+    std::optional<TaskTree> treeSnapshot;
+    std::vector<Task> addedTasks;
 };
 
 } // namespace sprint_timer::api::actions

@@ -44,7 +44,10 @@ PlannerViews::PlannerViews(QAbstractItemModel& plannerViewsModel_,
 {
     treeView->setModel(&plannerViewsModel);
     auto lt = std::make_unique<QVBoxLayout>();
-    treeView->setHeaderHidden(true);
+    treeView->setHeaderHidden(false);
+    // treeView->setHeaderHidden(true);
+    treeView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    treeView->adjustSize();
     // treeView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
     lt->addWidget(treeView);
     setLayout(lt.release());

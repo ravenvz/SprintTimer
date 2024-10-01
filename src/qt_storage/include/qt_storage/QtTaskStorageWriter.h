@@ -46,16 +46,18 @@ public:
 
     auto edit(const Task& oldTask, const Task& editedTask) -> void final;
 
-    auto toggleCompleted(const std::string& uuid, const dw::DateTime& timeStamp)
-        -> void final;
+    auto toggleCompleted(const std::string& uuid,
+                         const dw::DateTime& timeStamp) -> void final;
 
-    auto updatePriorities(const std::vector<std::string>& priorities)
-        -> void final;
+    auto
+    updatePriorities(const std::vector<std::string>& priorities) -> void final;
 
-    auto editTag(const std::string& oldName, const std::string& newName)
-        -> void final;
+    auto editTag(const std::string& oldName,
+                 const std::string& newName) -> void final;
 
     auto saveTree(const TaskTree& taskTree) -> void final;
+
+    auto saveFullTree(const TaskTree& taskTree) -> void final;
 
 private:
     QString connectionName;
@@ -81,8 +83,8 @@ private:
 
     auto insertNotes(const QString& taskUuid, const Note& notes) -> void;
 
-    auto insertTimeframe(const QString& taskUuid, TaskTimeframe timeFrame)
-        -> void;
+    auto insertTimeframe(const QString& taskUuid,
+                         TaskTimeframe timeFrame) -> void;
 };
 
 } // namespace sprint_timer::storage::qt_storage

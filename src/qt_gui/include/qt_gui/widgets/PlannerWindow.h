@@ -35,33 +35,11 @@ class QAbstractItemModel;
 
 namespace sprint_timer::ui::qt_gui {
 
-class PlannerWindow : public StandaloneDisplayableWidget,
-                      public contracts::PlannerContract::View {
+class PlannerWindow : public StandaloneDisplayableWidget {
 public:
-    PlannerWindow(QAbstractItemModel& plannerModel_,
-                  QAbstractItemDelegate& itemDelegate_,
-                  std::unique_ptr<QWidget> plannerViews_,
-                  Displayable& addTaskDialog_,
-                  Displayable& editTaskDialog_,
+    PlannerWindow(std::unique_ptr<QWidget> plannerViews_,
+                  std::unique_ptr<QWidget> plannerTreeWidget_,
                   QWidget* parent_ = nullptr);
-
-    auto displayPlanner(const contracts::PlannerContract::PlannerTree& taskTree)
-        -> void override;
-
-private:
-    QAbstractItemModel& plannerModel;
-    QTreeView* outlineView;
-    // QWidget& plannerViews;
-    Displayable& addTaskDialog;
-    Displayable& editTaskDialog;
-
-    auto showContextMenu(const QPoint& pos) const -> void;
-
-    auto handleEdit(const QModelIndex& index) const -> void;
-
-    auto handleToggle(const QModelIndex& index) const -> void;
-
-    [[nodiscard]] auto selectedTaskUuid() const -> std::string;
 };
 
 } // namespace sprint_timer::ui::qt_gui

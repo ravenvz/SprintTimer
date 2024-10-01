@@ -37,8 +37,7 @@ public:
 
     virtual void deleteTask(const std::string& uuid) = 0;
 
-    virtual void toggleFinished(const std::string& uuid,
-                                dw::DateTime lastModified) = 0;
+    virtual void toggleFinished(const std::string& uuid) = 0;
 
     virtual void
     reorderTasks(int32_t sourceRow, int32_t count, int32_t destinationRow) = 0;

@@ -885,7 +885,8 @@ int main(int argc, char* argv[])
                                                   "#2ea81b",
                                                   "#eb6c59",
                                                   "#1b4fa8"};
-    ui::TaskTreeFilter taskTreeFilter{ui::makeTaskViewFilters(dateTimeProvider)};
+    ui::TaskTreeFilter taskTreeFilter{
+        ui::makeTaskViewFilters(dateTimeProvider)};
     ui::PlannerPresenter plannerPresenter{plannerColors,
                                           taskTreeFilter,
                                           *readPlannerHandler,

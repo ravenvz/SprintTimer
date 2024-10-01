@@ -55,8 +55,7 @@ public:
 
     void deleteTask(const std::string& uuid) override;
 
-    void toggleFinished(const std::string& uuid,
-                        dw::DateTime lastModificationTimestamp) override;
+    void toggleFinished(const std::string& uuid) override;
 
     void reorderTasks(int32_t sourceRow,
                       int32_t count,

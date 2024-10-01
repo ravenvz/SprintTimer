@@ -39,12 +39,8 @@ ToggleTaskCompletedHandler::ToggleTaskCompletedHandler(
 void ToggleTaskCompletedHandler::handle(
     const ToggleTaskCompletedCommand& command)
 {
-    actionInvoker.execute(
-        actions::ToggleTaskCompleted{taskStorage,
-                                     command.taskUuid,
-                                     command.lastModificationTimestamp,
-                                     uuidGenerator,
-                                     dateTimeProvider});
+    actionInvoker.execute(actions::ToggleTaskCompleted{
+        taskStorage, command.taskUuid, uuidGenerator, dateTimeProvider});
 }
 
 } // namespace sprint_timer::api

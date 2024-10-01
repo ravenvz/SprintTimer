@@ -30,6 +30,7 @@
 #include "qt_gui/presentation/DateRangeSelectorContract.h"
 #include "qt_gui/presentation/PlannerContract.h"
 #include "qt_gui/presentation/TaskSelectionContext.h"
+#include "qt_gui/widgets/PlannerTreeWidget.h"
 #include "qt_gui/widgets/PlannerViews.h"
 #include "qt_gui/widgets/PlannerWindow.h"
 
@@ -40,7 +41,7 @@ namespace sprint_timer::compose {
 class PlannerWindowProxy : public DisplayableLifestyleProxy {
 public:
     PlannerWindowProxy(
-        ui::contracts::PlannerContract::Presenter& plannerWindowPresenter_,
+        ui::contracts::PlannerContract::Presenter& plannerTreePresenter_,
         QAbstractItemModel& plannerModel_,
         QAbstractItemDelegate& plannerItemDelegate_,
         ui::contracts::PlannerViewsContract::Presenter& plannerViewsPresenter_,
@@ -49,7 +50,7 @@ public:
         ui::qt_gui::Displayable& editTaskDialog_);
 
 private:
-    ui::contracts::PlannerContract::Presenter& plannerWindowPresenter;
+    ui::contracts::PlannerContract::Presenter& plannerTreePresenter;
     QAbstractItemModel& plannerModel;
     QAbstractItemDelegate& plannerItemDelegate;
     ui::contracts::PlannerViewsContract::Presenter& plannerViewsPresenter;
@@ -62,14 +63,14 @@ private:
 };
 
 inline PlannerWindowProxy::PlannerWindowProxy(
-    ui::contracts::PlannerContract::Presenter& plannerWindowPresenter_,
+    ui::contracts::PlannerContract::Presenter& plannerTreePresenter_,
     QAbstractItemModel& plannerModel_,
     QAbstractItemDelegate& plannerItemDelegate_,
     ui::contracts::PlannerViewsContract::Presenter& plannerViewsPresenter_,
     QAbstractItemModel& plannerViewsModel_,
     ui::qt_gui::Displayable& addTaskDialog_,
     ui::qt_gui::Displayable& editTaskDialog_)
-    : plannerWindowPresenter{plannerWindowPresenter_}
+    : plannerTreePresenter{plannerTreePresenter_}
     , plannerModel{plannerModel_}
     , plannerItemDelegate{plannerItemDelegate_}
     , plannerViewsPresenter{plannerViewsPresenter_}
@@ -85,13 +86,12 @@ inline auto PlannerWindowProxy::create()
     auto plannerViews =
         std::make_unique<ui::qt_gui::PlannerViews>(plannerViewsModel);
     plannerViews->setPresenter(plannerViewsPresenter);
-    auto view =
-        std::make_unique<ui::qt_gui::PlannerWindow>(plannerModel,
-                                                    plannerItemDelegate,
-                                                    std::move(plannerViews),
-                                                    addTaskDialog,
-                                                    editTaskDialog);
-    view->setPresenter(plannerWindowPresenter);
+    auto plannerTreeWidget = std::make_unique<ui::qt_gui::PlannerTreeWidget>(
+        plannerModel, plannerItemDelegate, addTaskDialog, editTaskDialog);
+    plannerTreeWidget->setPresenter(plannerTreePresenter);
+
+    auto view = std::make_unique<ui::qt_gui::PlannerWindow>(
+        std::move(plannerViews), std::move(plannerTreeWidget));
     return view;
 }
 

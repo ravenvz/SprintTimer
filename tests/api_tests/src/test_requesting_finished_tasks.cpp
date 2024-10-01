@@ -67,8 +67,7 @@ TEST_F(RequestingFinishedTasksFixture, requesting_finished_tasks)
                                                TaskTimeframeDTO{}});
     const auto uuids = activeTasksHandler.handle(ActiveTasksQuery{});
     const auto uuid = uuids.front().uuid;
-    toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{uuid, current_date_time_local()});
+    toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{uuid});
     TaskDTO expected{"",
                      {"Tag1", "Tag2"},
                      "Task name",

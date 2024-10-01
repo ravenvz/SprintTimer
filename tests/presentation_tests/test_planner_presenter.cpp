@@ -832,8 +832,7 @@ TEST_F(PlannerPresenterFixture, relays_task_toggle)
         .WillByDefault(Return(taskTree));
     sut.attachView(view);
 
-    EXPECT_CALL(toggleTaskHandler,
-                handle(ToggleTaskCompletedCommand{"6", anchorTime}));
+    EXPECT_CALL(toggleTaskHandler, handle(ToggleTaskCompletedCommand{"6"}));
 
     sut.toggleTask("6");
 }

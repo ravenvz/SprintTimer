@@ -156,8 +156,8 @@ auto Task::conflictDetectedWith(const Sprint& sprint) const -> bool
     return std::ranges::any_of(sprintCont, sprints_in_conflict{sprint});
 }
 
-auto Task::inheritDate(const Task& other, dw::DateTime currentTime) const
-    -> Task
+auto Task::inheritDate(const Task& other,
+                       dw::DateTime currentTime) const -> Task
 {
     if (not other.dueTo()) {
         return *this;
@@ -186,25 +186,31 @@ auto Task::inheritDateIfNotSet(const Task& other,
     return inheritDate(other, currentTime);
 }
 
-auto Task::nextRecurrence(const std::string& nextUuid,
-                          dw::DateTime currentTime) const -> std::optional<Task>
+auto Task::nextRecurrent(const std::string& nextUuid,
+                         dw::DateTime currentTime) const -> std::optional<Task>
 {
-    auto n_r = [&](const auto& rec) { return rec.nextRecurrence(currentTime); };
-    auto n_dt = [&, this](const auto& dt) {
+    auto compute_next_recurrence = [&](const auto& rec) {
+        // We add one second to the due date in order to compute next recurrence
+        // to allow for consequential task completions. Otherwise
+        // recurrence.nextRecurrence(...) method would return the same DateTime.
+        return rec.nextRecurrence(dueTo().value() + std::chrono::seconds{1});
+    };
+    auto make_task = [&, this](const auto& dt) {
         return Task{
             taskName,
             estimated,
-            sprintCont,
+            {},
             nextUuid,
             tag,
             completed,
             currentTime,
             type,
             note,
-            TaskTimeframe{currentTime, dt, frame.remindAt, frame.recurrence}};
+            // We set start time equal to previous task due date
+            TaskTimeframe{*frame.due, dt, frame.remindAt, frame.recurrence}};
     };
 
-    return recurrence().and_then(n_r).transform(n_dt);
+    return recurrence().and_then(compute_next_recurrence).transform(make_task);
 }
 
 auto operator<<(std::ostream& os, const Task& task) -> std::ostream&

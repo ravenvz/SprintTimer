@@ -104,11 +104,11 @@ public:
 
     auto inheritDate(const Task& other, dw::DateTime currentTime) const -> Task;
 
-    auto inheritDateIfNotSet(const Task& other, dw::DateTime currentTime) const
-        -> Task;
+    auto inheritDateIfNotSet(const Task& other,
+                             dw::DateTime currentTime) const -> Task;
 
-    auto nextRecurrence(const std::string& uuid, dw::DateTime currentTime) const
-        -> std::optional<Task>;
+    auto nextRecurrent(const std::string& uuid,
+                       dw::DateTime currentTime) const -> std::optional<Task>;
 
 private:
     std::string taskName;

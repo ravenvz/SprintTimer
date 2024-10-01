@@ -48,6 +48,7 @@ inline auto operator==(const TaskTimeframeDTO& lhs,
     return date_time_equal(lhs.start, rhs.start) &&
            ((!lhs.due && !rhs.due) ||
             (lhs.due && rhs.due && date_time_equal(*lhs.due, *rhs.due))) &&
+           // Note recurrence should be in normalized form, it is a DTO after all
            lhs.recurrence == rhs.recurrence &&
            ((!lhs.remindAt && !rhs.remindAt) ||
             (lhs.remindAt && rhs.remindAt &&

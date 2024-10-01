@@ -78,7 +78,7 @@ TEST_F(
                    std::back_inserter(uuids),
                    [](const auto& elem) { return elem.uuid; });
     toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{uuids.front(), current_date_time_local()});
+        ToggleTaskCompletedCommand{uuids.front()});
 
     EXPECT_THAT(activeTasksHandler.handle(ActiveTasksQuery{}),
                 ElementsAre(TaskDTO{uuids.front(),

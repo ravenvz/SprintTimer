@@ -220,8 +220,8 @@ auto QtTaskStorageWriter::remove(const std::string& uuid) -> void
     tryExecute(deleteTaskQuery);
 }
 
-auto QtTaskStorageWriter::edit(const Task& oldTask, const Task& editedTask)
-    -> void
+auto QtTaskStorageWriter::edit(const Task& oldTask,
+                               const Task& editedTask) -> void
 {
     const QString taskUuid = QString::fromStdString(oldTask.uuid());
 
@@ -356,9 +356,10 @@ auto QtTaskStorageWriter::saveTree(const TaskTree& taskTree) -> void
     guard.commit();
 }
 
-auto QtTaskStorageWriter::insertSprint(const QString& taskUuid,
-                                       const sprint_timer::Sprint& sprint)
-    -> void
+auto QtTaskStorageWriter::saveFullTree(const TaskTree& taskTree) -> void { }
+
+auto QtTaskStorageWriter::insertSprint(
+    const QString& taskUuid, const sprint_timer::Sprint& sprint) -> void
 {
     const QDateTime startTime = dateTimeConverter(sprint.start());
     const QDateTime finishTime = dateTimeConverter(sprint.finish());

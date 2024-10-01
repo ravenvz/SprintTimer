@@ -149,6 +149,9 @@ TEST_F(RecurrenceFixture, returns_next_recurrence)
         (DateTime{Date{Year{2023}, Month{3}, Day{17}}} + 13h + 40min + 28s),
         Recurrence{"2023-3-17 13:40:28"}.nextRecurrence(referenceTimeStamp));
     EXPECT_EQ(
+        std::nullopt,
+        Recurrence{"2023-3-17 13:40:27"}.nextRecurrence(referenceTimeStamp));
+    EXPECT_EQ(
         (DateTime{Date{Year{2023}, Month{3}, Day{17}}} + 13h + 40min + 38s),
         Recurrence{"*-*-* *:*:38"}.nextRecurrence(referenceTimeStamp));
     EXPECT_EQ((DateTime{Date{Year{2023}, Month{4}, Day{10}}} + 21h + 20min),
