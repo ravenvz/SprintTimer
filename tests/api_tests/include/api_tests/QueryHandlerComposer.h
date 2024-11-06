@@ -29,6 +29,7 @@
 #include "api/requests/FinishedTasksQuery.h"
 #include "api/requests/OperationalRangeQuery.h"
 #include "api/requests/ReadTaskTreeQuery.h"
+#include "api/requests/RequestProgressQuery.h"
 #include "api/requests/RequestSprintDistributionQuery.h"
 #include "api/requests/RequestSprintsQuery.h"
 #include "api/requests/SprintStatisticsQuery.h"
@@ -43,51 +44,55 @@ namespace sprint_timer::compose {
 struct QueryHandlerComposer {
     virtual ~QueryHandlerComposer() = default;
 
-    virtual asp::QueryHandler<api::ActiveTasksQuery>& activeTasksHandler() = 0;
+    virtual auto requestDailyProgressHandler()
+        -> asp::QueryHandler<api::RequestProgressQuery>& = 0;
 
-    virtual asp::QueryHandler<api::AllTagsQuery>& allTagsHandler() = 0;
+    virtual auto
+    activeTasksHandler() -> asp::QueryHandler<api::ActiveTasksQuery>& = 0;
 
-    virtual asp::QueryHandler<api::RequestSprintsQuery>&
-    requestSprintsHandler() = 0;
+    virtual auto allTagsHandler() -> asp::QueryHandler<api::AllTagsQuery>& = 0;
 
-    virtual asp::QueryHandler<api::FinishedTasksQuery>&
-    finishedTasksHandler() = 0;
+    virtual auto
+    requestSprintsHandler() -> asp::QueryHandler<api::RequestSprintsQuery>& = 0;
 
-    virtual asp::QueryHandler<api::SprintsForTaskQuery>&
-    sprintsForTaskHandler() = 0;
+    virtual auto
+    finishedTasksHandler() -> asp::QueryHandler<api::FinishedTasksQuery>& = 0;
 
-    virtual asp::QueryHandler<api::OperationalRangeQuery>&
-    operationalRangeHandler() = 0;
+    virtual auto
+    sprintsForTaskHandler() -> asp::QueryHandler<api::SprintsForTaskQuery>& = 0;
 
-    virtual asp::QueryHandler<api::RequestSprintDistributionQuery>&
-    dailyDistHandler() = 0;
+    virtual auto operationalRangeHandler()
+        -> asp::QueryHandler<api::OperationalRangeQuery>& = 0;
 
-    virtual asp::QueryHandler<api::RequestSprintDistributionQuery>&
-    weeklyDistHandler(dw::Weekday firstDayOfWeek) = 0;
+    virtual auto dailyDistHandler()
+        -> asp::QueryHandler<api::RequestSprintDistributionQuery>& = 0;
 
-    virtual asp::QueryHandler<api::RequestSprintDistributionQuery>&
-    monthlyDistHandler() = 0;
+    virtual auto weeklyDistHandler(dw::Weekday firstDayOfWeek)
+        -> asp::QueryHandler<api::RequestSprintDistributionQuery>& = 0;
 
-    virtual asp::QueryHandler<api::WorkScheduleQuery>&
-    workScheduleHandler() = 0;
+    virtual auto monthlyDistHandler()
+        -> asp::QueryHandler<api::RequestSprintDistributionQuery>& = 0;
 
-    virtual asp::QueryHandler<api::SprintStatisticsQuery>&
-    sprintStatisticsHandler() = 0;
+    virtual auto
+    workScheduleHandler() -> asp::QueryHandler<api::WorkScheduleQuery>& = 0;
 
-    virtual asp::QueryHandler<api::WorkdayStatisticsQuery>&
-    workdayStatisticsHandler() = 0;
+    virtual auto sprintStatisticsHandler()
+        -> asp::QueryHandler<api::SprintStatisticsQuery>& = 0;
 
-    virtual asp::QueryHandler<api::WorktimeStatisticsQuery>&
-    worktimeStatisticsHandler() = 0;
+    virtual auto workdayStatisticsHandler()
+        -> asp::QueryHandler<api::WorkdayStatisticsQuery>& = 0;
 
-    virtual asp::QueryHandler<api::DailyStatisticsQuery>&
-    dailyStatisticsHandler() = 0;
+    virtual auto worktimeStatisticsHandler()
+        -> asp::QueryHandler<api::WorktimeStatisticsQuery>& = 0;
 
-    virtual asp::QueryHandler<api::TopTagFrequenciesQuery>&
-    topTagFrequenciesHandler() = 0;
+    virtual auto dailyStatisticsHandler()
+        -> asp::QueryHandler<api::DailyStatisticsQuery>& = 0;
 
-    virtual asp::QueryHandler<api::ReadTaskTreeQuery>&
-    readTaskTreeHandler() = 0;
+    virtual auto topTagFrequenciesHandler()
+        -> asp::QueryHandler<api::TopTagFrequenciesQuery>& = 0;
+
+    virtual auto
+    readTaskTreeHandler() -> asp::QueryHandler<api::ReadTaskTreeQuery>& = 0;
 };
 
 } // namespace sprint_timer::compose

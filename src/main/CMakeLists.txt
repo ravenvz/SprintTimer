@@ -46,6 +46,7 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/SettingsWatchingAssetLibrary.h"
         "${CMAKE_CURRENT_LIST_DIR}/SoundPlayerFactory.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SoundPlayerFactory.h"
+        "${CMAKE_CURRENT_LIST_DIR}/SprintTimerAutoconfigurator.h"
         "${CMAKE_CURRENT_LIST_DIR}/SprintsForTaskQueryHandlerSpecialization.h"
         "${CMAKE_CURRENT_LIST_DIR}/StatisticsWindowProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/TagEditorProxy.h"
@@ -54,7 +55,6 @@ target_sources(${SPRINT_MAIN}
         "${CMAKE_CURRENT_LIST_DIR}/ThreadConnectionHelper.h"
         "${CMAKE_CURRENT_LIST_DIR}/VerboseRequestHandler.h"
         "${CMAKE_CURRENT_LIST_DIR}/WorkScheduleEditorPresenterProxy.h"
-        "${CMAKE_CURRENT_LIST_DIR}/WorkflowProxy.h"
         "${CMAKE_CURRENT_LIST_DIR}/main.cpp"
 )
 

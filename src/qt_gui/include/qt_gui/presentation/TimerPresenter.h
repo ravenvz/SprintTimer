@@ -23,14 +23,13 @@
 #define TIMERPRESENTER_H_O4HCGZN9
 
 #include "api/SoundPlayer.h"
+#include "api/WorkflowService.h"
 #include "api/com_query/CommandHandler.h"
-#include "api/com_query/QueryHandler.h"
-#include "core/IWorkflow.h"
-// #include "api/requests/RegisterSprintBulkCommand.h"
+#include "api/requests/CancelWorkflowCommand.h"
+#include "api/requests/RegisterSprintBulkCommand.h"
 #include "api/requests/RequestProgressQuery.h"
-// #include "api/requests/CancelTimer.h"
-// #include "api/requests/StartTimer.h"
-// #include "api/requests/ToggleZoneMode.h"
+#include "api/requests/StartTimerCommand.h"
+#include "api/requests/ToggleZoneCommand.h"
 #include "qt_gui/presentation/AssetLibrary.h"
 #include "qt_gui/presentation/TaskSelectionMediator.h"
 #include "qt_gui/presentation/TimerContract.h"
@@ -38,12 +37,19 @@
 namespace sprint_timer::ui {
 
 class TimerPresenter : public contracts::TimerContract::Presenter,
-                       public IWorkflow::WorkflowListener {
+                       public api::TimerWorkflowListener {
 public:
-    using today_progress_hdl_t = asp::QueryHandler<api::RequestProgressQuery>;
+    using start_workflow_hdl_t = asp::CommandHandler<api::StartTimerCommand>;
+    using cancel_workflow_hdl_t =
+        asp::CommandHandler<api::CancelWorkflowCommand>;
+    using toggle_zone_hdl_t = asp::CommandHandler<api::ToggleZoneCommand>;
+    using register_sprints_hdl_t =
+        asp::CommandHandler<api::RegisterSprintBulkCommand>;
 
-    TimerPresenter(IWorkflow& workflow,
-                   today_progress_hdl_t& todayProgressHandler,
+    TimerPresenter(start_workflow_hdl_t& startWorkflowHandler,
+                   cancel_workflow_hdl_t& cancelWorkflowHandler,
+                   toggle_zone_hdl_t& toggleZoneHandler,
+                   register_sprints_hdl_t& registerSprintHandler,
                    api::SoundPlayer& player,
                    const AssetLibrary& assetLibrary,
                    std::string ringSoundId,
@@ -51,27 +57,42 @@ public:
 
     ~TimerPresenter() override;
 
-    void onTimerTick(std::chrono::seconds timeLeft) override;
-
     void onCancelClicked() override;
 
     void onZoneClicked() override;
 
     void onTimerClicked() override;
 
-    void onWorkflowStateChanged(IWorkflow::StateId currentState) override;
-
     void onTaskSelectionChanged() override;
 
     void changeTaskSelection(api::TaskDTO&& task) override;
 
+    auto onIdle() -> void override;
+
+    auto onSprintStarted(std::chrono::seconds timeLeft) -> void override;
+
+    auto onSprintFinished(std::vector<dw::DateTimeRange>&&) -> void override;
+
+    auto onBreakStarted(std::chrono::seconds timeLeft) -> void override;
+
+    auto onBreakFinished() -> void override;
+
+    auto onZoneEntered() -> void override;
+
+    auto onZoneLeft() -> void override;
+
+    auto onTimerTick(std::chrono::seconds timeLeft) -> void override;
+
 private:
-    IWorkflow& workflow;
-    today_progress_hdl_t& todayProgressHandler;
+    start_workflow_hdl_t& startWorkflowHandler;
+    cancel_workflow_hdl_t& cancelWorkflowHandler;
+    toggle_zone_hdl_t& toggleZoneHandler;
+    register_sprints_hdl_t& registerSprintHandler;
     api::SoundPlayer& player;
     const AssetLibrary& assetLibrary;
     std::string ringSoundId;
     TaskSelectionMediator& taskSelectionMediator;
+    std::vector<dw::DateTimeRange> pendingSprints;
 
     void updateViewImpl() override;
 

@@ -21,40 +21,25 @@
 *********************************************************************************/
 #include "core/RequestForWeeksBack.h"
 
-namespace {
-
-dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek);
-
-} // namespace
-
 namespace sprint_timer {
 
 RequestForWeeksBack::RequestForWeeksBack(int numWeeks_,
                                          dw::Weekday firstDayOfWeek_)
     : numWeeks{numWeeks_}
-    , firstDayOfWeek{std::move(firstDayOfWeek_)}
+    , firstDayOfWeek{firstDayOfWeek_}
 {
 }
 
-dw::DateRange RequestForWeeksBack::dateRange() const
+auto RequestForWeeksBack::dateRange(dw::Date periodEnd) const -> dw::DateRange
 {
-    return nWeeksBackTillNow(numWeeks, firstDayOfWeek);
+    using namespace dw;
+    const auto from =
+        prev_weekday(periodEnd - Weeks{numWeeks - 1}, firstDayOfWeek);
+    const auto lastDayOfWeek{firstDayOfWeek == Weekday::Monday
+                                 ? Weekday::Sunday
+                                 : Weekday::Saturday};
+    return {from, next_weekday(periodEnd, lastDayOfWeek)};
 }
 
 } // namespace sprint_timer
 
-namespace {
-
-dw::DateRange nWeeksBackTillNow(int numWeeks, dw::Weekday firstDayOfWeek)
-{
-    using namespace dw;
-    auto now = current_date_local();
-    const auto from = prev_weekday(now - Weeks{numWeeks - 1}, firstDayOfWeek);
-    const auto lastDayOfWeek{firstDayOfWeek == dw::Weekday::Monday
-                                 ? dw::Weekday::Sunday
-                                 : dw::Weekday::Saturday};
-    const auto to = next_weekday(now, lastDayOfWeek);
-    return {from, to};
-}
-
-} // namespace

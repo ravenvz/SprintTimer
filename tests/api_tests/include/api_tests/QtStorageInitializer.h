@@ -25,6 +25,7 @@
 #include "api/ActionInvokerImpl.h"
 #include "api/DefaultDateTimeProvider.h"
 #include "api/ObservableActionInvoker.h"
+#include "api/SprintTimerAdapter.h"
 #include "api/dtos/NoteMapper.h"
 #include "api/dtos/SprintMapper.h"
 #include "api/dtos/TagMapper.h"
@@ -33,11 +34,13 @@
 #include "api/dtos/TaskTreeMapper.h"
 #include "api/dtos/TaskTypeMapper.h"
 #include "api_tests/FakeUuidGenerator.h"
-#include "api_tests/TestCommandHandlerComposer.h"
-#include "api_tests/TestQueryHandlerComposer.h"
+#include "api_tests/TestRequestHandlerComposer.h"
 #include "api_tests/constants.h"
 #include "common_utils/ConfigurableDateTimeProvider.h"
 #include "common_utils/DateTimeProviderMock.h"
+#include "core/ComputeByDayStrategy.h"
+#include "core/RequestForDaysBack.h"
+#include "core/SprintTimer.h"
 #include "qt_storage/DatabaseInitializer.h"
 #include "qt_storage/QtStorageImplementersFactory.h"
 #include "qt_storage/WorkerConnection.h"
@@ -50,19 +53,37 @@ struct TestStorageInitializer {
     // Creates initializer with fixed timepoint date time provider
     TestStorageInitializer(dw::DateTime fixedTimepoint);
 
+    auto
+    requestHandlerComposer() -> sprint_timer::compose::RequestHandlerComposer&
+    {
+        return *handlerComposer;
+    }
+
     sprint_timer::compose::CommandHandlerComposer& commandHandlerComposer()
     {
-        return *commandHandlerComp;
+        return *handlerComposer;
     }
 
     sprint_timer::compose::QueryHandlerComposer& queryHandlerComposer()
     {
-        return *queryHandlerComp;
+        return *handlerComposer;
     }
 
     auto getDateTimeProvider() -> ConfigurableDateTimeProvider&
     {
         return *dtProvider;
+    }
+
+    auto installWorkflowListener(
+        sprint_timer::api::TimerWorkflowListener* listener) -> void
+    {
+        sprintTimerAdapter.addListener(listener);
+    }
+
+    auto removeWorkflowListener(
+        sprint_timer::api::TimerWorkflowListener* listener) -> void
+    {
+        sprintTimerAdapter.removeListener(listener);
     }
 
 private:
@@ -78,17 +99,28 @@ private:
         name, "Worker connection"};
     sprint_timer::storage::qt_storage::QtStorageImplementersFactory factory{
         dbService.connectionName()};
-    std::unique_ptr<sprint_timer::TaskStorage> taskStorage{
+    std::unique_ptr<sprint_timer::api::TaskStorage> taskStorage{
         factory.taskStorage()};
-    std::unique_ptr<sprint_timer::SprintStorage> sprintStorage{
+    std::unique_ptr<sprint_timer::api::SprintStorage> sprintStorage{
         factory.sprintStorage()};
-    std::unique_ptr<sprint_timer::OperationalRangeReader>
-        operationalRangeReader{factory.operationalRangeReader()};
+    std::unique_ptr<sprint_timer::api::OperationalRangeReader>
+        operationalRangeReader{factory.operationalRangeReader(*dtProvider)};
     sprint_timer::ActionInvokerImpl defaultActionInvoker;
     sprint_timer::ObservableActionInvoker actionInvoker{defaultActionInvoker};
     FakeUuidGenerator uuidGenerator;
-    std::unique_ptr<sprint_timer::WorkScheduleStorage> workScheduleStorage{
+    std::unique_ptr<sprint_timer::api::WorkScheduleStorage> workScheduleStorage{
         factory.scheduleStorage()};
+    sprint_timer::RequestForDaysBack requestDaysBack{30};
+    sprint_timer::ComputeByDayStrategy computeByDay;
+    sprint_timer::BackgroundCountdownTimer timer;
+    sprint_timer::SprintTimer sprintTimer{
+        timer,
+        std::chrono::seconds{1},
+        sprint_timer::SprintTimer::WorkflowParams{std::chrono::seconds{25 * 60},
+                                                  std::chrono::seconds{5 * 60},
+                                                  std::chrono::seconds{15 * 60},
+                                                  4}};
+    sprint_timer::api::SprintTimerAdapter sprintTimerAdapter{sprintTimer};
 
     sprint_timer::api::NoteMapper noteMapper;
     sprint_timer::api::SprintDatetimeMapper sprintDateTimeMapper;
@@ -102,30 +134,18 @@ private:
                                              taskTypeMapper,
                                              sprintDateTimeMapper};
     sprint_timer::api::TaskTreeMapper taskTreeMapper{taskMapper};
-
-    std::unique_ptr<sprint_timer::compose::CommandHandlerComposer>
-        commandHandlerComp{
-            std::make_unique<sprint_timer::compose::TestCommandHandlerComposer>(
-                actionInvoker,
-                *taskStorage,
-                *sprintStorage,
-                *workScheduleStorage,
-                uuidGenerator,
-                *dtProvider,
-                taskMapper,
-                sprintDateTimeMapper,
-                taskTreeMapper)};
-    std::unique_ptr<sprint_timer::SprintDistributionReader> dailyDistReader{
-        factory.dailyDistReader(30)};
-    std::unique_ptr<sprint_timer::SprintDistributionReader>
+    std::unique_ptr<sprint_timer::api::SprintDistributionReader>
+        dailyDistReader{factory.dailyDistReader(30)};
+    std::unique_ptr<sprint_timer::api::SprintDistributionReader>
         mondayFirstDistReader{factory.weeklyDistReader(dw::Weekday::Monday)};
-    std::unique_ptr<sprint_timer::SprintDistributionReader>
+    std::unique_ptr<sprint_timer::api::SprintDistributionReader>
         sundayFirstDistReader{factory.weeklyDistReader(dw::Weekday::Sunday)};
-    std::unique_ptr<sprint_timer::SprintDistributionReader> monthlyDistReader{
-        factory.monthlyDistReader()};
-    std::unique_ptr<sprint_timer::compose::QueryHandlerComposer>
-        queryHandlerComp{
-            std::make_unique<sprint_timer::compose::TestQueryHandlerComposer>(
+    std::unique_ptr<sprint_timer::api::SprintDistributionReader>
+        monthlyDistReader{factory.monthlyDistReader()};
+
+    std::unique_ptr<sprint_timer::compose::RequestHandlerComposer>
+        handlerComposer{
+            std::make_unique<sprint_timer::compose::TestRequestHandlerComposer>(
                 *taskStorage,
                 *sprintStorage,
                 *operationalRangeReader,
@@ -134,10 +154,16 @@ private:
                 *mondayFirstDistReader,
                 *sundayFirstDistReader,
                 *monthlyDistReader,
+                requestDaysBack,
+                computeByDay,
                 taskMapper,
                 tagMapper,
                 sprintMapper,
-                taskTreeMapper)};
+                taskTreeMapper,
+                actionInvoker,
+                uuidGenerator,
+                *dtProvider,
+                sprintTimer)};
 };
 
 #endif /* end of include guard: QTSTORAGEINITIALIZER_H_WR5MUUAC */

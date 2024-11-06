@@ -20,22 +20,44 @@
 **
 *********************************************************************************/
 #include "api/actions/RegisterSprintBulk.h"
+#include <format>
 #include <utility>
 
 namespace sprint_timer::api::actions {
 
-RegisterSprintBulk::RegisterSprintBulk(SprintStorageWriter& writer_,
+RegisterSprintBulk::RegisterSprintBulk(TaskStorage& taskStorage_,
+                                       SprintStorage& sprintStorage_,
+                                       dw::DateTime timeStamp_,
                                        std::string taskUuid_,
                                        std::vector<Sprint> sprints_)
-    : writer{writer_}
+    : taskStorage{taskStorage_}
+    , sprintStorage{sprintStorage_}
+    , timeStamp{timeStamp_}
     , taskUuid{std::move(taskUuid_)}
     , sprints{std::move(sprints_)}
 {
 }
 
-auto RegisterSprintBulk::execute() -> void { writer.save(taskUuid, sprints); }
+auto RegisterSprintBulk::execute() -> void
+{
+    auto tasks = taskStorage.findByUuid(taskUuid);
+    if (tasks.empty()) {
+        throw SprintTimerException{
+            std::format("No task with uuid: {}", taskUuid)};
+    }
+    original = tasks.front();
+    Task updated = original.edit(original, timeStamp);
+    sprintStorage.save(taskUuid, sprints);
+    // updates modificationStamp
+    taskStorage.edit(original, updated);
+}
 
-auto RegisterSprintBulk::undo() -> void { writer.remove(sprints); }
+auto RegisterSprintBulk::undo() -> void
+{
+    sprintStorage.remove(sprints);
+    // Reverts modificationStamp
+    taskStorage.edit(original, original);
+}
 
 auto RegisterSprintBulk::describe() const -> std::string
 {

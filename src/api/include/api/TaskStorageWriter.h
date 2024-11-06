@@ -25,7 +25,7 @@
 #include "core/Task.h"
 #include "core/TaskTree.h"
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class TaskStorageWriter {
 public:
@@ -34,6 +34,8 @@ public:
     virtual auto save(const Task& task) -> void = 0;
 
     virtual auto remove(const std::string& uuid) -> void = 0;
+
+    virtual auto restore(const Task& task) -> void = 0;
 
     virtual auto edit(const Task& oldTask, const Task& editedTask) -> void = 0;
 
@@ -51,6 +53,6 @@ public:
     virtual auto saveFullTree(const TaskTree& taskTree) -> void = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: ITASKSTORAGEWRITER_H_PVAMCJ6G */

@@ -24,8 +24,6 @@
 #include "cpp_utils/algorithms/string_ext.h"
 #include <format>
 
-#include <iostream>
-
 namespace {
 
 using sprint_timer::api::NoteDTO;
@@ -122,17 +120,18 @@ public:
         const auto& strategy = strategies[static_cast<size_t>(task.kind)];
         const auto& taskTags = task.tags;
         const auto tags = alg::join(cbegin(taskTags), cend(taskTags), ", ");
-        return PlannerItem{task.uuid,
-                           strategy->makeName(task.name),
-                           strategy->makeTags(tags),
-                           strategy->makeProgress(task),
-                           task.timeFrame.start,
-                           strategy->makeDueDate(task.timeFrame),
-                           strategy->makeNote(task.notes),
-                           strategy->makeReminder(task.timeFrame),
-                           task.finished,
-                           task.timeFrame.recurrence.has_value(),
-                           task.kind};
+        return PlannerItem{
+            task.uuid,
+            strategy->makeName(task.name),
+            strategy->makeTags(tags),
+            strategy->makeProgress(task),
+            task.timeFrame.start.value_or(dw::current_date_time_local),
+            strategy->makeDueDate(task.timeFrame),
+            strategy->makeNote(task.notes),
+            strategy->makeReminder(task.timeFrame),
+            task.finished,
+            task.timeFrame.recurrence.has_value(),
+            task.kind};
     }
 
 private:

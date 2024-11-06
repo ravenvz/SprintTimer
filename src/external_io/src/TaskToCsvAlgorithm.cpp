@@ -45,7 +45,7 @@ TaskToCsvAlgorithm::toRecords(const api::TaskDTO& task) const
     records.emplace_back(
         task.notes.transform([&](const auto& note) { return note.text; })
             .value_or(""));
-    records.emplace_back(dw::to_string(task.timeFrame.start, date_format));
+    records.emplace_back(dw::to_string(task.timeFrame.start.value(), date_format));
     records.emplace_back(task.timeFrame.due
                              .transform([](auto dateTime) {
                                  return dw::to_string(dateTime, date_format);

@@ -28,7 +28,7 @@
 namespace sprint_timer::compose {
 
 class QtSprintMonthlyDistributionReaderConnectionProxy
-    : public SprintDistributionReader {
+    : public api::SprintDistributionReader {
 public:
     QtSprintMonthlyDistributionReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper, size_t numMonths);

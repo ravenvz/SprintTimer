@@ -36,36 +36,39 @@ QtStorageImplementersFactory::QtStorageImplementersFactory(
 {
 }
 
-std::unique_ptr<SprintStorage>
-QtStorageImplementersFactory::sprintStorage() const
+auto QtStorageImplementersFactory::sprintStorage() const
+    -> std::unique_ptr<api::SprintStorage>
 {
     return std::make_unique<QtSprintStorage>(
         std::make_unique<QtSprintStorageReader>(connectionName),
         std::make_unique<QtSprintStorageWriter>(connectionName));
 }
 
-std::unique_ptr<TaskStorage> QtStorageImplementersFactory::taskStorage() const
+auto QtStorageImplementersFactory::taskStorage() const
+    -> std::unique_ptr<api::TaskStorage>
 {
     return std::make_unique<QtTaskStorage>(
         std::make_unique<QtTaskStorageReader>(connectionName),
         std::make_unique<QtTaskStorageWriter>(connectionName));
 }
 
-std::unique_ptr<OperationalRangeReader>
-QtStorageImplementersFactory::operationalRangeReader() const
+auto QtStorageImplementersFactory::operationalRangeReader(
+    const api::DateTimeProvider& dateTimeProvider) const
+    -> std::unique_ptr<api::OperationalRangeReader>
 {
-    return std::make_unique<QtOperationalRangeReader>(connectionName);
+    return std::make_unique<QtOperationalRangeReader>(connectionName,
+                                                      dateTimeProvider);
 }
 
-std::unique_ptr<SprintDistributionReader>
-QtStorageImplementersFactory::dailyDistReader(size_t numDays) const
+auto QtStorageImplementersFactory::dailyDistReader(size_t numDays) const
+    -> std::unique_ptr<api::SprintDistributionReader>
 {
     return std::make_unique<QtSprintDailyDistributionReader>(connectionName,
                                                              numDays);
 }
 
-std::unique_ptr<SprintDistributionReader>
-QtStorageImplementersFactory::weeklyDistReader(dw::Weekday firstDayOfWeek) const
+auto QtStorageImplementersFactory::weeklyDistReader(dw::Weekday firstDayOfWeek)
+    const -> std::unique_ptr<api::SprintDistributionReader>
 {
     constexpr size_t numWeeks{12};
     if (firstDayOfWeek == dw::Weekday::Monday)
@@ -75,16 +78,16 @@ QtStorageImplementersFactory::weeklyDistReader(dw::Weekday firstDayOfWeek) const
                                                            numWeeks);
 }
 
-std::unique_ptr<SprintDistributionReader>
-QtStorageImplementersFactory::monthlyDistReader() const
+auto QtStorageImplementersFactory::monthlyDistReader() const
+    -> std::unique_ptr<api::SprintDistributionReader>
 {
     constexpr size_t numMonths{12};
     return std::make_unique<QtSprintMonthlyDistributionReader>(connectionName,
                                                                numMonths);
 }
 
-std::unique_ptr<WorkScheduleStorage>
-QtStorageImplementersFactory::scheduleStorage() const
+auto QtStorageImplementersFactory::scheduleStorage() const
+    -> std::unique_ptr<api::WorkScheduleStorage>
 {
     return std::make_unique<QtWorkScheduleStorage>(connectionName);
 }

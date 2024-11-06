@@ -62,7 +62,7 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os, const TaskDTO& task)
     os << "type: " << static_cast<int>(task.kind) << ", ";
     alg::inspect(task.notes,
                  [&](const auto& note) { os << '"' << note.text << "\", "; });
-    os << " start: " << task.timeFrame.start << ", due: ";
+    os << " start: " << task.timeFrame.start.value() << ", due: ";
     if (auto due = task.timeFrame.due; due) {
         os << *due;
     }

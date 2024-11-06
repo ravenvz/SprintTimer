@@ -25,8 +25,10 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-QtOperationalRangeReader::QtOperationalRangeReader(QString connectionName_)
+QtOperationalRangeReader::QtOperationalRangeReader(
+    QString connectionName_, const api::DateTimeProvider& dateTimeProvider_)
     : connectionName{std::move(connectionName_)}
+    , dateTimeProvider{dateTimeProvider_}
 {
 }
 
@@ -39,17 +41,18 @@ auto QtOperationalRangeReader::operationalRange() -> dw::DateRange
                    .arg(SprintTable::Columns::startTime)
                    .arg(SprintTable::name));
 
+    const auto today = dateTimeProvider.dateLocalNow();
+
     if (query.next()) {
         const dw::DateRange range{
             dateConverter(query.record().value(0).toDate()),
-            std::max(dw::current_date_local(),
-                     dateConverter(query.record().value(1).toDate()))};
+            std::max(today, dateConverter(query.record().value(1).toDate()))};
         query.finish();
         return range;
     }
 
     query.finish();
-    return dw::DateRange{dw::current_date_local(), dw::current_date_local()};
+    return dw::DateRange{today, today};
 }
 
 } // namespace sprint_timer::storage::qt_storage

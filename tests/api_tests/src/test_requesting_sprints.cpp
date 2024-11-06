@@ -28,6 +28,7 @@ using namespace sprint_timer::api;
 using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
+using namespace std::chrono_literals;
 
 class RequestingSprintsFixture : public ::testing::Test {
 public:
@@ -49,7 +50,8 @@ public:
 
 TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
 {
-    using ::testing::Truly;
+    const DateTime someDateTime{DateTime{Date{Year{2025}, Month{1}, Day{28}}} +
+                                17h + 31min};
     createTaskHandler.handle(CreateTaskCommand{"Some task",
                                                {"Tag1"},
                                                17,
@@ -57,7 +59,7 @@ TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
+                                               TaskTimeframeDTO{someDateTime}});
     createTaskHandler.handle(CreateTaskCommand{"Another task",
                                                {"Tag3", "Tag5"},
                                                8,
@@ -65,8 +67,7 @@ TEST_F(RequestingSprintsFixture, requesting_sprints_in_given_date_range)
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
-    const DateTime someDateTime{current_date_time_local()};
+                                               TaskTimeframeDTO{someDateTime}});
     const DateTime rangeStart = someDateTime - Days{5};
     const DateTime rangeEnd = someDateTime + Days{5};
     const DateRange range{rangeStart.date(), rangeEnd.date()};
@@ -102,7 +103,6 @@ TEST_F(RequestingSprintsFixture,
        requesting_sprints_in_given_date_range_ignores_deleted_sprints)
 {
     using namespace std::chrono_literals;
-    using ::testing::Truly;
     const DateTime someDateTime =
         DateTime{Date{Year{2022}, Month{7}, Day{21}}} + 3h;
     const DateTimeRange first{someDateTime, someDateTime + 25min};
@@ -115,7 +115,7 @@ TEST_F(RequestingSprintsFixture,
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
+                                               TaskTimeframeDTO{someDateTime}});
     const auto uuid =
         extractUuids(activeTasksHandler.handle(ActiveTasksQuery{})).front();
     registerSprintBulkHandler.handle(

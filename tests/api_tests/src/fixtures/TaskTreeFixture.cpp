@@ -20,6 +20,7 @@
 **
 *********************************************************************************/
 #include "api_tests/fixtures/TaskTreeFixture.h"
+#include "common_utils/ConfigurableDateTimeProvider.h"
 #include <optional>
 
 namespace fixtures {
@@ -37,8 +38,8 @@ auto uuid_projection = [](const auto& node) { return node.uuid; };
 
 auto givenSomeTaskTreeCreated(
     CommandHandler<CreateTaskCommand>& createTaskHandler,
-    CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler)
-    -> TaskTreeDTO
+    CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler,
+    TestStorageInitializer& initializer) -> TaskTreeDTO
 {
     using Tags = std::vector<std::string>;
     using namespace dw;
@@ -55,84 +56,102 @@ auto givenSomeTaskTreeCreated(
      *
      */
 
-    // Fake uuid = 0
-    createTaskHandler.handle(CreateTaskCommand{"folder1",
-                                               Tags{},
-                                               0,
-                                               TaskTypeDTO::Folder,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    // Fake uuid = 1
-    createTaskHandler.handle(CreateTaskCommand{"project1",
-                                               Tags{"ProjectTag1"},
-                                               5,
-                                               TaskTypeDTO::Project,
-                                               "0",
-                                               std::nullopt,
-                                               NoteDTO{"Task note"},
-                                               TaskTimeframeDTO{}});
-    // Fake uuid = 2
-    createTaskHandler.handle(CreateTaskCommand{"task1",
-                                               Tags{"Tag1", "Tag2"},
-                                               7,
-                                               TaskTypeDTO::Regular,
-                                               "1",
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    // Fake uuid = 3
-    createTaskHandler.handle(CreateTaskCommand{"project2",
-                                               Tags{},
-                                               20,
-                                               TaskTypeDTO::Project,
-                                               "1",
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    // Fake uuid = 4
-    createTaskHandler.handle(CreateTaskCommand{"task2",
-                                               Tags{"Tag1"},
-                                               10,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    // Fake uuid = 5
-    createTaskHandler.handle(CreateTaskCommand{"task3",
-                                               Tags{"Tag1", "Tag3"},
-                                               4,
-                                               TaskTypeDTO::Regular,
-                                               "1",
-                                               1,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    const dw::Date someDate{Year{2021}, Month{3}, Day{3}};
-    const dw::DateTime firstSprintStartTime{DateTime{someDate} + 3h};
-    const dw::DateTimeRange firstSprintRange{firstSprintStartTime,
-                                             firstSprintStartTime + 25min};
+    const Date someDate{Year{2021}, Month{3}, Day{3}};
+    const DateTime taskCreationTime{DateTime{someDate} - Days{2}};
+    const DateTime firstSprintStartTime{DateTime{someDate} + 3h};
+    const DateTimeRange firstSprintRange{firstSprintStartTime,
+                                         firstSprintStartTime + 25min};
+    const DateTime sprintCreationTime{firstSprintStartTime + 7h + 75min};
     const std::vector<DateTimeRange> intervals{
         firstSprintRange,
         add_offset(firstSprintRange, 1h + 25min),
         add_offset(firstSprintRange, 5h + 50min),
         add_offset(firstSprintRange, 7h + 75min)};
 
-    registerSprintsHandler.handle(RegisterSprintBulkCommand{"5", intervals});
+    {
+        TimePortalGuard time_portal{initializer.getDateTimeProvider(),
+                                    taskCreationTime};
+        // Fake uuid = 0
+        createTaskHandler.handle(
+            CreateTaskCommand{.name = "folder1",
+                              .tags = Tags{},
+                              .estimatedCost = 0,
+                              .type = TaskTypeDTO::Folder,
+                              .parent = std::nullopt,
+                              .insertBeforePos = std::nullopt,
+                              .notes = std::nullopt,
+                              .timeFrame = TaskTimeframeDTO{taskCreationTime}});
+        // Fake uuid = 1
+        createTaskHandler.handle(
+            CreateTaskCommand{"project1",
+                              Tags{"ProjectTag1"},
+                              5,
+                              TaskTypeDTO::Project,
+                              "0",
+                              std::nullopt,
+                              NoteDTO{"Task note"},
+                              TaskTimeframeDTO{taskCreationTime}});
+        // Fake uuid = 2
+        createTaskHandler.handle(
+            CreateTaskCommand{"task1",
+                              Tags{"Tag1", "Tag2"},
+                              7,
+                              TaskTypeDTO::Regular,
+                              "1",
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        // Fake uuid = 3
+        createTaskHandler.handle(
+            CreateTaskCommand{"project2",
+                              Tags{},
+                              20,
+                              TaskTypeDTO::Project,
+                              "1",
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        // Fake uuid = 4
+        createTaskHandler.handle(
+            CreateTaskCommand{"task2",
+                              Tags{"Tag1"},
+                              10,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        // Fake uuid = 5
+        createTaskHandler.handle(
+            CreateTaskCommand{"task3",
+                              Tags{"Tag1", "Tag3"},
+                              4,
+                              TaskTypeDTO::Regular,
+                              "1",
+                              1,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+    }
+
+    {
+        TimePortalGuard time_portal{initializer.getDateTimeProvider(),
+                                    sprintCreationTime};
+        registerSprintsHandler.handle(
+            RegisterSprintBulkCommand{"5", intervals});
+    }
 
     TaskTreeDTO tree;
     tree.insert(tree.end(),
-                TaskDTO{"0",
-                        Tags{},
-                        "folder1",
-                        0,
-                        std::vector<dw::DateTimeRange>{},
-                        false,
-                        dw::current_date_time_local(),
-                        std::nullopt,
-                        TaskTimeframeDTO{},
-                        TaskTypeDTO::Folder});
+                TaskDTO{.uuid = "0",
+                        .tags = Tags{},
+                        .name = "folder1",
+                        .expectedCost = 0,
+                        .sprints = std::vector<dw::DateTimeRange>{},
+                        .finished = false,
+                        .modificationStamp = taskCreationTime,
+                        .notes = std::nullopt,
+                        .timeFrame = TaskTimeframeDTO{taskCreationTime},
+                        .kind = TaskTypeDTO::Folder});
     tree.insert(std::ranges::find(tree, "0", uuid_projection),
                 TaskDTO{"1",
                         Tags{"ProjectTag1"},
@@ -140,9 +159,9 @@ auto givenSomeTaskTreeCreated(
                         5,
                         std::vector<dw::DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         NoteDTO{"Task note"},
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Project});
     tree.insert(std::ranges::find(tree, "1", uuid_projection),
                 TaskDTO{"2",
@@ -151,9 +170,9 @@ auto givenSomeTaskTreeCreated(
                         7,
                         std::vector<dw::DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Regular});
     tree.insert(std::ranges::find(tree, "1", uuid_projection),
                 TaskDTO{"3",
@@ -162,9 +181,9 @@ auto givenSomeTaskTreeCreated(
                         20,
                         std::vector<dw::DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Project});
     tree.insert(tree.end(),
                 TaskDTO{"4",
@@ -173,9 +192,9 @@ auto givenSomeTaskTreeCreated(
                         10,
                         std::vector<dw::DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Regular});
     tree.insert(std::ranges::find(tree, "1", uuid_projection),
                 TaskDTO{"5",
@@ -184,9 +203,9 @@ auto givenSomeTaskTreeCreated(
                         4,
                         intervals,
                         false,
-                        dw::current_date_time_local(),
+                        sprintCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Regular},
                 ds::DestinationPosition{1});
 
@@ -195,14 +214,16 @@ auto givenSomeTaskTreeCreated(
 
 auto givenTaskTreeWithDueDatesCreated(
     CommandHandler<CreateTaskCommand>& createTaskHandler,
-    CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler)
-    -> TaskTreeDTO
+    CommandHandler<RegisterSprintBulkCommand>& registerSprintsHandler,
+    TestStorageInitializer& initializer) -> TaskTreeDTO
 {
     using Tags = std::vector<std::string>;
     using namespace dw;
     using namespace std::chrono_literals;
 
-    DateTime referenceTime = DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h;
+    const DateTime referenceTime =
+        DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h;
+    const DateTime taskCreationTime = referenceTime - Days{3};
 
     /*
      * folder1
@@ -213,56 +234,67 @@ auto givenTaskTreeWithDueDatesCreated(
      *
      * task4
      * */
-    createTaskHandler.handle(CreateTaskCommand{"folder1",
-                                               Tags{},
-                                               0,
-                                               TaskTypeDTO::Folder,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"project1",
-                                               Tags{},
-                                               30,
-                                               TaskTypeDTO::Project,
-                                               "0",
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{
-        "task1",
-        Tags{},
-        5,
-        TaskTypeDTO::Regular,
-        "1",
-        std::nullopt,
-        std::nullopt,
-        TaskTimeframeDTO{
-            referenceTime, referenceTime + Days{10}, std::nullopt}});
-    createTaskHandler.handle(CreateTaskCommand{"task2",
-                                               Tags{},
-                                               15,
-                                               TaskTypeDTO::Regular,
-                                               "1",
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"task3",
-                                               Tags{},
-                                               10,
-                                               TaskTypeDTO::Regular,
-                                               "3",
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"task4",
-                                               Tags{},
-                                               7,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    {
+        TimePortalGuard time_portal{initializer.getDateTimeProvider(),
+                                    taskCreationTime};
+
+        createTaskHandler.handle(
+            CreateTaskCommand{"folder1",
+                              Tags{},
+                              0,
+                              TaskTypeDTO::Folder,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        createTaskHandler.handle(
+            CreateTaskCommand{"project1",
+                              Tags{},
+                              30,
+                              TaskTypeDTO::Project,
+                              "0",
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        createTaskHandler.handle(CreateTaskCommand{
+            "task1",
+            Tags{},
+            5,
+            TaskTypeDTO::Regular,
+            "1",
+            std::nullopt,
+            std::nullopt,
+            TaskTimeframeDTO{
+                referenceTime, referenceTime + Days{10}, std::nullopt}});
+        createTaskHandler.handle(
+            CreateTaskCommand{"task2",
+                              Tags{},
+                              15,
+                              TaskTypeDTO::Regular,
+                              "1",
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        createTaskHandler.handle(
+            CreateTaskCommand{"task3",
+                              Tags{},
+                              10,
+                              TaskTypeDTO::Regular,
+                              "3",
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+        createTaskHandler.handle(
+            CreateTaskCommand{"task4",
+                              Tags{},
+                              7,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationTime}});
+    }
+
     TaskTreeDTO tree;
     tree.insert(tree.end(),
                 TaskDTO{"0",
@@ -271,9 +303,9 @@ auto givenTaskTreeWithDueDatesCreated(
                         0,
                         std::vector<DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Folder});
     tree.insert(std::ranges::find(tree, "0", uuid_projection),
                 TaskDTO{"1",
@@ -282,9 +314,9 @@ auto givenTaskTreeWithDueDatesCreated(
                         30,
                         std::vector<DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Project});
     tree.insert(std::ranges::find(tree, "1", uuid_projection),
                 TaskDTO{"2",
@@ -293,7 +325,7 @@ auto givenTaskTreeWithDueDatesCreated(
                         5,
                         std::vector<DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
                         TaskTimeframeDTO{referenceTime,
                                          referenceTime + Days{10},
@@ -307,9 +339,9 @@ auto givenTaskTreeWithDueDatesCreated(
                         15,
                         std::vector<DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Regular});
     tree.insert(std::ranges::find(tree, "3", uuid_projection),
                 TaskDTO{"4",
@@ -318,9 +350,9 @@ auto givenTaskTreeWithDueDatesCreated(
                         10,
                         std::vector<DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Regular});
     tree.insert(tree.end(),
                 TaskDTO{"5",
@@ -329,9 +361,9 @@ auto givenTaskTreeWithDueDatesCreated(
                         7,
                         std::vector<DateTimeRange>{},
                         false,
-                        dw::current_date_time_local(),
+                        taskCreationTime,
                         std::nullopt,
-                        TaskTimeframeDTO{},
+                        TaskTimeframeDTO{taskCreationTime},
                         TaskTypeDTO::Regular});
 
     return tree;

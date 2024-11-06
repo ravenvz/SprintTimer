@@ -25,11 +25,10 @@
 #include "api/TaskStorageReader.h"
 #include "api/TaskStorageWriter.h"
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
-class TaskStorage : public TaskStorageReader, public TaskStorageWriter {
-};
+class TaskStorage : public TaskStorageReader, public TaskStorageWriter { };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: ITASKSTORAGE_H_8CEZB2YU */

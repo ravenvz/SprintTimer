@@ -30,7 +30,8 @@ class RequestForWeeksBack : public BackRequestStrategy {
 public:
     RequestForWeeksBack(int numWeeks, dw::Weekday firstDayOfWeek);
 
-    dw::DateRange dateRange() const override;
+    [[nodiscard]] auto
+    dateRange(dw::Date periodEnd) const -> dw::DateRange override;
 
 private:
     int numWeeks;

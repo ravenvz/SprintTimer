@@ -55,8 +55,6 @@ constexpr std::string_view dueTodayColor{"dueTodayColor"};
 constexpr std::string_view dueOverdueColor{"dueOverdueColor"};
 constexpr std::string_view tagColor{"tagColor"};
 
-auto id_projection = [](const auto& node) { return node.uuid; };
-
 using Items = std::vector<PlannerItem>;
 using MappedItems = std::vector<std::pair<PlannerItem, Items>>;
 
@@ -388,7 +386,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                                              std::nullopt},
                             TaskTypeDTO::Project});
     taskTree.insert(
-        std::ranges::find(taskTree, "4", id_projection),
+        std::ranges::find(taskTree, "4", &TaskDTO::uuid),
         TaskDTO{"11",
                 {"Tag3"},
                 "Sub task 1",
@@ -401,7 +399,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
                 TaskTypeDTO::Regular});
     taskTree.insert(
-        std::ranges::find(taskTree, "11", id_projection),
+        std::ranges::find(taskTree, "11", &TaskDTO::uuid),
         TaskDTO{"12",
                 {"Tag2"},
                 "Sub project 1",
@@ -414,7 +412,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
                 TaskTypeDTO::Project});
     taskTree.insert(
-        std::ranges::find(taskTree, "12", id_projection),
+        std::ranges::find(taskTree, "12", &TaskDTO::uuid),
         TaskDTO{"13",
                 {"Tag7"},
                 "Sub task 2",
@@ -428,7 +426,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     anchorTime, std::nullopt, std::nullopt, std::nullopt},
                 TaskTypeDTO::Regular});
     taskTree.insert(
-        std::ranges::find(taskTree, "12", id_projection),
+        std::ranges::find(taskTree, "12", &TaskDTO::uuid),
         TaskDTO{"14",
                 {"Tag8"},
                 "Sub task 3",
@@ -455,7 +453,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     false,
                     false,
                     TaskTypeDTO::Project});
-    plannerTree.insert(std::ranges::find(plannerTree, "4", id_projection),
+    plannerTree.insert(std::ranges::find(plannerTree, "4", &PlannerItem::uuid),
                        PlannerItem{"11",
                                    {"Sub task 1", textColor, defaultBackground},
                                    {"Tag3", tagColor, defaultBackground},
@@ -468,7 +466,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                                    false,
                                    TaskTypeDTO::Regular});
     plannerTree.insert(
-        std::ranges::find(plannerTree, "11", id_projection),
+        std::ranges::find(plannerTree, "11", &PlannerItem::uuid),
         PlannerItem{"12",
                     {"Sub project 1", tagColor, defaultBackground},
                     {"Tag2", tagColor, defaultBackground},
@@ -480,7 +478,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                     false,
                     false,
                     TaskTypeDTO::Project});
-    plannerTree.insert(std::ranges::find(plannerTree, "12", id_projection),
+    plannerTree.insert(std::ranges::find(plannerTree, "12", &PlannerItem::uuid),
                        PlannerItem{"13",
                                    {"Sub task 2", textColor, defaultBackground},
                                    {"Tag7", tagColor, defaultBackground},
@@ -492,7 +490,7 @@ TEST_F(PlannerPresenterFixture, displays_project)
                                    true,
                                    false,
                                    TaskTypeDTO::Regular});
-    plannerTree.insert(std::ranges::find(plannerTree, "12", id_projection),
+    plannerTree.insert(std::ranges::find(plannerTree, "12", &PlannerItem::uuid),
                        PlannerItem{"14",
                                    {"Sub task 3", textColor, defaultBackground},
                                    {"Tag8", tagColor, defaultBackground},
@@ -655,7 +653,7 @@ TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
                             false,
                             anchorTime,
                             std::nullopt,
-                            TaskTimeframeDTO{},
+                            TaskTimeframeDTO{anchorTime},
                             TaskTypeDTO::Regular});
     TaskTreeDTO expected;
     expected.insert(expected.end(),
@@ -667,7 +665,7 @@ TEST_F(PlannerPresenterFixture, saves_tree_when_nodes_are_moved)
                             false,
                             anchorTime,
                             std::nullopt,
-                            TaskTimeframeDTO{},
+                            TaskTimeframeDTO{anchorTime},
                             TaskTypeDTO::Regular});
     expected.insert(
         expected.end(),
@@ -719,11 +717,11 @@ TEST_F(PlannerPresenterFixture, changes_task_edition_context)
                  false,
                  dw::current_date_time(),
                  NoteDTO{"Just some text note"},
-                 TaskTimeframeDTO{},
+                 TaskTimeframeDTO{anchorTime},
                  TaskTypeDTO::Regular};
     sprint_timer::ui::EditTaskContext expected{TaskDTO{task}};
     TaskTreeDTO taskTree;
-    taskTree.insert(std::ranges::find(taskTree, "123", id_projection), task);
+    taskTree.insert(std::ranges::find(taskTree, "123", &TaskDTO::uuid), task);
     ON_CALL(readPlannerHandler, handle(_)).WillByDefault(Return(taskTree));
     sut.attachView(view);
 
@@ -945,7 +943,7 @@ TEST_F(PlannerPresenterFixture, applies_active_actions_predefined_filter)
 TEST_F(PlannerPresenterFixture, applies_active_actions_predefined_filter_2)
 {
     auto taskTree = buildSampleTree();
-    std::ranges::find(taskTree, taskDtoTreeFixture.task1.uuid, id_projection)
+    std::ranges::find(taskTree, taskDtoTreeFixture.task1.uuid, &TaskDTO::uuid)
         ->finished = true;
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
@@ -1015,7 +1013,12 @@ TEST_F(PlannerPresenterFixture, applies_active_actions_by_project_filter)
                          Field(&PlannerItem::uuid,
                                taskDtoTreeFixture.task7.uuid)))))));
 
-    taskTreeFilter.select("Active By Project");
+    try {
+        taskTreeFilter.select("Active By Project");
+    }
+    catch (std::exception& exc) {
+        throw;
+    }
 }
 
 TEST_F(PlannerPresenterFixture,
@@ -1024,7 +1027,7 @@ TEST_F(PlannerPresenterFixture,
     auto taskTree = buildSampleTree();
     // Mark all subtree of folder3 as finished
     taskTree.map(std::ranges::find(
-                     taskTree, taskDtoTreeFixture.folder3.uuid, id_projection),
+                     taskTree, taskDtoTreeFixture.folder3.uuid, &TaskDTO::uuid),
                  [](auto& payload) { payload.finished = true; });
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(taskTree));
@@ -1142,7 +1145,7 @@ TEST_F(PlannerPresenterFixture,
 {
     auto initial_tree = buildSampleTree();
     TaskTreeDTO tree = initial_tree.subtree(std::ranges::find(
-        initial_tree, taskDtoTreeFixture.task4.uuid, id_projection));
+        initial_tree, taskDtoTreeFixture.task4.uuid, &TaskDTO::uuid));
     ON_CALL(readPlannerHandler, handle(ReadTaskTreeQuery{}))
         .WillByDefault(Return(tree));
     sut.attachView(view);
@@ -1348,7 +1351,7 @@ TEST_F(PlannerPresenterFixture, due_next_seven_days_predefined_filter)
 {
     auto tree = buildSampleTree();
     auto set_due_date = [&](const auto& uuid, dw::DateTime due) {
-        auto it = std::ranges::find(tree, uuid, id_projection);
+        auto it = std::ranges::find(tree, uuid, &TaskDTO::uuid);
         it->timeFrame = TaskTimeframeDTO{
             anchorTime - Days{10}, due, std::nullopt, std::nullopt};
     };

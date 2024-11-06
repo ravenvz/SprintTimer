@@ -28,7 +28,7 @@
 #include <functional>
 #include <span>
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class TaskStorageReader {
 public:
@@ -36,22 +36,22 @@ public:
 
     virtual auto unfinishedTasks() -> std::vector<Task> = 0;
 
-    virtual auto finishedTasks(const dw::DateRange& dateRange)
-        -> std::vector<Task> = 0;
+    virtual auto
+    finishedTasks(const dw::DateRange& dateRange) -> std::vector<Task> = 0;
 
-    virtual auto allTasks(const dw::DateRange& dateRange)
-        -> std::vector<Task> = 0;
+    virtual auto
+    allTasks(const dw::DateRange& dateRange) -> std::vector<Task> = 0;
 
     virtual auto allTags() -> std::vector<std::string> = 0;
 
     virtual auto findByUuid(const std::string& uuid) -> std::vector<Task> = 0;
 
-    virtual auto findMatching(std::span<const std::string> uuids)
-        -> std::vector<Task> = 0;
+    virtual auto
+    findMatching(std::span<const std::string> uuids) -> std::vector<Task> = 0;
 
     virtual auto taskTree() -> TaskTree = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: ITASKSTORAGEREADER_H_RMTKEREJ */

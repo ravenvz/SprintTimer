@@ -30,7 +30,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtTaskStorageWriter : public TaskStorageWriter {
+class QtTaskStorageWriter : public api::TaskStorageWriter {
 public:
     explicit QtTaskStorageWriter(QString connectionName);
 
@@ -43,6 +43,8 @@ public:
     auto save(const Task& task) -> void final;
 
     auto remove(const std::string& uuid) -> void final;
+
+    auto restore(const Task& task) -> void final;
 
     auto edit(const Task& oldTask, const Task& editedTask) -> void final;
 
@@ -63,13 +65,16 @@ private:
     QString connectionName;
     QSqlQuery createTaskQuery;
     QSqlQuery deleteTaskQuery;
+    QSqlQuery restoreTaskQuery;
+    QSqlQuery restoreSprintQuery;
+    QSqlQuery deleteSprintsQuery;
     QSqlQuery createTagQuery;
     QSqlQuery deleteTagQuery;
     QSqlQuery editTaskQuery;
     QSqlQuery toggleCompletionQuery;
     QSqlQuery updatePrioritiesQuery;
     QSqlQuery editTagQuery;
-    QSqlQuery insertSprintQuery;
+    // QSqlQuery insertSprintQuery;
     QSqlQuery insertNotesQuery;
     QSqlQuery insertTimeframeQuery;
     QSqlQuery insertIntoTaskTreeQuery;
@@ -79,7 +84,7 @@ private:
 
     auto removeTags(const QString& taskUuid, std::span<const Tag> tags) -> void;
 
-    auto insertSprint(const QString& taskUuid, const Sprint& sprint) -> void;
+    // auto insertSprint(const QString& taskUuid, const Sprint& sprint) -> void;
 
     auto insertNotes(const QString& taskUuid, const Note& notes) -> void;
 

@@ -49,31 +49,42 @@ public:
 
 TEST_F(RegisteringSprintsFixture, registers_sprints)
 {
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1"},
-                                               5,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    const DateTime taskCreatedStamp{
+        DateTime{Date{Year{2024}, Month{12}, Day{27}}} + 17h + 37min};
+    {
+        TimePortalGuard timerPortal{initializer.getDateTimeProvider(),
+                                    taskCreatedStamp};
+        createTaskHandler.handle(
+            CreateTaskCommand{"Some task",
+                              {"Tag1"},
+                              5,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreatedStamp}});
+    }
+    const DateTime currentTime{DateTime{Date{Year{2024}, Month{12}, Day{30}}} +
+                               10h};
+    const DateTime sprintRegistationTime = currentTime + 20h;
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const DateTimeRange range{current_date_time_local(),
-                              current_date_time_local() + 25min};
+    const DateTimeRange range{currentTime, currentTime + 25min};
     const std::vector<dw::DateTimeRange> intervals{range,
                                                    add_offset(range, 3h)};
-    const TaskDTO expected{taskUuid,
-                           {"Tag1"},
-                           "Some task",
-                           5,
-                           intervals,
-                           false,
-                           current_date_time_local(),
-                           std::nullopt,
-                           TaskTimeframeDTO{},
-                           TaskTypeDTO::Regular};
+    const TaskDTO expected{.uuid = taskUuid,
+                           .tags = {"Tag1"},
+                           .name = "Some task",
+                           .expectedCost = 5,
+                           .sprints = intervals,
+                           .finished = false,
+                           .modificationStamp = sprintRegistationTime,
+                           .notes = std::nullopt,
+                           .timeFrame = TaskTimeframeDTO{taskCreatedStamp},
+                           .kind = TaskTypeDTO::Regular};
 
+    TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                               sprintRegistationTime};
     registerSprintsHandler.handle(
         RegisterSprintBulkCommand{taskUuid, intervals});
 
@@ -83,34 +94,47 @@ TEST_F(RegisteringSprintsFixture, registers_sprints)
 
 TEST_F(RegisteringSprintsFixture, undoing_registering_sprints)
 {
-
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1"},
-                                               5,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    // TODO Startwith check that after undoing task modification stamp is
+    // restored
+    const DateTime taskCreatedStamp{
+        DateTime{Date{Year{2024}, Month{12}, Day{27}}} + 17h + 37min};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   taskCreatedStamp};
+        createTaskHandler.handle(
+            CreateTaskCommand{"Some task",
+                              {"Tag1"},
+                              5,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreatedStamp}});
+    }
+    const DateTime currentTime{DateTime{Date{Year{2024}, Month{12}, Day{30}}} +
+                               10h};
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const DateTimeRange range{current_date_time_local(),
-                              current_date_time_local() + 25min};
+    const DateTimeRange range{currentTime, currentTime + 25min};
     const std::vector<dw::DateTimeRange> intervals{range,
                                                    add_offset(range, 3h)};
-    const TaskDTO expected{taskUuid,
-                           {"Tag1"},
-                           "Some task",
-                           5,
-                           {},
-                           false,
-                           current_date_time_local(),
-                           std::nullopt,
-                           TaskTimeframeDTO{},
-                           TaskTypeDTO::Regular};
+    const TaskDTO expected{.uuid = taskUuid,
+                           .tags = {"Tag1"},
+                           .name = "Some task",
+                           .expectedCost = 5,
+                           .sprints = {},
+                           .finished = false,
+                           .modificationStamp = taskCreatedStamp,
+                           .notes = std::nullopt,
+                           .timeFrame = TaskTimeframeDTO{taskCreatedStamp},
+                           .kind = TaskTypeDTO::Regular};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   currentTime};
+        registerSprintsHandler.handle(
+            RegisterSprintBulkCommand{taskUuid, intervals});
+    }
 
-    registerSprintsHandler.handle(
-        RegisterSprintBulkCommand{taskUuid, intervals});
     undoCommandHandler.handle(UndoLastCommand{});
 
     const auto activeTasks = activeTasksHandler.handle(ActiveTasksQuery{});
@@ -120,30 +144,43 @@ TEST_F(RegisteringSprintsFixture, undoing_registering_sprints)
 TEST_F(RegisteringSprintsFixture,
        throws_exception_when_sprint_intersection_detected)
 {
-    const DateTimeRange range{current_date_time_local(),
-                              current_date_time_local() + 25min};
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1"},
-                                               15,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"Another task",
-                                               {"SomeTag", "AnotherTag"},
-                                               7,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    const DateTime currentTime{DateTime{Date{Year{2024}, Month{12}, Day{30}}} +
+                               10h};
+    const DateTimeRange range{currentTime, currentTime + 25min};
+    const DateTime taskCreatedStamp{
+        DateTime{Date{Year{2024}, Month{12}, Day{27}}} + 17h + 37min};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   taskCreatedStamp};
+        createTaskHandler.handle(
+            CreateTaskCommand{.name = "Some task",
+                              .tags = {"Tag1"},
+                              .estimatedCost = 15,
+                              .type = TaskTypeDTO::Regular,
+                              .parent = std::nullopt,
+                              .insertBeforePos = std::nullopt,
+                              .notes = std::nullopt,
+                              .timeFrame = TaskTimeframeDTO{taskCreatedStamp}});
+        createTaskHandler.handle(
+            CreateTaskCommand{"Another task",
+                              {"SomeTag", "AnotherTag"},
+                              7,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreatedStamp}});
+    }
     const auto taskUuids = activeTasksHandler.handle(ActiveTasksQuery{});
-    registerSprintsHandler.handle(RegisterSprintBulkCommand{
-        taskUuids[0].uuid, {range, add_offset(range, 25min)}});
-    registerSprintsHandler.handle(RegisterSprintBulkCommand{
-        taskUuids[1].uuid,
-        {add_offset(range, 2h), add_offset(range, 2h + 30min)}});
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   currentTime};
+        registerSprintsHandler.handle(RegisterSprintBulkCommand{
+            taskUuids[0].uuid, {range, add_offset(range, 25min)}});
+        registerSprintsHandler.handle(RegisterSprintBulkCommand{
+            taskUuids[1].uuid,
+            {add_offset(range, 2h), add_offset(range, 2h + 30min)}});
+    }
 
     ASSERT_THROW(registerSprintsHandler.handle(RegisterSprintBulkCommand{
                      taskUuids[0].uuid, {add_offset(range, 2h - 24min)}}),
@@ -154,16 +191,24 @@ TEST_F(
     RegisteringSprintsFixture,
     throws_exception_when_trying_to_add_sprints_that_are_conflicting_between_themselves)
 {
-    const DateTimeRange range{current_date_time_local(),
-                              current_date_time_local() + 25min};
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1"},
-                                               15,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    const DateTime currentTime{DateTime{Date{Year{2024}, Month{12}, Day{30}}} +
+                               10h};
+    const DateTimeRange range{currentTime, currentTime + 25min};
+    const DateTime taskCreatedStamp{
+        DateTime{Date{Year{2024}, Month{12}, Day{27}}} + 17h + 37min};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   taskCreatedStamp};
+        createTaskHandler.handle(
+            CreateTaskCommand{"Some task",
+                              {"Tag1"},
+                              15,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreatedStamp}});
+    }
     const auto taskUuids = activeTasksHandler.handle(ActiveTasksQuery{});
 
     ASSERT_THROW(registerSprintsHandler.handle(RegisterSprintBulkCommand{
@@ -174,9 +219,10 @@ TEST_F(
 TEST_F(RegisteringSprintsFixture,
        throws_when_registering_sprint_for_task_that_is_not_found)
 {
+    const DateTime currentTime{DateTime{Date{Year{2024}, Month{12}, Day{30}}} +
+                               10h};
     const std::string bogusUuid{"123"};
-    const DateTimeRange range{current_date_time_local(),
-                              current_date_time_local() + 25min};
+    const DateTimeRange range{currentTime, currentTime + 25min};
 
     ASSERT_THROW(registerSprintsHandler.handle(
                      RegisterSprintBulkCommand{bogusUuid, {range}}),

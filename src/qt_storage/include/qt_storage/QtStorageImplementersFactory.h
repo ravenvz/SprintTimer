@@ -32,23 +32,26 @@ class QtStorageImplementersFactory : public api::StorageImplementersFactory {
 public:
     explicit QtStorageImplementersFactory(const QString& connectionName);
 
-    std::unique_ptr<SprintStorage> sprintStorage() const override;
+    [[nodiscard]] auto
+    sprintStorage() const -> std::unique_ptr<api::SprintStorage>;
 
-    std::unique_ptr<TaskStorage> taskStorage() const override;
+    [[nodiscard]] std::unique_ptr<api::TaskStorage> taskStorage() const;
 
-    std::unique_ptr<OperationalRangeReader>
-    operationalRangeReader() const override;
+    [[nodiscard]] auto
+    operationalRangeReader(const api::DateTimeProvider& dateTimeProvider) const
+        -> std::unique_ptr<api::OperationalRangeReader>;
 
-    std::unique_ptr<SprintDistributionReader>
-    dailyDistReader(size_t numDays) const override;
+    [[nodiscard]] auto dailyDistReader(size_t numDays) const
+        -> std::unique_ptr<api::SprintDistributionReader>;
 
-    std::unique_ptr<SprintDistributionReader>
-    weeklyDistReader(dw::Weekday firstDayOfWeek) const override;
+    [[nodiscard]] auto weeklyDistReader(dw::Weekday firstDayOfWeek) const
+        -> std::unique_ptr<api::SprintDistributionReader>;
 
-    std::unique_ptr<SprintDistributionReader>
-    monthlyDistReader() const override;
+    [[nodiscard]] auto
+    monthlyDistReader() const -> std::unique_ptr<api::SprintDistributionReader>;
 
-    std::unique_ptr<WorkScheduleStorage> scheduleStorage() const override;
+    [[nodiscard]] auto
+    scheduleStorage() const -> std::unique_ptr<api::WorkScheduleStorage>;
 
 private:
     QString connectionName;

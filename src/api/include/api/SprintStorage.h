@@ -25,12 +25,12 @@
 #include "api/SprintStorageReader.h"
 #include "api/SprintStorageWriter.h"
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class SprintStorage : public SprintStorageReader, public SprintStorageWriter {
 public:
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: ISPRINTSTORAGE_H_7Q24BCNX */

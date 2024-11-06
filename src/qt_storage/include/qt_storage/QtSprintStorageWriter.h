@@ -28,7 +28,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtSprintStorageWriter : public SprintStorageWriter {
+class QtSprintStorageWriter : public api::SprintStorageWriter {
 public:
     explicit QtSprintStorageWriter(QString connectionName);
 
@@ -39,11 +39,11 @@ public:
     QtSprintStorageWriter& operator=(const QtSprintStorageWriter&) = delete;
 
     void save(const std::string& taskUuid,
-              const std::vector<Sprint>& sprints) final;
+              std::span<const Sprint> sprints) final;
 
     void remove(const Sprint& sprint) final;
 
-    void remove(const std::vector<Sprint>& sprints) final;
+    void remove(std::span<const Sprint> sprints) final;
 
     void restore(const Sprint& sprint) final;
 

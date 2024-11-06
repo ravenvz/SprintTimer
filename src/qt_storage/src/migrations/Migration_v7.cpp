@@ -96,7 +96,7 @@ auto Migration_v7::run(const QString& connectionName) const -> void
                "CREATE TABLE IF NOT EXISTS sprint_temp ("
                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                "task_id INTEGER, "
-               "start_time DATETIME, "
+               "start_time DATETIME UNIQUE, "
                "finish_time DATETIME, "
                "deleted BOOLEAN DEFAULT 0, "
                "FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE);");

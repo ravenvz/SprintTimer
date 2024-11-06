@@ -23,6 +23,7 @@
 #define ADDTASKCONTROL_H_N0QTM94K
 
 #include "api/dtos/TaskDTO.h"
+#include "date_wrapper/date_wrapper.h"
 #include "qt_gui/mvp/BasePresenter.h"
 #include "qt_gui/mvp/BaseView.h"
 #include <vector>
@@ -35,7 +36,8 @@ class Presenter : public mvp::BasePresenter<View> {
 public:
     virtual void addTask(const api::TaskDTO& details) const = 0;
 
-    virtual void addTask(const std::string& encodedDescription) const = 0;
+    virtual void addTask(const std::string& encodedDescription,
+                         dw::DateTime startTime) const = 0;
 };
 
 class View : public mvp::BaseView<View, Presenter> { };

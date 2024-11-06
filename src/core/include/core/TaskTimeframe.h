@@ -29,49 +29,75 @@
 
 namespace sprint_timer {
 
-struct TaskTimeframe {
+class TaskTimeframe {
+public:
     constexpr TaskTimeframe() = default;
 
     constexpr TaskTimeframe(
-        dw::DateTime start_,
-        std::optional<dw::DateTime> due_ = std::nullopt,
+        dw::DateTime startAt_,
+        std::optional<dw::DateTime> dueTo_ = std::nullopt,
         std::optional<dw::DateTime> remindAt_ = std::nullopt,
-        std::optional<Recurrence> recurrence_ = std::nullopt)
-        : start{start_}
-        , due{due_}
+        std::optional<Recurrence> recurr_ = std::nullopt)
+        : startAt{startAt_}
+        , dueTo{dueTo_}
         , remindAt{remindAt_}
-        , recurrence{std::move(recurrence_)}
+        , recurr{std::move(recurr_)}
     {
-        if (not due) {
-            due = recurrence.and_then(
-                [&](const auto& rec) { return rec.nextRecurrence(start); });
+        if (not dueTo) {
+            dueTo = recurr.and_then(
+                [&](const auto& rec) { return rec.nextRecurrence(*startAt); });
         }
     }
 
     constexpr TaskTimeframe(
-        dw::DateTime start_,
-        Recurrence recurrence_,
+        dw::DateTime startAt_,
+        Recurrence recurr_,
         std::optional<dw::DateTime> remindAt_ = std::nullopt)
-        : start{start_}
+        : startAt{startAt_}
         , remindAt{remindAt_}
-        , recurrence{std::move(recurrence_)}
+        , recurr{std::move(recurr_)}
     {
     }
 
-    constexpr auto inherit(const TaskTimeframe& other) const noexcept
-        -> TaskTimeframe
+    [[nodiscard]] constexpr auto
+    inherit(const TaskTimeframe& other) const noexcept -> TaskTimeframe
     {
-        return TaskTimeframe{other.start, other.due};
+        return TaskTimeframe{other.start(), other.due()};
     }
 
-    dw::DateTime start{dw::current_date_time_local()};
-    std::optional<dw::DateTime> due{};
+    [[nodiscard]] constexpr auto start() const -> dw::DateTime
+    {
+        if (not startAt) {
+            throw DomainException{"Timeframe must have start time"};
+        }
+        return *startAt;
+    }
+
+    [[nodiscard]] constexpr auto due() const -> std::optional<dw::DateTime>
+    {
+        return dueTo;
+    }
+
+    [[nodiscard]] constexpr auto reminder() const -> std::optional<dw::DateTime>
+    {
+        return remindAt;
+    }
+
+    [[nodiscard]] constexpr auto recurrence() const -> std::optional<Recurrence>
+    {
+        return recurr;
+    }
+
+private:
+    std::optional<dw::DateTime> startAt{};
+    // dw::DateTime startAt{dw::current_date_time_local()};
+    std::optional<dw::DateTime> dueTo{};
     std::optional<dw::DateTime> remindAt{};
-    std::optional<Recurrence> recurrence{};
+    std::optional<Recurrence> recurr{};
 };
 
-constexpr auto operator==(const TaskTimeframe& lhs, const TaskTimeframe& rhs)
-    -> bool
+constexpr auto operator==(const TaskTimeframe& lhs,
+                          const TaskTimeframe& rhs) -> bool
 {
     auto date_time_equal = [](const auto& left, const auto& right) {
         return std::tuple(
@@ -79,30 +105,27 @@ constexpr auto operator==(const TaskTimeframe& lhs, const TaskTimeframe& rhs)
                std::tuple(
                    right.date(), right.hour(), right.minute(), right.second());
     };
-    return date_time_equal(lhs.start, rhs.start) &&
-           alg::opt_equal(lhs.due, rhs.due, date_time_equal) &&
-           lhs.recurrence == rhs.recurrence &&
-           alg::opt_equal(lhs.remindAt, rhs.remindAt, date_time_equal);
+    return date_time_equal(lhs.start(), rhs.start()) and
+           alg::opt_equal(lhs.due(), rhs.due(), date_time_equal) and
+           lhs.recurrence() == rhs.recurrence() and
+           alg::opt_equal(lhs.reminder(), rhs.reminder(), date_time_equal);
+}
+
+inline auto format_datetime(const dw::DateTime& dt) -> std::string
+{
+    return dw::to_string(dt, "dd.MM.yyyy hh:mm:ss");
 }
 
 template <class CharT, class Traits>
 std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const TaskTimeframe& frame)
 {
-    os << "TaskTimeframe{start: " << frame.start << ", due: "
-       << frame.due
-              .transform([](const auto& dt) {
-                  return dw::to_string(dt, "dd.MM.yyyy hh:mm:ss");
-              })
-              .value_or("n/a")
+    os << "TaskTimeframe{startAt: " << frame.start() << ", dueTo: "
+       << ", dueTo: " << frame.due().transform(format_datetime).value_or("n/a")
        << ", remindAt: "
-       << frame.remindAt
-              .transform([](const auto& dt) {
-                  return dw::to_string(dt, "dd.MM.yyyy hh:mm:ss");
-              })
-              .value_or("n/a")
-       << ", recurrence: "
-       << frame.recurrence
+       << frame.reminder().transform(format_datetime).value_or("n/a")
+       << ", recurr: "
+       << frame.recurrence()
               .transform([](const auto& rec) { return rec.pattern(); })
               .value_or("n/a")
        << "}";

@@ -100,7 +100,7 @@ public:
 
 private:
     ConfigurableDateTimeProvider& dateTimeProvider;
-    std::optional<dw::DateTime> previousTimePoint;
+    std::optional<dw::DateTime> previousTimePoint{};
 };
 
 #endif /* end of include guard: CONFIGURABLEDATETIMEPROVIDER_H_DKMDAIXR */

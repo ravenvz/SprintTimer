@@ -110,18 +110,18 @@ auto Task::goalProgress() const -> GoalProgress
 
 auto Task::sprints() const -> std::span<const Sprint> { return sprintCont; }
 
-auto Task::activeSince() const -> dw::DateTime { return frame.start; }
+auto Task::activeSince() const -> dw::DateTime { return frame.start(); }
 
-auto Task::dueTo() const -> std::optional<dw::DateTime> { return frame.due; }
+auto Task::dueTo() const -> std::optional<dw::DateTime> { return frame.due(); }
 
 auto Task::remindAt() const -> std::optional<dw::DateTime>
 {
-    return frame.remindAt;
+    return frame.reminder();
 }
 
 auto Task::recurrence() const -> std::optional<Recurrence>
 {
-    return frame.recurrence;
+    return frame.recurrence();
 }
 
 auto Task::notes() const -> std::optional<Note> { return note; }
@@ -162,17 +162,18 @@ auto Task::inheritDate(const Task& other,
     if (not other.dueTo()) {
         return *this;
     }
-    return Task{
-        taskName,
-        estimated,
-        sprintCont,
-        id,
-        tag,
-        completed,
-        currentTime,
-        type,
-        note,
-        TaskTimeframe{other.timeFrame().start, other.timeFrame().due.value()}};
+    return Task{taskName,
+                estimated,
+                sprintCont,
+                id,
+                tag,
+                completed,
+                currentTime,
+                type,
+                note,
+                TaskTimeframe{}.inherit(other.timeFrame())};
+    // TaskTimeframe{other.timeFrame().start(),
+    // other.timeFrame().due().value()}};
     // TaskTimeframe{
     //     frame.start, other.dueTo(), frame.remindAt, frame.recurrence}};
 }
@@ -180,7 +181,7 @@ auto Task::inheritDate(const Task& other,
 auto Task::inheritDateIfNotSet(const Task& other,
                                dw::DateTime currentTime) const -> Task
 {
-    if (frame.due or not other.dueTo() or other.frame.due == frame.due) {
+    if (frame.due() or not other.dueTo() or other.frame.due() == frame.due()) {
         return *this;
     }
     return inheritDate(other, currentTime);
@@ -207,7 +208,8 @@ auto Task::nextRecurrent(const std::string& nextUuid,
             type,
             note,
             // We set start time equal to previous task due date
-            TaskTimeframe{*frame.due, dt, frame.remindAt, frame.recurrence}};
+            TaskTimeframe{
+                *frame.due(), dt, frame.reminder(), frame.recurrence()}};
     };
 
     return recurrence().and_then(compute_next_recurrence).transform(make_task);

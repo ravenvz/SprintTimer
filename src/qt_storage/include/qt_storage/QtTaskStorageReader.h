@@ -28,14 +28,14 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtTaskStorageReader : public TaskStorageReader {
+class QtTaskStorageReader : public api::TaskStorageReader {
 public:
     explicit QtTaskStorageReader(QString connectionName_);
 
     auto unfinishedTasks() -> std::vector<Task> final;
 
-    auto finishedTasks(const dw::DateRange& dateRange)
-        -> std::vector<Task> final;
+    auto
+    finishedTasks(const dw::DateRange& dateRange) -> std::vector<Task> final;
 
     auto allTasks(const dw::DateRange& dateRange) -> std::vector<Task> final;
 
@@ -43,8 +43,8 @@ public:
 
     auto findByUuid(const std::string& uuid) -> std::vector<Task> final;
 
-    auto findMatching(std::span<const std::string> uuids)
-        -> std::vector<Task> final;
+    auto
+    findMatching(std::span<const std::string> uuids) -> std::vector<Task> final;
 
     auto taskTree() -> TaskTree final;
 

@@ -31,8 +31,8 @@ SprintConflictException::SprintConflictException(
 {
 }
 
-const std::vector<SprintConflictException::conflicting_sprints_pair>&
-SprintConflictException::conflictingSprints() const
+auto SprintConflictException::conflictingSprints() const
+    -> std::span<const SprintConflictException::conflicting_sprints_pair>
 {
     return sprintPairs;
 }

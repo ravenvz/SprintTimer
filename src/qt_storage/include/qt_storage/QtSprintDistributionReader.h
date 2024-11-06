@@ -29,17 +29,17 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class DistributionReaderBase : public SprintDistributionReader {
+class DistributionReaderBase : public api::SprintDistributionReader {
 public:
     DistributionReaderBase(QString connectionName, size_t distributionSize);
 
     DistributionReaderBase(DistributionReaderBase&&) = delete;
     DistributionReaderBase(const DistributionReaderBase&) = delete;
 
-    auto operator=(DistributionReaderBase&&)
-        -> DistributionReaderBase& = delete;
-    auto operator=(const DistributionReaderBase&)
-        -> DistributionReaderBase& = delete;
+    auto
+    operator=(DistributionReaderBase&&) -> DistributionReaderBase& = delete;
+    auto operator=(const DistributionReaderBase&) -> DistributionReaderBase& =
+                                                         delete;
 
     auto sprintDistribution(const dw::DateRange& dateRange)
         -> std::vector<int> override;
@@ -53,14 +53,13 @@ protected:
 
     [[nodiscard]] virtual auto normalizeDate(const QDate& date) const -> QDate;
 
-    [[nodiscard]] virtual auto compareDate(const QDate& expected,
-                                           const QDate& probeDate) const
-        -> bool;
+    [[nodiscard]] virtual auto
+    compareDate(const QDate& expected, const QDate& probeDate) const -> bool;
 
-    [[nodiscard]] auto zeroFilledDistribution(
-        const QDate& startDate,
-        const std::vector<std::pair<QDate, int>>& query) const
-        -> std::vector<int>;
+    [[nodiscard]] auto
+    zeroFilledDistribution(const QDate& startDate,
+                           const std::vector<std::pair<QDate, int>>& query)
+        const -> std::vector<int>;
 
 private:
     size_t distributionSize;
@@ -71,8 +70,8 @@ public:
     QtSprintDailyDistributionReader(QString connectionName, size_t numBins);
 
 private:
-    [[nodiscard]] auto nextExpectedDate(const QDate& referenceDate) const
-        -> QDate override;
+    [[nodiscard]] auto
+    nextExpectedDate(const QDate& referenceDate) const -> QDate override;
 };
 
 class QtSprintDistReaderMondayFirst : public DistributionReaderBase {
@@ -80,14 +79,14 @@ public:
     QtSprintDistReaderMondayFirst(QString connectionName, size_t numBins);
 
 private:
-    [[nodiscard]] auto nextExpectedDate(const QDate& referenceDate) const
-        -> QDate override;
+    [[nodiscard]] auto
+    nextExpectedDate(const QDate& referenceDate) const -> QDate override;
 
     [[nodiscard]] auto normalizeDate(const QDate& date) const -> QDate override;
 
-    [[nodiscard]] auto compareDate(const QDate& expected,
-                                   const QDate& probeDate) const
-        -> bool override;
+    [[nodiscard]] auto
+    compareDate(const QDate& expected,
+                const QDate& probeDate) const -> bool override;
 };
 
 class QtSprintDistReaderSundayFirst : public DistributionReaderBase {
@@ -95,14 +94,14 @@ public:
     QtSprintDistReaderSundayFirst(QString connectionName, size_t numBins);
 
 private:
-    [[nodiscard]] auto nextExpectedDate(const QDate& referenceDate) const
-        -> QDate override;
+    [[nodiscard]] auto
+    nextExpectedDate(const QDate& referenceDate) const -> QDate override;
 
     [[nodiscard]] auto normalizeDate(const QDate& date) const -> QDate override;
 
-    [[nodiscard]] auto compareDate(const QDate& expected,
-                                   const QDate& probeDate) const
-        -> bool override;
+    [[nodiscard]] auto
+    compareDate(const QDate& expected,
+                const QDate& probeDate) const -> bool override;
 };
 
 class QtSprintMonthlyDistributionReader : public DistributionReaderBase {
@@ -110,12 +109,12 @@ public:
     QtSprintMonthlyDistributionReader(QString connectionName, size_t numBins);
 
 private:
-    [[nodiscard]] auto nextExpectedDate(const QDate& referenceDate) const
-        -> QDate override;
+    [[nodiscard]] auto
+    nextExpectedDate(const QDate& referenceDate) const -> QDate override;
 
-    [[nodiscard]] auto compareDate(const QDate& expected,
-                                   const QDate& probeDate) const
-        -> bool override;
+    [[nodiscard]] auto
+    compareDate(const QDate& expected,
+                const QDate& probeDate) const -> bool override;
 };
 
 } // namespace sprint_timer::storage::qt_storage

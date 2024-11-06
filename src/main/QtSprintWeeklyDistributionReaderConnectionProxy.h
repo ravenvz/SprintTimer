@@ -29,7 +29,7 @@
 namespace sprint_timer::compose {
 
 class QtSprintWeeklyDistributionReaderConnectionProxy
-    : public SprintDistributionReader {
+    : public api::SprintDistributionReader {
 public:
     QtSprintWeeklyDistributionReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper,

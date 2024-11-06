@@ -31,7 +31,7 @@ using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
 
-class RequestingTasksFixture : public ::testing::Test {
+class RequestingTagsFixture : public ::testing::Test {
 public:
     TestStorageInitializer initializer;
     CommandHandlerComposer& commandComposer{
@@ -43,14 +43,15 @@ public:
         queryComposer.allTagsHandler()};
 };
 
-TEST_F(RequestingTasksFixture, requesting_tags_on_empty_system)
+TEST_F(RequestingTagsFixture, requesting_tags_on_empty_system)
 {
     EXPECT_TRUE(allTagsHandler.handle(AllTagsQuery{}).empty());
 }
 
-TEST_F(RequestingTasksFixture, requesting_tags)
+TEST_F(RequestingTagsFixture, requesting_tags)
 {
     using ::testing::UnorderedElementsAre;
+    const auto now = initializer.getDateTimeProvider().dateTimeNow();
     createTaskHandler.handle(CreateTaskCommand{"Some task",
                                                {"Tag1", "Tag2", "Tag3"},
                                                12,
@@ -58,7 +59,7 @@ TEST_F(RequestingTasksFixture, requesting_tags)
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
+                                               TaskTimeframeDTO{now}});
     createTaskHandler.handle(CreateTaskCommand{"Other task",
                                                {"Tag2", "Tag3", "Tag4"},
                                                21,
@@ -66,7 +67,7 @@ TEST_F(RequestingTasksFixture, requesting_tags)
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
+                                               TaskTimeframeDTO{now}});
 
     EXPECT_THAT(allTagsHandler.handle(AllTagsQuery{}),
                 UnorderedElementsAre("Tag1", "Tag2", "Tag3", "Tag4"));

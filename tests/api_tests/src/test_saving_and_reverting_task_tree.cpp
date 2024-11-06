@@ -38,30 +38,6 @@ using namespace sprint_timer::compose;
 using namespace dw;
 using namespace std::chrono_literals;
 
-// namespace sprint_timer {
-//
-// template <class CharT, class Traits>
-// std::basic_ostream<CharT, Traits>&
-// operator<<(std::basic_ostream<CharT, Traits>& os, const TaskType& taskType)
-// {
-//     using enum TaskType;
-//     os << "TaskType::";
-//     switch (taskType) {
-//     case Regular:
-//         os << "Regular";
-//         break;
-//     case Project:
-//         os << "Project";
-//         break;
-//     case Folder:
-//         os << "Folder";
-//         break;
-//     }
-//     return os;
-// }
-//
-// } // namespace sprint_timer
-
 class ChangingTaskTreeFixture : public ::testing::Test {
 public:
     TestStorageInitializer initializer;
@@ -84,7 +60,7 @@ TEST_F(ChangingTaskTreeFixture, saving_tree_and_reverting)
 {
     using namespace sprint_timer::api;
     const auto initialTree = fixtures::givenSomeTaskTreeCreated(
-        createTaskHandler, registerSprintsHandler);
+        createTaskHandler, registerSprintsHandler, initializer);
     auto reverted_tree = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
     auto mutatedTree = initialTree;
     auto uuid_projection = [](const auto& node) { return node.uuid; };

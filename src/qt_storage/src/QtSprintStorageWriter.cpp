@@ -59,7 +59,7 @@ QtSprintStorageWriter::QtSprintStorageWriter(QString connectionName_)
 }
 
 void QtSprintStorageWriter::save(const std::string& taskUuid,
-                                 const std::vector<Sprint>& sprints)
+                                 std::span<const Sprint> sprints)
 {
     TransactionGuard guard{connectionName};
     for (const auto& sprint : sprints) {
@@ -94,7 +94,7 @@ void QtSprintStorageWriter::restore(const Sprint& sprint)
     tryExecute(restoreSprintQuery);
 }
 
-void QtSprintStorageWriter::remove(const std::vector<Sprint>& sprints)
+void QtSprintStorageWriter::remove(std::span<const Sprint> sprints)
 {
     TransactionGuard guard{connectionName};
     for (const auto& sprint : sprints) {

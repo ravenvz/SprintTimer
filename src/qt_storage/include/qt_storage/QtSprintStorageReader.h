@@ -28,7 +28,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtSprintStorageReader : public SprintStorageReader {
+class QtSprintStorageReader : public api::SprintStorageReader {
 public:
     explicit QtSprintStorageReader(QString connectionName);
 
@@ -36,8 +36,8 @@ public:
     QtSprintStorageReader(const QtSprintStorageReader&) = delete;
 
     auto operator=(QtSprintStorageReader&&) -> QtSprintStorageReader& = delete;
-    auto operator=(const QtSprintStorageReader&)
-        -> QtSprintStorageReader& = delete;
+    auto
+    operator=(const QtSprintStorageReader&) -> QtSprintStorageReader& = delete;
 
     auto findByDateRange(const dw::DateRange& dateRange)
         -> std::vector<SprintRecord> final;

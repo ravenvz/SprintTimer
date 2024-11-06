@@ -22,6 +22,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "cpp_utils/patterns/State.h"
 #include <QWidget>
 #include <memory>
 #include <variant>
@@ -47,64 +48,171 @@ public:
 
     MainWindow(const MainWindow&) = delete;
 
-    MainWindow& operator=(const MainWindow&) = delete;
+    auto operator=(const MainWindow&) -> MainWindow& = delete;
 
     MainWindow(MainWindow&&) = delete;
 
-    MainWindow& operator=(MainWindow&&) = delete;
+    auto operator=(MainWindow&&) -> MainWindow& = delete;
 
-    QSize sizeHint() const override;
+    [[nodiscard]] auto sizeHint() const -> QSize override;
 
 private:
-    struct ExpandedOutlines {
-        explicit ExpandedOutlines(MainWindow& widget);
-    };
-    struct Shrinked {
-        explicit Shrinked(MainWindow& widget);
-    };
-    struct ExpandedMenu {
-        explicit ExpandedMenu(MainWindow& widget);
-    };
-    struct Expanded {
-        explicit Expanded(MainWindow& widget);
+    class BaseState {
+    protected:
+        explicit BaseState(std::reference_wrapper<MainWindow> context_)
+            : context{context_}
+        {
+        }
+
+        std::reference_wrapper<MainWindow> context;
     };
 
-    using State = std::variant<std::monostate,
-                               ExpandedOutlines,
-                               ExpandedMenu,
-                               Expanded,
-                               Shrinked>;
+    class Setup : BaseState {
+    public:
+        using BaseState::context;
 
-    struct ViewToggledEvent {
-        MainWindow& widget;
-
-        explicit ViewToggledEvent(MainWindow& widget);
-
-        State operator()(std::monostate);
-        State operator()(const ExpandedOutlines&);
-        State operator()(const Shrinked&);
-        State operator()(const ExpandedMenu&);
-        State operator()(const Expanded&);
+        explicit Setup(std::reference_wrapper<MainWindow> ctx)
+            : BaseState{ctx}
+        {
+        }
     };
 
-    struct MenuToggledEvent {
-        MainWindow& widget;
+    class ExpandedOutlines : BaseState {
+    public:
+        using BaseState::context;
 
-        explicit MenuToggledEvent(MainWindow& widget);
-
-        State operator()(std::monostate);
-        State operator()(const ExpandedOutlines&);
-        State operator()(const Shrinked&);
-        State operator()(const ExpandedMenu&);
-        State operator()(const Expanded&);
+        explicit ExpandedOutlines(std::reference_wrapper<MainWindow> ctx)
+            : BaseState{ctx}
+        {
+            context.get().expandOutline();
+        }
     };
+
+    class Shrinked : BaseState {
+    public:
+        using BaseState::context;
+
+        explicit Shrinked(std::reference_wrapper<MainWindow> ctx)
+            : BaseState{ctx}
+        {
+            context.get().shrink();
+        }
+    };
+
+    class Expanded : BaseState {
+    public:
+        using BaseState::context;
+
+        explicit Expanded(std::reference_wrapper<MainWindow> ctx)
+            : BaseState{ctx}
+        {
+            context.get().expand();
+        }
+    };
+
+    class ExpandedMenu : BaseState {
+    public:
+        using BaseState::context;
+
+        explicit ExpandedMenu(std::reference_wrapper<MainWindow> ctx)
+            : BaseState{ctx}
+        {
+            context.get().expandMenu();
+        }
+    };
+
+    using State =
+        std::variant<Setup, Expanded, Shrinked, ExpandedOutlines, ExpandedMenu>;
+
+    using MaybeState = std::optional<State>;
+
+    struct ExpandButtonToggled { };
+
+    struct ExpandMenuButtonToggled { };
+
+    class TransitionTable {
+    public:
+        auto operator()(Setup& state,
+                        ExpandButtonToggled /*unused*/) -> MaybeState
+        {
+            return ExpandedOutlines{state.context};
+        }
+
+        auto operator()(Setup& state,
+                        ExpandMenuButtonToggled /*unused*/) -> MaybeState
+        {
+            return ExpandedMenu{state.context};
+        }
+
+        auto operator()(Shrinked& state,
+                        ExpandButtonToggled /*unused*/) -> MaybeState
+        {
+            return ExpandedOutlines{state.context};
+        }
+
+        auto operator()(Shrinked& state,
+                        ExpandMenuButtonToggled /*unused*/) -> MaybeState
+        {
+            return ExpandedMenu{state.context};
+        }
+
+        auto operator()(ExpandedOutlines& state,
+                        ExpandButtonToggled /*unused*/) -> MaybeState
+        {
+            return Shrinked{state.context};
+        }
+
+        auto operator()(ExpandedOutlines& state,
+                        ExpandMenuButtonToggled /*unused*/) -> MaybeState
+        {
+            return Expanded{state.context};
+        }
+
+        auto operator()(ExpandedMenu& state,
+                        ExpandButtonToggled /*unused*/) -> MaybeState
+        {
+            return Expanded{state.context};
+        }
+
+        auto operator()(ExpandedMenu& state,
+                        ExpandMenuButtonToggled /*unused*/) -> MaybeState
+        {
+            return Shrinked{state.context};
+        }
+
+        auto operator()(Expanded& state,
+                        ExpandButtonToggled /*unused*/) -> MaybeState
+        {
+            return ExpandedMenu{state.context};
+        }
+
+        auto operator()(Expanded& state,
+                        ExpandMenuButtonToggled /*unused*/) -> MaybeState
+        {
+            return ExpandedOutlines{state.context};
+        }
+    };
+
+    auto expand() -> void;
+
+    auto expandMenu() -> void;
+
+    auto expandOutline() -> void;
+
+    auto shrink() -> void;
 
     std::unique_ptr<Ui::MainWindow> ui;
     QWidget* sprintsWidget;
     QWidget* tasksWidget;
     QWidget* menuWidget;
-    State state_;
     QSize size;
+    patterns::FSMExternalTransitions<TransitionTable,
+                                     Setup,
+                                     Expanded,
+                                     Shrinked,
+                                     ExpandedOutlines,
+                                     ExpandedMenu>
+        fsm;
 
 private slots:
     void toggleView();
@@ -112,6 +220,5 @@ private slots:
 };
 
 } // namespace sprint_timer::ui::qt_gui
-
 
 #endif // MAINWINDOW_H

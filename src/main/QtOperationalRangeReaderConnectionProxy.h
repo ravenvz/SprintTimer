@@ -23,19 +23,23 @@
 #define QTOPERATIONALRANGEREADERCONNECTIONPROXY_H_CA3RLXBQ
 
 #include "ThreadConnectionHelper.h"
+#include "api/DateTimeProvider.h"
 #include "api/OperationalRangeReader.h"
 
 namespace sprint_timer::compose {
 
-class QtOperationalRangeReaderConnectionProxy : public OperationalRangeReader {
+class QtOperationalRangeReaderConnectionProxy
+    : public api::OperationalRangeReader {
 public:
     QtOperationalRangeReaderConnectionProxy(
-        ThreadConnectionHelper& connectionHelper);
+        ThreadConnectionHelper& connectionHelper,
+        const api::DateTimeProvider& dateTimeProvider);
 
-    dw::DateRange operationalRange() override;
+    auto operationalRange() -> dw::DateRange override;
 
 private:
     ThreadConnectionHelper& connectionHelper;
+    const api::DateTimeProvider& dateTimeProvider;
 
     void checkStorageInteractorInitialized();
 };

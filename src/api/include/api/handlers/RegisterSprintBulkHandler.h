@@ -19,33 +19,38 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/ActionInvoker.h"
-#include "api/SprintStorage.h"
-#include "api/TaskStorageReader.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
-#include "cpp_utils/patterns/Converter.h"
+
+namespace sprint_timer {
+
+class ActionInvoker;
+
+} // namespace sprint_timer
 
 namespace sprint_timer::api {
+
+class SprintStorage;
+class TaskStorage;
+class DateTimeProvider;
 
 class RegisterSprintBulkHandler
     : public asp::CommandHandler<RegisterSprintBulkCommand> {
 public:
-    RegisterSprintBulkHandler(
-        TaskStorageReader& taskReader,
-        SprintStorage& sprintStorage,
-        ActionInvoker& actionInvoker,
-        const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper);
+    RegisterSprintBulkHandler(TaskStorage& taskStorage,
+                              SprintStorage& sprintStorage,
+                              DateTimeProvider& dateTimeProvider,
+                              ActionInvoker& actionInvoker);
 
-    void handle(const RegisterSprintBulkCommand& command) override;
+    auto handle(const RegisterSprintBulkCommand& command) -> void override;
 
 private:
-    TaskStorageReader& taskReader;
+    TaskStorage& taskStorage;
     SprintStorage& sprintStorage;
+    DateTimeProvider& dateTimeProvider;
     ActionInvoker& actionInvoker;
-    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper;
 
-    void throwIfTaskDoesNotExist(const std::string& taskUuid);
+    auto throwIfTaskDoesNotExist(const std::string& taskUuid) -> void;
 };
 
 } // namespace sprint_timer::api

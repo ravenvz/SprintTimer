@@ -28,10 +28,10 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtTaskStorage : public TaskStorage {
+class QtTaskStorage : public api::TaskStorage {
 public:
-    QtTaskStorage(std::unique_ptr<TaskStorageReader> reader,
-                  std::unique_ptr<TaskStorageWriter> writer);
+    QtTaskStorage(std::unique_ptr<api::TaskStorageReader> reader,
+                  std::unique_ptr<api::TaskStorageWriter> writer);
     ~QtTaskStorage() override = default;
 
     QtTaskStorage(QtTaskStorage&&) = delete;
@@ -63,6 +63,8 @@ public:
     auto saveFullTree(const TaskTree& taskTree) -> void final;
 
     auto remove(const std::string& uuid) -> void final;
+
+    auto restore(const Task& task) -> void final;
 
     auto edit(const Task& oldTask, const Task& editedTask) -> void final;
 

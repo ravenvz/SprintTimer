@@ -25,7 +25,7 @@
 #include "date_wrapper/date_wrapper.h"
 #include <functional>
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class OperationalRangeReader {
 public:
@@ -34,6 +34,6 @@ public:
     virtual dw::DateRange operationalRange() = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: IOPERATIONRANGEREADER_H_DWGIKQTF */

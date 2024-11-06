@@ -340,10 +340,7 @@ auto makeTaskViewFilters(const api::DateTimeProvider& dateTimeProvider)
         [&](const TaskTreeDTO& tree) -> TaskTreeDTO {
         auto res = group_by_previous_dates(
             dateTimeProvider.dateLocalNow(), tree, modified_prefix);
-        std::cout << res.to_string() << std::endl;
         return res;
-        // return group_by_previous_dates(
-        //     dateTimeProvider.dateLocalNow(), tree, modified_prefix);
     };
 
     auto recently_finished_filter =
@@ -395,7 +392,7 @@ auto folder_has_no_active_actions(const TaskTreeDTO& tree,
 {
     auto is_active_task = [&](const auto& task) {
         return task.kind != TaskTypeDTO::Folder and not task.finished and
-               task.timeFrame.start.date() <= today;
+               task.timeFrame.start.value().date() <= today;
     };
     return find_if(tree, folder_it, is_active_task) == tree.cend();
 }
@@ -413,7 +410,8 @@ auto active_actions_filter_impl(dw::Date today,
             // children that makes the whole subtree uninteresting
             return folder_has_no_active_actions(tree, it, today);
         }
-        return it->finished == true or it->timeFrame.start.date() > today;
+        return it->finished == true or
+               it->timeFrame.start.value().date() > today;
     };
 
     std::queue<TaskTreeDTO::const_iterator> frontier;

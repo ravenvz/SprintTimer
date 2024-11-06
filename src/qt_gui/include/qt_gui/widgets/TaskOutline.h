@@ -23,6 +23,7 @@
 #define TASKOUTLINE_H
 
 #include "qt_gui/presentation/AddTaskControl.h"
+#include "qt_gui/utils/DateTimeConverter.h"
 #include <QWidget>
 #include <memory>
 
@@ -41,6 +42,7 @@ public:
 private:
     Displayable& addTaskDialog;
     QLineEdit* quickAddTask;
+    utils::DateTimeConverter dateTimeConverter;
 
     void onAddTaskButtonPushed();
 

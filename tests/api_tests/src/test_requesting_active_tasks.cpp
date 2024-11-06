@@ -30,6 +30,7 @@ using namespace sprint_timer::api;
 using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
+using namespace std::chrono_literals;
 
 using ::testing::ElementsAre;
 
@@ -55,52 +56,61 @@ TEST_F(
     RequestingActiveTasksFixture,
     requesting_active_tasks_treating_recently_modified_finished_task_as_active)
 {
-    createTaskHandler.handle(CreateTaskCommand{"Task name",
-                                               {"Tag1", "Tag2"},
-                                               4,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"Some other task",
-                                               {"SomeTag"},
-                                               2,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    const auto tasks = activeTasksHandler.handle(ActiveTasksQuery{});
-    std::vector<std::string> uuids;
-    std::transform(cbegin(tasks),
-                   cend(tasks),
-                   std::back_inserter(uuids),
-                   [](const auto& elem) { return elem.uuid; });
+    DateTime taskCreationStamp{DateTime{Date{Year{2025}, Month{1}, Day{22}}} +
+                               3h};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   taskCreationStamp};
+        // uuid 0
+        createTaskHandler.handle(
+            CreateTaskCommand{"Task name",
+                              {"Tag1", "Tag2"},
+                              4,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationStamp}});
+    }
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   taskCreationStamp + 1h};
+        // uuid 1
+        createTaskHandler.handle(
+            CreateTaskCommand{"Some other task",
+                              {"SomeTag"},
+                              2,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{taskCreationStamp + 1h}});
+    }
     toggleTaskCompletedHandler.handle(
-        ToggleTaskCompletedCommand{uuids.front()});
+        ToggleTaskCompletedCommand{.taskUuid = "0"});
 
-    EXPECT_THAT(activeTasksHandler.handle(ActiveTasksQuery{}),
-                ElementsAre(TaskDTO{uuids.front(),
-                                    {"Tag1", "Tag2"},
-                                    "Task name",
-                                    4,
-                                    {},
-                                    true,
-                                    current_date_time_local(),
-                                    std::nullopt,
-                                    TaskTimeframeDTO{},
-                                    TaskTypeDTO::Regular},
-                            TaskDTO{uuids.back(),
-                                    {"SomeTag"},
-                                    "Some other task",
-                                    2,
-                                    {},
-                                    false,
-                                    current_date_time_local(),
-                                    std::nullopt,
-                                    TaskTimeframeDTO{},
-                                    TaskTypeDTO::Regular}));
+    EXPECT_THAT(
+        activeTasksHandler.handle(ActiveTasksQuery{}),
+        ElementsAre(TaskDTO{.uuid = "0",
+                            .tags = {"Tag1", "Tag2"},
+                            .name = "Task name",
+                            .expectedCost = 4,
+                            .sprints = {},
+                            .finished = true,
+                            .modificationStamp = taskCreationStamp,
+                            .notes = std::nullopt,
+                            .timeFrame = TaskTimeframeDTO{taskCreationStamp},
+                            .kind = TaskTypeDTO::Regular},
+                    TaskDTO{"1",
+                            {"SomeTag"},
+                            "Some other task",
+                            2,
+                            {},
+                            false,
+                            taskCreationStamp + 1h,
+                            std::nullopt,
+                            TaskTimeframeDTO{taskCreationStamp + 1h},
+                            TaskTypeDTO::Regular}));
 }
 
 // TEST_F(RequestingActiveTasksFixture,

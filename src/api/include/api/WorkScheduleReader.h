@@ -25,7 +25,7 @@
 #include "core/WorkSchedule.h"
 #include <functional>
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class WorkScheduleReader {
 public:
@@ -34,7 +34,7 @@ public:
     virtual WorkSchedule schedule() = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: IWORKINGDAYREADER_H_G8IYQC0N */
 

@@ -26,14 +26,23 @@
 #include "api/requests/RequestProgressQuery.h"
 #include "api/requests/RequestSprintDistributionQuery.h"
 #include "api/requests/WorkScheduleQuery.h"
-#include "core/BackRequestStrategy.h"
 #include "core/ProgressOverPeriod.h"
 
+namespace sprint_timer {
+
+class BackRequestStrategy;
+class ProgressComputeStrategy;
+
+} // namespace sprint_timer
+
 namespace sprint_timer::api {
+
+class DateTimeProvider;
 
 class RequestProgressHandler : public asp::QueryHandler<RequestProgressQuery> {
 public:
     RequestProgressHandler(
+        const DateTimeProvider& dateTimeProvider,
         const BackRequestStrategy& backRequestStrategy,
         const ProgressComputeStrategy& progressComputeStrategy,
         asp::QueryHandler<RequestSprintDistributionQuery>&
@@ -43,6 +52,7 @@ public:
     ProgressOverPeriod handle(const RequestProgressQuery& query) override;
 
 private:
+    const DateTimeProvider& dateTimeProvider;
     asp::QueryHandler<RequestSprintDistributionQuery>&
         requestDistributionHandler;
     asp::QueryHandler<WorkScheduleQuery>& requestWorkScheduleHandler;

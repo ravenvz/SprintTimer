@@ -28,9 +28,10 @@ namespace sprint_timer {
 
 class RequestForMonthsBack : public BackRequestStrategy {
 public:
-    RequestForMonthsBack(int numMonths);
+    explicit RequestForMonthsBack(int numMonths);
 
-    dw::DateRange dateRange() const override;
+    [[nodiscard]] auto
+    dateRange(dw::Date periodEnd) const -> dw::DateRange override;
 
 private:
     int numMonths;

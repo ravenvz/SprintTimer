@@ -22,22 +22,25 @@
 #ifndef DELETETASKHANDLER_H_JZALYBVI
 #define DELETETASKHANDLER_H_JZALYBVI
 
+#include "api/ActionInvoker.h"
+#include "api/SprintStorageWriter.h"
+#include "api/TaskStorage.h"
 #include "api/com_query/CommandHandler.h"
 #include "api/requests/DeleteTaskCommand.h"
-#include "api/ActionInvoker.h"
-#include "api/SprintStorage.h"
-#include "api/TaskStorage.h"
 
 namespace sprint_timer::api {
 
 class DeleteTaskHandler : public asp::CommandHandler<DeleteTaskCommand> {
 public:
-    DeleteTaskHandler(TaskStorage& taskStorage, ActionInvoker& actionInvoker);
+    DeleteTaskHandler(TaskStorage& taskStorage,
+                      SprintStorageWriter& sprintWriter,
+                      ActionInvoker& actionInvoker);
 
     void handle(const DeleteTaskCommand& command) override;
 
 private:
     TaskStorage& taskStorage;
+    SprintStorageWriter& sprintWriter;
     ActionInvoker& actionInvoker;
 };
 

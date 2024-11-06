@@ -24,7 +24,7 @@
 
 #include "core/WorkSchedule.h"
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class WorkScheduleWriter {
 public:
@@ -33,6 +33,6 @@ public:
     virtual void updateSchedule(const WorkSchedule& schedule) = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: IWORKINGDAYWRITER_H_MX1NQTVU */

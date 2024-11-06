@@ -23,7 +23,7 @@
 #define TASKMETADATATREE_H_N9EAZDOO
 
 #include "core/TaskType.h"
-#include "core/Tree.h"
+#include "core/TreeType.h"
 #include "date_wrapper/date_wrapper.h"
 
 namespace sprint_timer {
@@ -45,7 +45,7 @@ operator<<(std::basic_ostream<CharT, Traits>& os, const TaskMetadata& data)
     return os;
 }
 
-using TaskMetadataTree = Tree<std::string, TaskMetadata>;
+using TaskMetadataTree = TreeType<TaskMetadata>;
 
 } // namespace sprint_timer
 

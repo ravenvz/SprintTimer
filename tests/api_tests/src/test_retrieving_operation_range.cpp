@@ -49,6 +49,12 @@ public:
 TEST_F(RetrievingOperationRangeFixture,
        retrieves_operation_range_using_current_date_as_upper_bound)
 {
+    const dw::DateTime timestamp{
+        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
+
+    TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                               timestamp + Years{3}};
+
     createTaskHandler.handle(CreateTaskCommand{"Some task",
                                                {"Tag1", "Tag2"},
                                                4,
@@ -56,15 +62,12 @@ TEST_F(RetrievingOperationRangeFixture,
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
+                                               TaskTimeframeDTO{timestamp}});
     const auto taskUuid =
         activeTasksHandler.handle(ActiveTasksQuery{}).front().uuid;
-    const dw::DateTime timestamp{
-        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{
         taskUuid, {DateTimeRange{timestamp, timestamp}}});
-    const DateRange expected{Date{Year{2018}, Month{12}, Day{1}},
-                             current_date_local()};
+    const DateRange expected{timestamp.date(), timestamp.date() + Years{3}};
 
     const auto actual = operationalRangeHandler.handle(OperationalRangeQuery{});
 
@@ -73,6 +76,9 @@ TEST_F(RetrievingOperationRangeFixture,
 
 TEST_F(RetrievingOperationRangeFixture, retrieves_operation_range)
 {
+    const dw::DateTime timestamp{
+        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
+    TimePortalGuard timePortal{initializer.getDateTimeProvider(), timestamp};
     createTaskHandler.handle(CreateTaskCommand{"Some task",
                                                {"Tag1", "Tag2"},
                                                4,
@@ -80,9 +86,7 @@ TEST_F(RetrievingOperationRangeFixture, retrieves_operation_range)
                                                std::nullopt,
                                                std::nullopt,
                                                std::nullopt,
-                                               TaskTimeframeDTO{}});
-    const dw::DateTime timestamp{
-        dw::DateTime{Date{Year{2018}, Month{12}, Day{1}}}};
+                                               TaskTimeframeDTO{timestamp}});
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{
         "0", {add_offset(DateTimeRange{timestamp, timestamp}, -Years{4})}});
     registerSprintBulkHandler.handle(RegisterSprintBulkCommand{

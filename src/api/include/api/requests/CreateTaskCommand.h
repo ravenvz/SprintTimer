@@ -71,7 +71,7 @@ auto operator<<(std::basic_ostream<CharT, Traits>& os,
                  [&](auto pos) { os << ", pos: " << pos << ", "; });
 
     const auto& frame = command.timeFrame;
-    os << "start: " << frame.start;
+    alg::inspect(frame.start, [&](dw::DateTime start) { os << " start: " << start; });
     alg::inspect(frame.due, [&](dw::DateTime due) { os << " due: " << due; });
     alg::inspect(frame.remindAt, [&](const auto& remind) {
         os << " reminder: " << remind << ", ";

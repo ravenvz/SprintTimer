@@ -21,12 +21,6 @@
 *********************************************************************************/
 #include "core/RequestForDaysBack.h"
 
-namespace {
-
-dw::DateRange nDaysBackTillNow(int numDays);
-
-} // namespace
-
 namespace sprint_timer {
 
 RequestForDaysBack::RequestForDaysBack(int numDays_)
@@ -34,21 +28,10 @@ RequestForDaysBack::RequestForDaysBack(int numDays_)
 {
 }
 
-dw::DateRange RequestForDaysBack::dateRange() const
+auto RequestForDaysBack::dateRange(dw::Date periodEnd) const -> dw::DateRange
 {
-    return nDaysBackTillNow(numDays);
+    return {periodEnd - dw::Days{numDays - 1}, periodEnd};
 }
 
 } // namespace sprint_timer
 
-namespace {
-
-dw::DateRange nDaysBackTillNow(int numDays)
-{
-    using namespace dw;
-    auto now = current_date_local();
-    auto from = now - Days{numDays - 1};
-    return {from, now};
-}
-
-} // namespace

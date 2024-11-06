@@ -55,19 +55,20 @@ void AddTaskControlPresenter::addTask(const api::TaskDTO& details) const
                                                     details.timeFrame});
 }
 
-void AddTaskControlPresenter::addTask(
-    const std::string& encodedDescription) const
+void AddTaskControlPresenter::addTask(const std::string& encodedDescription,
+                                      dw::DateTime startTime) const
 {
     auto [name, tags, cost] = decodeDescription(encodedDescription);
-    createTaskHandler.handle(
-        api::CreateTaskCommand{name,
-                               tags,
-                               cost,
-                               sprint_timer::api::TaskTypeDTO::Regular,
-                               std::nullopt,
-                               std::nullopt,
-                               std::nullopt,
-                               api::TaskTimeframeDTO{}});
+    createTaskHandler.handle(api::CreateTaskCommand{
+        name,
+        tags,
+        cost,
+        sprint_timer::api::TaskTypeDTO::Regular,
+        std::nullopt,
+        std::nullopt,
+        std::nullopt,
+        api::TaskTimeframeDTO{
+            startTime, std::nullopt, std::nullopt, std::nullopt}});
 }
 
 } // namespace sprint_timer::ui

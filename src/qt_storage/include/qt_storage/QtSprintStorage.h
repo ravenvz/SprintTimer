@@ -28,7 +28,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtSprintStorage : public SprintStorage {
+class QtSprintStorage : public api::SprintStorage {
 public:
     QtSprintStorage(std::unique_ptr<SprintStorageReader> reader,
                     std::unique_ptr<SprintStorageWriter> writer);
@@ -44,11 +44,11 @@ public:
     findByDateRange(const dw::DateRange& dateRange) final;
 
     void save(const std::string& taskUuid,
-              const std::vector<Sprint>& sprints) final;
+              std::span<const Sprint> sprints) final;
 
     void remove(const Sprint& sprint) final;
 
-    void remove(const std::vector<Sprint>& sprints) final;
+    void remove(std::span<const Sprint> sprints) final;
 
     void restore(const Sprint& sprint) final;
 

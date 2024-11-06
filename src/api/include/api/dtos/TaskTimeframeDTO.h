@@ -30,8 +30,8 @@
 namespace sprint_timer::api {
 
 struct TaskTimeframeDTO {
-    dw::DateTime start{dw::current_date_time_local()};
-    std::optional<dw::DateTime> due;
+    std::optional<dw::DateTime> start{};
+    std::optional<dw::DateTime> due{};
     std::optional<dw::DateTime> remindAt{};
     std::optional<std::string> recurrence{};
 };
@@ -45,7 +45,7 @@ inline auto operator==(const TaskTimeframeDTO& lhs,
                std::tuple(
                    right.date(), right.hour(), right.minute(), right.second());
     };
-    return date_time_equal(lhs.start, rhs.start) &&
+    return ((!lhs.start && !rhs.start) || (lhs.start && rhs.start && date_time_equal(*lhs.start, *rhs.start))) &&
            ((!lhs.due && !rhs.due) ||
             (lhs.due && rhs.due && date_time_equal(*lhs.due, *rhs.due))) &&
            // Note recurrence should be in normalized form, it is a DTO after all
@@ -60,7 +60,7 @@ std::basic_ostream<CharT, Traits>&
 operator<<(std::basic_ostream<CharT, Traits>& os, const TaskTimeframeDTO& frame)
 {
     os << "TimeframeDTO{";
-    os << "start: " << frame.start << " ";
+    alg::inspect(frame.start, [&](const auto& x) { os << "start: " << x << " "; });
     alg::inspect(frame.due, [&](const auto& x) { os << "due: " << x << " "; });
     alg::inspect(frame.remindAt,
                  [&](const auto& x) { os << "remind: " << x << " "; });

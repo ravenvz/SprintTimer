@@ -35,12 +35,15 @@ namespace sprint_timer::compose {
 
 QtOperationalRangeReaderConnectionProxy::
     QtOperationalRangeReaderConnectionProxy(
-        ThreadConnectionHelper& connectionHelper_)
+        ThreadConnectionHelper& connectionHelper_,
+        const api::DateTimeProvider& dateTimeProvider_)
     : connectionHelper{connectionHelper_}
+    , dateTimeProvider{dateTimeProvider_}
 {
 }
 
-dw::DateRange QtOperationalRangeReaderConnectionProxy::operationalRange()
+auto QtOperationalRangeReaderConnectionProxy::operationalRange()
+    -> dw::DateRange
 {
     checkStorageInteractorInitialized();
     return localStorage->operationalRange();
@@ -50,7 +53,8 @@ void QtOperationalRangeReaderConnectionProxy::
     checkStorageInteractorInitialized()
 {
     if (!localStorage) {
-        localStorage.emplace(connectionHelper.connectionName());
+        localStorage.emplace(connectionHelper.connectionName(),
+                             dateTimeProvider);
     }
 }
 

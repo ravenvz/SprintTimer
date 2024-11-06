@@ -40,7 +40,7 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
 {
     createTaskQuery =
         tryPrepare(connectionName,
-                   QString{"INSERT INTO %1 (%2, %3, %4, %5, %6, %7) "
+                   QString{"INSERT OR REPLACE INTO %1 (%2, %3, %4, %5, %6, %7) "
                            "VALUES (:uuid, :name, :estimated_cost, "
                            ":completed, :last_modified, :type);"}
                        .arg(TaskTable::name)
@@ -65,42 +65,34 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
                        .arg(TaskTagTable::Columns::tagId)
                        .arg(TagTable::name)
                        .arg(TagTable::Columns::name));
-    // createTaskQuery =
-    //     tryPrepare(connectionName,
-    //                QString{"INSERT INTO %1 (%2, %3, %4, %5, %6) "
-    //                        "VALUES (:uuid, :name, :estimated_cost, "
-    //                        ":completed, :last_modified) "
-    //                        "ON CONFLICT(%2) DO "
-    //                        "UPDATE SET %7 = 0;"}
-    //                    .arg(TaskTable::name)
-    //                    .arg(TaskTable::Columns::uuid)
-    //                    .arg(TaskTable::Columns::name)
-    //                    .arg(TaskTable::Columns::estimatedCost)
-    //                    .arg(TaskTable::Columns::completed)
-    //                    .arg(TaskTable::Columns::lastModified)
-    //                    .arg(TaskTable::Columns::deleted));
+    deleteTaskQuery =
+        tryPrepare(connectionName,
+                   QString{"UPDATE %1 SET %2 = TRUE WHERE %3 = :uuid"}
+                       .arg(TaskTable::name)
+                       .arg(TaskTable::Columns::deleted)
+                       .arg(TaskTable::Columns::uuid));
+    restoreTaskQuery =
+        tryPrepare(connectionName,
+                   QString{"UPDATE %1 SET %2 = FALSE WHERE %3 = :uuid"}
+                       .arg(TaskTable::name)
+                       .arg(TaskTable::Columns::deleted)
+                       .arg(TaskTable::Columns::uuid));
+    deleteSprintsQuery =
+        tryPrepare(connectionName,
+                   QString{"UPDATE %1 set %2 = 1 WHERE %3 = :uuid"}
+                       .arg(SprintTable::name)
+                       .arg(SprintTable::Columns::deleted)
+                       .arg(SprintTable::Columns::task_id));
+    restoreSprintQuery = tryPrepare(connectionName,
+                                    QString{"UPDATE %1 set %2 = 0 "
+                                            "WHERE %3 = (:startTime);"}
+                                        .arg(SprintTable::name)
+                                        .arg(SprintTable::Columns::deleted)
+                                        .arg(SprintTable::Columns::startTime));
     // deleteTaskQuery = tryPrepare(connectionName,
-    //                              QString{"UPDATE %1 SET %2 = 1 WHERE %3 =
-    //                              :uuid;"}
+    //                              QString{"DELETE FROM %1 WHERE %2 = :uuid;"}
     //                                  .arg(TaskTable::name)
-    //                                  .arg(TaskTable::Columns::deleted)
     //                                  .arg(TaskTable::Columns::uuid));
-    deleteTaskQuery = tryPrepare(connectionName,
-                                 QString{"DELETE FROM %1 WHERE %2 = :uuid;"}
-                                     .arg(TaskTable::name)
-                                     .arg(TaskTable::Columns::uuid));
-    // editTaskQuery = tryPrepare(connectionName,
-    //                            QString{"UPDATE %1 SET %2 = :name, "
-    //                                    "%3 = :estimated_cost, "
-    //                                    "%4 = :last_modified, "
-    //                                    "%5 = :type "
-    //                                    "WHERE %6 = :uuid;"}
-    //                                .arg(TaskTable::name)
-    //                                .arg(TaskTable::Columns::name)
-    //                                .arg(TaskTable::Columns::estimatedCost)
-    //                                .arg(TaskTable::Columns::lastModified)
-    //                                .arg(TaskTable::Columns::type)
-    //                                .arg(TaskTable::Columns::uuid));
     editTaskQuery = tryPrepare(connectionName,
                                QString{"UPDATE %1 SET "
                                        "%2 = :name, "
@@ -141,19 +133,19 @@ QtTaskStorageWriter::QtTaskStorageWriter(QString connectionName_)
                                       ":old_name;"}
                                   .arg(TagTable::name)
                                   .arg(TagTable::Columns::name));
-    insertSprintQuery =
-        tryPrepare(connectionName,
-                   QString{"INSERT INTO %1 (%2, %3, %4) "
-                           "VALUES("
-                           "(SELECT %5 FROM %6 WHERE %7 = :todo_uuid), "
-                           ":startTime, :finishTime);"}
-                       .arg(SprintView::name)
-                       .arg(SprintView::Aliases::taskid)
-                       .arg(SprintTable::Columns::startTime)
-                       .arg(SprintTable::Columns::finishTime)
-                       .arg(TaskTable::Columns::id)
-                       .arg(TaskTable::name)
-                       .arg(TaskTable::Columns::uuid));
+    // insertSprintQuery =
+    //     tryPrepare(connectionName,
+    //                QString{"INSERT OR IGNORE INTO %1 (%2, %3, %4) "
+    //                        "VALUES("
+    //                        "(SELECT %5 FROM %6 WHERE %7 = :todo_uuid), "
+    //                        ":startTime, :finishTime);"}
+    //                    .arg(SprintView::name)
+    //                    .arg(SprintView::Aliases::taskid)
+    //                    .arg(SprintTable::Columns::startTime)
+    //                    .arg(SprintTable::Columns::finishTime)
+    //                    .arg(TaskTable::Columns::id)
+    //                    .arg(TaskTable::name)
+    //                    .arg(TaskTable::Columns::uuid));
     insertNotesQuery =
         tryPrepare(connectionName,
                    QString{"INSERT INTO %1 (%2, %3) "
@@ -207,9 +199,9 @@ auto QtTaskStorageWriter::save(const Task& task) -> void
     alg::inspect(task.notes(),
                  [&](const auto& note) { insertNotes(uuid, note); });
     insertTimeframe(uuid, task.timeFrame());
-    for (const auto& sprint : task.sprints()) {
-        insertSprint(uuid, sprint);
-    }
+    // for (const auto& sprint : task.sprints()) {
+    //     insertSprint(uuid, sprint);
+    // }
     guard.commit();
 }
 
@@ -217,7 +209,24 @@ auto QtTaskStorageWriter::remove(const std::string& uuid) -> void
 {
     // Note that tags are removed by sqlite trigger
     deleteTaskQuery.bindValue(":uuid", QString::fromStdString(uuid));
+    TransactionGuard guard{connectionName};
     tryExecute(deleteTaskQuery);
+    tryExecute(deleteSprintsQuery);
+    guard.commit();
+}
+
+auto QtTaskStorageWriter::restore(const Task& task) -> void
+{
+    restoreTaskQuery.bindValue(":uuid", QString::fromStdString(task.uuid()));
+    TransactionGuard guard{connectionName};
+    tryExecute(restoreTaskQuery);
+    for (const auto& sprint : task.sprints()) {
+        const QDateTime startTime =
+            dateTimeConverter(sprint.timeSpan().start());
+        restoreSprintQuery.bindValue(":startTime", QVariant(startTime));
+        tryExecute(restoreSprintQuery);
+    }
+    guard.commit();
 }
 
 auto QtTaskStorageWriter::edit(const Task& oldTask,
@@ -358,16 +367,16 @@ auto QtTaskStorageWriter::saveTree(const TaskTree& taskTree) -> void
 
 auto QtTaskStorageWriter::saveFullTree(const TaskTree& taskTree) -> void { }
 
-auto QtTaskStorageWriter::insertSprint(
-    const QString& taskUuid, const sprint_timer::Sprint& sprint) -> void
-{
-    const QDateTime startTime = dateTimeConverter(sprint.start());
-    const QDateTime finishTime = dateTimeConverter(sprint.finish());
-    insertSprintQuery.bindValue(":todo_uuid", QVariant(taskUuid));
-    insertSprintQuery.bindValue(":startTime", QVariant(startTime));
-    insertSprintQuery.bindValue(":finishTime", QVariant(finishTime));
-    tryExecute(insertSprintQuery);
-}
+// auto QtTaskStorageWriter::insertSprint(
+//     const QString& taskUuid, const sprint_timer::Sprint& sprint) -> void
+// {
+//     const QDateTime startTime = dateTimeConverter(sprint.start());
+//     const QDateTime finishTime = dateTimeConverter(sprint.finish());
+//     insertSprintQuery.bindValue(":todo_uuid", QVariant(taskUuid));
+//     insertSprintQuery.bindValue(":startTime", QVariant(startTime));
+//     insertSprintQuery.bindValue(":finishTime", QVariant(finishTime));
+//     tryExecute(insertSprintQuery);
+// }
 
 auto QtTaskStorageWriter::insertNotes(const QString& taskUuid,
                                       const Note& notes) -> void
@@ -383,19 +392,19 @@ auto QtTaskStorageWriter::insertTimeframe(const QString& taskUuid,
 {
     insertTimeframeQuery.bindValue(":task_uuid", QVariant(taskUuid));
     insertTimeframeQuery.bindValue(
-        ":start", QVariant(dateTimeConverter(timeFrame.start)));
+        ":start", QVariant(dateTimeConverter(timeFrame.start())));
     insertTimeframeQuery.bindValue(":due",
-                                   timeFrame.due
+                                   timeFrame.due()
                                        .transform([&](const auto& dateTime) {
                                            return QVariant(
                                                dateTimeConverter(dateTime));
                                        })
                                        .value_or(QVariant{}));
-    alg::inspect(timeFrame.remindAt, [&](dw::DateTime remind) {
+    alg::inspect(timeFrame.reminder(), [&](dw::DateTime remind) {
         insertTimeframeQuery.bindValue(":reminder",
                                        QVariant(dateTimeConverter(remind)));
     });
-    alg::inspect(timeFrame.recurrence, [&](const Recurrence& recurrence) {
+    alg::inspect(timeFrame.recurrence(), [&](const Recurrence& recurrence) {
         insertTimeframeQuery.bindValue(
             ":recurrence",
             QVariant(QString::fromStdString(recurrence.pattern())));

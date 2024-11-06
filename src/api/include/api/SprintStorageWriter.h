@@ -24,26 +24,24 @@
 
 #include "core/Sprint.h"
 #include "date_wrapper/date_wrapper.h"
-// #include <span>
+#include <span>
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class SprintStorageWriter {
 public:
     virtual ~SprintStorageWriter() = default;
 
     virtual void save(const std::string& taskUuid,
-                      const std::vector<Sprint>& sprints) = 0;
+                      std::span<const Sprint> sprints) = 0;
 
     virtual void remove(const Sprint& sprint) = 0;
 
-    virtual void remove(const std::vector<Sprint>& sprints) = 0;
+    virtual void remove(std::span<const Sprint> sprints) = 0;
 
     virtual void restore(const Sprint& sprint) = 0;
-
-    // virtual void restore(std::span<const Sprint>& sprints) = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: ISPRINTSTORAGEWRITER_H_PMJNRBFY */

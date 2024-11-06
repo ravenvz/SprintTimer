@@ -25,7 +25,7 @@
 #include "core/Sprint.h"
 #include <functional>
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class SprintStorageReader {
 public:
@@ -35,6 +35,6 @@ public:
     findByDateRange(const dw::DateRange& dateRange) = 0;
 };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: ISPRINTSTORAGEREADER_H_UJ8CZPXS */

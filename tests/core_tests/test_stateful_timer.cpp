@@ -30,17 +30,17 @@ constexpr std::chrono::seconds sprintDuration{1500};
 constexpr std::chrono::seconds shortBreakDuration{300};
 constexpr std::chrono::seconds longBreakDuration{900};
 constexpr int32_t sprintsBeforeBreakStarted{4};
-constexpr IWorkflow::WorkflowParams workflowParams{
+constexpr TimerWorkflow::WorkflowParams workflowParams{
     sprintDuration, shortBreakDuration, longBreakDuration, 4};
 
 /* Extends Workflow to provide public method to set state, along with
  * method to transition to next state. That allows to test state transitions
  * without having to deal with actual counting timer. */
-class WorkflowTest : public Workflow {
+class WorkflowTest : public WorkflowOldFsm {
 public:
     WorkflowTest(std::chrono::seconds tickPeriod,
-                 const IWorkflow::WorkflowParams& workflowParams_)
-        : Workflow{tickPeriod, workflowParams_}
+                 const TimerWorkflow::WorkflowParams& workflowParams_)
+        : WorkflowOldFsm{tickPeriod, workflowParams_}
     {
     }
 
@@ -64,11 +64,26 @@ public:
 
 } // namespace
 
-class WorkflowListenerMock : public IWorkflow::WorkflowListener {
+class WorkflowListenerMock : public TimerWorkflow::WorkflowListener {
 public:
     MOCK_METHOD(void, onTimerTick, (std::chrono::seconds), (override));
 
-    MOCK_METHOD(void, onWorkflowStateChanged, (IWorkflow::StateId), (override));
+    MOCK_METHOD(void,
+                onWorkflowStateChanged,
+                (TimerWorkflow::StateId),
+                (override));
+};
+
+class CountdownTimerMock : public CountdownTimer {
+public:
+    MOCK_METHOD(void,
+                runImpl,
+                (TimerDuration, TickPeriod, OnTick, OnRunout),
+                (override));
+
+    MOCK_METHOD(void, stopImpl, (), (override));
+
+    MOCK_METHOD(void, setLoopImpl, (bool), (override));
 };
 
 class WorkflowStates : public ::testing::Test {
@@ -77,10 +92,12 @@ protected:
     void SetUp() override
     {
         std::chrono::seconds tick{1};
-        workflow = std::make_unique<WorkflowTest>(tick, workflowParams);
+        workflow = std::make_unique<WorkflowTest>(
+            countdownTimer, tick, workflowParams);
         workflow->addListener(&listener);
     }
 
+    CountdownTimerMock countdownTimer;
     WorkflowListenerMock listener;
     std::unique_ptr<WorkflowTest> workflow;
 };
@@ -93,7 +110,7 @@ TEST_F(WorkflowStates, should_initially_be_in_idle_state)
 TEST_F(WorkflowStates, should_transition_to_sprint_state_from_idle_state)
 {
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::RunningSprint));
+                onWorkflowStateChanged(TimerWorkflow::StateId::RunningSprint));
 
     workflow->transition_to_next_state();
 
@@ -104,7 +121,7 @@ TEST_F(WorkflowStates, should_transition_to_finished_state_after_task)
 {
     workflow->set_state(workflow->sprint_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::SprintFinished));
+                onWorkflowStateChanged(TimerWorkflow::StateId::SprintFinished));
 
     workflow->transition_to_next_state();
 
@@ -116,7 +133,7 @@ TEST_F(WorkflowStates, should_transition_to_break_after_finished)
     workflow->set_state(workflow->finished_state());
     workflow->setNumFinishedSprints(1);
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::BreakStarted));
+                onWorkflowStateChanged(TimerWorkflow::StateId::BreakStarted));
 
     workflow->transition_to_next_state();
 
@@ -129,7 +146,7 @@ TEST_F(WorkflowStates,
     workflow->setNumFinishedSprints(sprintsBeforeBreakStarted);
     workflow->set_state(workflow->finished_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::BreakStarted));
+                onWorkflowStateChanged(TimerWorkflow::StateId::BreakStarted));
 
     workflow->transition_to_next_state();
 
@@ -140,8 +157,8 @@ TEST_F(WorkflowStates, should_transition_to_idle_from_break)
 {
     workflow->set_state(workflow->short_break_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::BreakFinished));
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::Idle));
+                onWorkflowStateChanged(TimerWorkflow::StateId::BreakFinished));
+    EXPECT_CALL(listener, onWorkflowStateChanged(TimerWorkflow::StateId::Idle));
 
     workflow->transition_to_next_state();
 
@@ -152,8 +169,8 @@ TEST_F(WorkflowStates, should_transition_to_idle_from_long_break)
 {
     workflow->set_state(workflow->long_break_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::BreakFinished));
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::Idle));
+                onWorkflowStateChanged(TimerWorkflow::StateId::BreakFinished));
+    EXPECT_CALL(listener, onWorkflowStateChanged(TimerWorkflow::StateId::Idle));
 
     workflow->transition_to_next_state();
 
@@ -166,9 +183,10 @@ TEST_F(WorkflowStates, zone_transition_should_be_ignored_in_idle_state)
 {
     workflow->toggleInTheZoneMode();
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered))
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneEntered))
         .Times(0);
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::ZoneLeft))
+    EXPECT_CALL(listener,
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneLeft))
         .Times(0);
 
     EXPECT_EQ(workflow->idle_state(), workflow->state());
@@ -178,9 +196,10 @@ TEST_F(WorkflowStates, zone_transition_should_be_ignored_in_short_break_state)
 {
     workflow->set_state(workflow->short_break_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered))
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneEntered))
         .Times(0);
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::ZoneLeft))
+    EXPECT_CALL(listener,
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneLeft))
         .Times(0);
 
     workflow->toggleInTheZoneMode();
@@ -192,9 +211,10 @@ TEST_F(WorkflowStates, zone_transition_should_be_ignored_in_long_break_state)
 {
     workflow->set_state(workflow->long_break_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered))
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneEntered))
         .Times(0);
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::ZoneLeft))
+    EXPECT_CALL(listener,
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneLeft))
         .Times(0);
 
     workflow->toggleInTheZoneMode();
@@ -206,9 +226,10 @@ TEST_F(WorkflowStates, zone_transition_should_be_ignored_in_finished_state)
 {
     workflow->set_state(workflow->finished_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered))
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneEntered))
         .Times(0);
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::ZoneLeft))
+    EXPECT_CALL(listener,
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneLeft))
         .Times(0);
 
     workflow->toggleInTheZoneMode();
@@ -221,7 +242,7 @@ TEST_F(WorkflowStates,
 {
     workflow->set_state(workflow->sprint_state());
     EXPECT_CALL(listener,
-                onWorkflowStateChanged(IWorkflow::StateId::ZoneEntered));
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneEntered));
 
     workflow->toggleInTheZoneMode();
 
@@ -232,7 +253,8 @@ TEST_F(WorkflowStates,
        zone_transition_should_transition_to_running_sprint_when_in_zone_state)
 {
     workflow->set_state(workflow->zone_state());
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::ZoneLeft));
+    EXPECT_CALL(listener,
+                onWorkflowStateChanged(TimerWorkflow::StateId::ZoneLeft));
 
     workflow->toggleInTheZoneMode();
 
@@ -260,7 +282,7 @@ TEST_F(WorkflowStates, cancelling_state_should_be_ignored_in_zone_state)
 TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_finished_state)
 {
     workflow->set_state(workflow->finished_state());
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::Idle));
+    EXPECT_CALL(listener, onWorkflowStateChanged(TimerWorkflow::StateId::Idle));
 
     workflow->cancel();
 
@@ -270,7 +292,7 @@ TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_finished_state)
 TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_task)
 {
     workflow->set_state(workflow->sprint_state());
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::Idle));
+    EXPECT_CALL(listener, onWorkflowStateChanged(TimerWorkflow::StateId::Idle));
 
     workflow->cancel();
 
@@ -280,7 +302,7 @@ TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_task)
 TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_short_break)
 {
     workflow->set_state(workflow->short_break_state());
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::Idle));
+    EXPECT_CALL(listener, onWorkflowStateChanged(TimerWorkflow::StateId::Idle));
 
     workflow->cancel();
 
@@ -290,7 +312,7 @@ TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_short_break)
 TEST_F(WorkflowStates, transitions_to_idle_state_when_cancelling_long_break)
 {
     workflow->set_state(workflow->long_break_state());
-    EXPECT_CALL(listener, onWorkflowStateChanged(IWorkflow::StateId::Idle));
+    EXPECT_CALL(listener, onWorkflowStateChanged(TimerWorkflow::StateId::Idle));
 
     workflow->cancel();
 

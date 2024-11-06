@@ -30,7 +30,8 @@ class BackRequestStrategy {
 public:
     virtual ~BackRequestStrategy() = default;
 
-    virtual dw::DateRange dateRange() const = 0;
+    [[nodiscard]] virtual auto
+    dateRange(dw::Date periodEnd) const -> dw::DateRange = 0;
 };
 
 } // namespace sprint_timer

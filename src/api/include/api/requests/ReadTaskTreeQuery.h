@@ -26,8 +26,13 @@
 
 namespace sprint_timer::api {
 
+enum class ShowCompleted { All, Old, None };
+
 struct ReadTaskTreeQuery {
     using Result = TaskTreeDTO;
+
+    ShowCompleted showCompleted{ShowCompleted::All};
+    int filterId{-1};
 
     friend bool operator==(const ReadTaskTreeQuery&,
                            const ReadTaskTreeQuery&) = default;

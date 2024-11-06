@@ -21,12 +21,6 @@
 *********************************************************************************/
 #include "core/RequestForMonthsBack.h"
 
-namespace {
-
-dw::DateRange nMonthsBackTillNow(int numMonths);
-
-} // namespace
-
 namespace sprint_timer {
 
 RequestForMonthsBack::RequestForMonthsBack(int numMonths_)
@@ -34,23 +28,14 @@ RequestForMonthsBack::RequestForMonthsBack(int numMonths_)
 {
 }
 
-dw::DateRange RequestForMonthsBack::dateRange() const
-{
-    return nMonthsBackTillNow(numMonths);
-}
-
-} // namespace sprint_timer
-
-namespace {
-
-dw::DateRange nMonthsBackTillNow(int numMonths)
+auto RequestForMonthsBack::dateRange(dw::Date periodEnd) const -> dw::DateRange
 {
     using namespace dw;
-    const auto now = current_date_local();
-    const auto months_back = now - Months{numMonths - 1};
-    const auto to = last_day_of_month(now);
+    const auto months_back = periodEnd - Months{numMonths - 1};
+    const auto to = last_day_of_month(periodEnd);
     const auto from = Date{months_back.year(), months_back.month(), Day{1}};
     return DateRange{from, to};
 }
 
-} // namespace
+} // namespace sprint_timer
+

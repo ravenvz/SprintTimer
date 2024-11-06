@@ -29,7 +29,7 @@
 
 namespace sprint_timer::compose {
 
-class QtWorkScheduleStorageConnectionProxy : public WorkScheduleStorage {
+class QtWorkScheduleStorageConnectionProxy : public api::WorkScheduleStorage {
 public:
     QtWorkScheduleStorageConnectionProxy(
         ThreadConnectionHelper& connectionHelper);

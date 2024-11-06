@@ -31,7 +31,7 @@ namespace sprint_timer {
 
 class Sprint {
 public:
-    Sprint(dw::DateTimeRange timeSpan_)
+    explicit Sprint(dw::DateTimeRange timeSpan_)
         : startTime{timeSpan_.start()}
         , length{timeSpan_.duration<std::chrono::minutes>()}
     {

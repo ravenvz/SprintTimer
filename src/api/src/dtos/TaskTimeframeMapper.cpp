@@ -27,9 +27,10 @@ namespace sprint_timer::api {
 auto TaskTimeframeMapper::make_dto_impl(const TaskTimeframe& frame) const
     -> TaskTimeframeDTO
 {
-    const auto recurrence = frame.recurrence.transform(
+    const auto recurrence = frame.recurrence().transform(
         [](const auto& recurr) { return recurr.pattern(); });
-    return TaskTimeframeDTO{frame.start, frame.due, frame.remindAt, recurrence};
+    return TaskTimeframeDTO{
+        frame.start(), frame.due(), frame.reminder(), recurrence};
 }
 
 auto TaskTimeframeMapper::make_entity_impl(const TaskTimeframeDTO& dto) const
@@ -37,7 +38,7 @@ auto TaskTimeframeMapper::make_entity_impl(const TaskTimeframeDTO& dto) const
 {
     const auto recurrence = dto.recurrence.transform(
         [](const auto& pattern) { return Recurrence{pattern}; });
-    return TaskTimeframe{dto.start, dto.due, dto.remindAt, recurrence};
+    return TaskTimeframe{dto.start.value(), dto.due, dto.remindAt, recurrence};
 }
 
 } // namespace sprint_timer::api

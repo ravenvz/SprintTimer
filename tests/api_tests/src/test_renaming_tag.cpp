@@ -30,6 +30,7 @@ using namespace sprint_timer::api;
 using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
+using namespace std::chrono_literals;
 
 class RenamingTagFixture : public ::testing::Test {
 public:
@@ -45,27 +46,31 @@ public:
         commandComposer.renameTagHandler()};
     asp::CommandHandler<UndoLastCommand>& undoHandler{
         commandComposer.undoHandler()};
+    DateTime irrelevantTime{DateTime{Date{Year{2025}, Month{1}, Day{28}}} +
+                            17h + 52min};
 };
 
 TEST_F(RenamingTagFixture, renaming_tag)
 {
     using ::testing::UnorderedElementsAre;
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1", "Tag2", "Tag3"},
-                                               12,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"Other task",
-                                               {"Tag2", "Tag3", "Tag4"},
-                                               21,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some task",
+                          {"Tag1", "Tag2", "Tag3"},
+                          12,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{irrelevantTime}});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Other task",
+                          {"Tag2", "Tag3", "Tag4"},
+                          21,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{irrelevantTime}});
 
     renameTagHandler.handle(RenameTagCommand{"Tag3", "RenamedTag"});
 
@@ -73,25 +78,27 @@ TEST_F(RenamingTagFixture, renaming_tag)
                 UnorderedElementsAre("Tag1", "Tag2", "RenamedTag", "Tag4"));
 }
 
-TEST_F(RenamingTagFixture, renaming_that_does_not_exist_does_nothing)
+TEST_F(RenamingTagFixture, renaming_tag_that_does_not_exist_does_nothing)
 {
     using ::testing::UnorderedElementsAre;
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1", "Tag2", "Tag3"},
-                                               12,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"Other task",
-                                               {"Tag2", "Tag3", "Tag4"},
-                                               21,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some task",
+                          {"Tag1", "Tag2", "Tag3"},
+                          12,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{irrelevantTime}});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Other task",
+                          {"Tag2", "Tag3", "Tag4"},
+                          21,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{irrelevantTime}});
 
     renameTagHandler.handle(RenameTagCommand{"NonExistingTag", "RenamedTag"});
 
@@ -102,22 +109,24 @@ TEST_F(RenamingTagFixture, renaming_that_does_not_exist_does_nothing)
 TEST_F(RenamingTagFixture, undoing_renaming_tag)
 {
     using ::testing::UnorderedElementsAre;
-    createTaskHandler.handle(CreateTaskCommand{"Some task",
-                                               {"Tag1", "Tag2", "Tag3"},
-                                               12,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"Other task",
-                                               {"Tag2", "Tag3", "Tag4"},
-                                               21,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Some task",
+                          {"Tag1", "Tag2", "Tag3"},
+                          12,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{irrelevantTime}});
+    createTaskHandler.handle(
+        CreateTaskCommand{"Other task",
+                          {"Tag2", "Tag3", "Tag4"},
+                          21,
+                          TaskTypeDTO::Regular,
+                          std::nullopt,
+                          std::nullopt,
+                          std::nullopt,
+                          TaskTimeframeDTO{irrelevantTime}});
     renameTagHandler.handle(RenameTagCommand{"Tag3", "RenamedTag"});
 
     undoHandler.handle(UndoLastCommand{});

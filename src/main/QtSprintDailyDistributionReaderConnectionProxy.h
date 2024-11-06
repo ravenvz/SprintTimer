@@ -28,7 +28,7 @@
 namespace sprint_timer::compose {
 
 class QtSprintDailyDistributionReaderConnectionProxy
-    : public SprintDistributionReader {
+    : public api::SprintDistributionReader {
 public:
     QtSprintDailyDistributionReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper, size_t numDays);

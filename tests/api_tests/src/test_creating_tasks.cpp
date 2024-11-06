@@ -64,7 +64,7 @@ public:
 TEST_F(CreatingTasksFixture, creating_tasks)
 {
     const auto tree = fixtures::givenSomeTaskTreeCreated(
-        createTaskHandler, registerSprintsHandler);
+        createTaskHandler, registerSprintsHandler, initializer);
 
     const auto actual = readTaskTreeHandler.handle(ReadTaskTreeQuery{});
 
@@ -74,7 +74,7 @@ TEST_F(CreatingTasksFixture, creating_tasks)
 TEST_F(CreatingTasksFixture, undoing_task_creation_cleans_up_associated_tags)
 {
     const auto tree = fixtures::givenSomeTaskTreeCreated(
-        createTaskHandler, registerSprintsHandler);
+        createTaskHandler, registerSprintsHandler, initializer);
     createTaskHandler.handle(CreateTaskCommand{"Some name",
                                                {"ExoticTag", "Tag1"},
                                                4,
@@ -98,7 +98,7 @@ TEST_F(CreatingTasksFixture,
     using namespace std::chrono_literals;
     using namespace dw;
     const auto tree = fixtures::givenTaskTreeWithDueDatesCreated(
-        createTaskHandler, registerSprintsHandler);
+        createTaskHandler, registerSprintsHandler, initializer);
     const auto startTime = DateTime{Date{Year{2023}, Month{6}, Day{19}}} + 4h;
     const auto dueDateTime = startTime + Days{10};
     const TaskDTO expected{

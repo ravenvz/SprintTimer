@@ -75,8 +75,8 @@ auto readTimeframe(
 
 auto readTreeMetadata(const QString& connectionName) -> TaskMetadataTree;
 
-auto readTags(const QSqlRecord& record, int column)
-    -> std::vector<sprint_timer::Tag>;
+auto readTags(const QSqlRecord& record,
+              int column) -> std::vector<sprint_timer::Tag>;
 
 auto to_int(TaskColumn taskColumn) -> int;
 
@@ -222,12 +222,18 @@ std::vector<Task> QtTaskStorageReader::allTasks(const dw::DateRange& dateRange)
 std::vector<std::string> QtTaskStorageReader::allTags()
 {
     QSqlQuery query{QSqlDatabase::database(connectionName)};
+    // Selecting tag from task_tag_view as it handles removed but not purged
+    // tasks
     tryExecute(query,
-               QString{"SELECT %1, %2 FROM %3 "
-                       "ORDER BY %2;"}
-                   .arg(TagTable::Columns::id)
-                   .arg(TagTable::Columns::name)
-                   .arg(TagTable::name));
+               QString{"SELECT DISTINCT %1 FROM %3 ORDER BY %1"}
+                   .arg(TaskTagView::Aliases::tagName)
+                   .arg(TaskTagView::name));
+    // tryExecute(query,
+    //            QString{"SELECT %1, %2 FROM %3 "
+    //                    "ORDER BY %2;"}
+    //                .arg(TagTable::Columns::id)
+    //                .arg(TagTable::Columns::name)
+    //                .arg(TagTable::name));
 
     return tagsFromQuery(query);
 }
@@ -413,8 +419,8 @@ auto taskFromRecords(auto first, auto last) -> Task
     }
 };
 
-auto readTags(const QSqlRecord& record, int column)
-    -> std::vector<sprint_timer::Tag>
+auto readTags(const QSqlRecord& record,
+              int column) -> std::vector<sprint_timer::Tag>
 {
     const QStringList tagNames{
         record.value(column).toString().split(",", Qt::SkipEmptyParts)};
@@ -464,7 +470,7 @@ std::vector<std::string> tagsFromQuery(QSqlQuery& query)
 
 std::string tagFromRecord(const QSqlRecord& record)
 {
-    return record.value(to_int(TagColumn::Name)).toString().toStdString();
+    return record.value(0).toString().toStdString();
 }
 
 auto to_int(TaskColumn taskColumn) -> int

@@ -25,10 +25,10 @@
 
 namespace {
 
-const QString expand{"E&xpand"};
-const QString collapse{"Co&llapse"};
-const QString showMenu{"S&how menu"};
-const QString hideMenu{"H&ide menu"};
+const QString expandButtonText{"E&xpand"};
+const QString collapseButtonText{"Co&llapse"};
+const QString showMenuButtonText{"S&how menu"};
+const QString hideMenuButtonText{"H&ide menu"};
 
 } // namespace
 
@@ -43,15 +43,16 @@ const QSize outlineSize{outlineWidth, outlineHeight};
 const QSize menuWidget{baseSize, baseSize * 2};
 const QSize timerWidget{baseSize * 2, baseSize * 6};
 constexpr int buttonsHeight{baseSize};
-const QSize expandedMenu{timerWidget.width(),
-                         timerWidget.height() + buttonsHeight +
-                             menuWidget.height()};
-const QSize expandedOutlines{2 * outlineWidth + timerWidget.width(),
-                             outlineHeight};
-const QSize shrinked{timerWidget.width(), timerWidget.height() + buttonsHeight};
-const QSize expanded{2 * outlineWidth + timerWidget.width(),
-                     timerWidget.height() + menuWidget.height() +
-                         buttonsHeight};
+const QSize expandedMenuSize{timerWidget.width(),
+                             timerWidget.height() + buttonsHeight +
+                                 menuWidget.height()};
+const QSize expandedOutlinesSize{2 * outlineWidth + timerWidget.width(),
+                                 outlineHeight};
+const QSize shrinkedSize{timerWidget.width(),
+                         timerWidget.height() + buttonsHeight};
+const QSize expandedSize{2 * outlineWidth + timerWidget.width(),
+                         timerWidget.height() + menuWidget.height() +
+                             buttonsHeight};
 
 } // namespace widget_size
 
@@ -68,6 +69,8 @@ MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline_,
     , sprintsWidget{sprintOutline_.release()}
     , tasksWidget{taskOutline_.release()}
     , menuWidget{launcherMenu_.release()}
+    , size{widget_size::shrinkedSize}
+    , fsm{TransitionTable{}, Setup{std::ref(*this)}}
 {
     ui->setupUi(this);
 
@@ -91,134 +94,68 @@ MainWindow::MainWindow(std::unique_ptr<QWidget> sprintOutline_,
     menuWidget->setVisible(false);
     ui->gridLayout->addWidget(menuWidget, 4, 1, 1, 1, Qt::AlignHCenter);
 
-    size = widget_size::shrinked;
-
     connect(
         ui->pbToggleView, &QPushButton::clicked, this, &MainWindow::toggleView);
     connect(
         ui->pbToggleMenu, &QPushButton::clicked, this, &MainWindow::toggleMenu);
 
-    ui->pbToggleView->setText(expand);
-    ui->pbToggleMenu->setText(showMenu);
     adjustSize();
 }
 
 MainWindow::~MainWindow() = default;
 
-QSize MainWindow::sizeHint() const { return size; }
+auto MainWindow::sizeHint() const -> QSize { return size; }
 
 void MainWindow::toggleView()
 {
-    state_ = std::visit(ViewToggledEvent{*this}, state_);
+    fsm.process(ExpandButtonToggled{});
     adjustSize();
 }
 
 void MainWindow::toggleMenu()
 {
-    state_ = std::visit(MenuToggledEvent{*this}, state_);
+    fsm.process(ExpandMenuButtonToggled{});
     adjustSize();
 }
 
-MainWindow::ExpandedOutlines::ExpandedOutlines(MainWindow& widget)
+auto MainWindow::expandOutline() -> void
 {
-    widget.sprintsWidget->setVisible(true);
-    widget.tasksWidget->setVisible(true);
-    widget.menuWidget->setVisible(false);
-    widget.ui->pbToggleView->setText(collapse);
-    widget.ui->pbToggleMenu->setText(showMenu);
-    widget.size = widget_size::expandedOutlines;
+    sprintsWidget->setVisible(true);
+    tasksWidget->setVisible(true);
+    menuWidget->setVisible(false);
+    ui->pbToggleView->setText(collapseButtonText);
+    ui->pbToggleMenu->setText(showMenuButtonText);
+    size = widget_size::expandedOutlinesSize;
 }
 
-MainWindow::Shrinked::Shrinked(MainWindow& widget)
+auto MainWindow::shrink() -> void
 {
-    widget.sprintsWidget->setVisible(false);
-    widget.tasksWidget->setVisible(false);
-    widget.menuWidget->setVisible(false);
-    widget.ui->pbToggleView->setText(expand);
-    widget.ui->pbToggleMenu->setText(showMenu);
-    widget.size = widget_size::shrinked;
+    sprintsWidget->setVisible(false);
+    tasksWidget->setVisible(false);
+    menuWidget->setVisible(false);
+    ui->pbToggleView->setText(expandButtonText);
+    ui->pbToggleMenu->setText(showMenuButtonText);
+    size = widget_size::shrinkedSize;
 }
 
-MainWindow::Expanded::Expanded(MainWindow& widget)
+auto MainWindow::expand() -> void
 {
-    widget.sprintsWidget->setVisible(true);
-    widget.tasksWidget->setVisible(true);
-    widget.menuWidget->setVisible(true);
-    widget.ui->pbToggleView->setText(collapse);
-    widget.ui->pbToggleMenu->setText(hideMenu);
-    widget.size = widget_size::expanded;
+    sprintsWidget->setVisible(true);
+    tasksWidget->setVisible(true);
+    menuWidget->setVisible(true);
+    ui->pbToggleView->setText(collapseButtonText);
+    ui->pbToggleMenu->setText(hideMenuButtonText);
+    size = widget_size::expandedSize;
 }
 
-MainWindow::ExpandedMenu::ExpandedMenu(MainWindow& widget)
+auto MainWindow::expandMenu() -> void
 {
-    widget.sprintsWidget->setVisible(false);
-    widget.tasksWidget->setVisible(false);
-    widget.menuWidget->setVisible(true);
-    widget.ui->pbToggleView->setText(expand);
-    widget.ui->pbToggleMenu->setText(hideMenu);
-    widget.size = widget_size::expandedMenu;
-}
-
-MainWindow::ViewToggledEvent::ViewToggledEvent(MainWindow& widget_)
-    : widget{widget_}
-{
-}
-
-MainWindow::State MainWindow::ViewToggledEvent::operator()(std::monostate)
-{
-    return ExpandedOutlines{widget};
-}
-
-MainWindow::State
-MainWindow::ViewToggledEvent::operator()(const ExpandedOutlines&)
-{
-    return Shrinked{widget};
-}
-
-MainWindow::State MainWindow::ViewToggledEvent::operator()(const Shrinked&)
-{
-    return ExpandedOutlines{widget};
-}
-
-MainWindow::State MainWindow::ViewToggledEvent::operator()(const ExpandedMenu&)
-{
-    return Expanded{widget};
-}
-
-MainWindow::State MainWindow::ViewToggledEvent::operator()(const Expanded&)
-{
-    return ExpandedMenu{widget};
-}
-
-MainWindow::MenuToggledEvent::MenuToggledEvent(MainWindow& widget_)
-    : widget{widget_}
-{
-}
-
-MainWindow::State MainWindow::MenuToggledEvent::operator()(std::monostate)
-{
-    return ExpandedMenu{widget};
-}
-
-MainWindow::State
-MainWindow::MenuToggledEvent::operator()(const ExpandedOutlines&)
-{
-    return Expanded{widget};
-}
-
-MainWindow::State MainWindow::MenuToggledEvent::operator()(const Shrinked&)
-{
-    return ExpandedMenu{widget};
-}
-
-MainWindow::State MainWindow::MenuToggledEvent::operator()(const ExpandedMenu&)
-{
-    return Shrinked{widget};
-}
-
-MainWindow::State MainWindow::MenuToggledEvent::operator()(const Expanded&)
-{
-    return ExpandedOutlines{widget};
+    sprintsWidget->setVisible(false);
+    tasksWidget->setVisible(false);
+    menuWidget->setVisible(true);
+    ui->pbToggleView->setText(expandButtonText);
+    ui->pbToggleMenu->setText(hideMenuButtonText);
+    size = widget_size::expandedMenuSize;
 }
 
 } // namespace sprint_timer::ui::qt_gui

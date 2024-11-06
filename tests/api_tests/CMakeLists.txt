@@ -6,8 +6,8 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/FakeUuidGenerator.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/QtStorageInitializer.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/QueryHandlerComposer.h"
-    "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/TestCommandHandlerComposer.h"
-    "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/TestQueryHandlerComposer.h"
+    "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/RequestHandlerComposer.h"
+    "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/TestRequestHandlerComposer.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/fixtures/StatisticsDataFixture.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/fixtures/TaskTreeFixture.h"
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/matchers/MatchesSprintIgnoringUuid.h"
@@ -16,8 +16,7 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/include/api_tests/utils/utils.h"
     "${CMAKE_CURRENT_LIST_DIR}/src/FakeUuidGenerator.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/QtStorageInitializer.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/TestCommandHandlerComposer.cpp"
-    "${CMAKE_CURRENT_LIST_DIR}/src/TestQueryHandlerComposer.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/TestRequestHandlerComposer.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/fixtures/StatisticsDataFixture.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/fixtures/TaskTreeFixture.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/matchers/MatchesSprintIgnoringUuid.cpp"
@@ -46,6 +45,7 @@ target_sources(test_api
     "${CMAKE_CURRENT_LIST_DIR}/src/test_requesting_workday_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_requesting_worktime_statistics.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/test_retrieving_operation_range.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/src/test_workflow_service.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/src/utils/utils.cpp"
 )
 

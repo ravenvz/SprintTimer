@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "api/requests/AllTagsQuery.h"
 #include "api/requests/CreateTaskCommand.h"
+#include "common_utils/ConfigurableDateTimeProvider.h"
 #include "mocks/CommandHandlerMock.h"
 #include "mocks/QueryHandlerMock.h"
 #include "qt_gui/presentation/AddTaskControlPresenter.h"
@@ -33,6 +34,7 @@ using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::Truly;
+using namespace dw;
 
 class AddTaskControlViewMock : public ui::contracts::AddTaskControl::View {
 public:
@@ -45,21 +47,24 @@ public:
     NiceMock<mocks::QueryHandlerMock<api::AllTagsQuery>> allTagsHandler;
     AddTaskControlViewMock view;
     ui::AddTaskControlPresenter sut{createTaskHandler};
+    DateTime pseudoCurrentTime{DateTime{Date{Year{2025}, Month{1}, Day{16}}}};
+    DateTime taskStartTime{DateTime{Date{Year{2024}, Month{12}, Day{3}}}};
+    TaskTimeframeDTO taskTimeframe{
+        taskStartTime, std::nullopt, std::nullopt, std::nullopt};
 };
 
 TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
 {
     using namespace sprint_timer;
-    const dw::DateTime someModificationStamp{dw::current_date_time()};
     const sprint_timer::api::TaskDTO details{"123",
                                              {"Tag 1", "Tag 2"},
                                              "SomeTask",
                                              4,
                                              {},
                                              false,
-                                             someModificationStamp,
+                                             pseudoCurrentTime,
                                              std::nullopt,
-                                             TaskTimeframeDTO{},
+                                             taskTimeframe,
                                              TaskTypeDTO::Regular};
 
     EXPECT_CALL(createTaskHandler,
@@ -70,7 +75,7 @@ TEST_F(AddTaskControlPresenterFixture, invokes_handler_to_add_task_given_dto)
                                               std::nullopt,
                                               std::nullopt,
                                               std::nullopt,
-                                              TaskTimeframeDTO{}}));
+                                              taskTimeframe}));
 
     sut.addTask(details);
 }
@@ -86,9 +91,9 @@ TEST_F(AddTaskControlPresenterFixture,
                                               std::nullopt,
                                               std::nullopt,
                                               std::nullopt,
-                                              TaskTimeframeDTO{}}));
+                                              taskTimeframe}));
 
-    sut.addTask("#Test All parts present *5");
+    sut.addTask("#Test All parts present *5", taskStartTime);
 }
 
 TEST_F(
@@ -103,9 +108,9 @@ TEST_F(
                                               std::nullopt,
                                               std::nullopt,
                                               std::nullopt,
-                                              TaskTimeframeDTO{}}));
+                                              taskTimeframe}));
 
-    sut.addTask("#Test Task with tag");
+    sut.addTask("#Test Task with tag", taskStartTime);
 }
 
 TEST_F(AddTaskControlPresenterFixture,
@@ -119,9 +124,9 @@ TEST_F(AddTaskControlPresenterFixture,
                                               std::nullopt,
                                               std::nullopt,
                                               std::nullopt,
-                                              TaskTimeframeDTO{}}));
+                                              taskTimeframe}));
 
-    sut.addTask("Simple task *2");
+    sut.addTask("Simple task *2", taskStartTime);
 }
 
 TEST_F(AddTaskControlPresenterFixture,
@@ -135,9 +140,9 @@ TEST_F(AddTaskControlPresenterFixture,
                                               std::nullopt,
                                               std::nullopt,
                                               std::nullopt,
-                                              TaskTimeframeDTO{}}));
+                                              taskTimeframe}));
 
-    sut.addTask("#Tag #Test *44");
+    sut.addTask("#Tag #Test *44", taskStartTime);
 }
 
 TEST_F(AddTaskControlPresenterFixture,
@@ -151,9 +156,9 @@ TEST_F(AddTaskControlPresenterFixture,
                                               std::nullopt,
                                               std::nullopt,
                                               std::nullopt,
-                                              TaskTimeframeDTO{}}));
+                                              taskTimeframe}));
 
-    sut.addTask("Multiple estimated *5 *9");
+    sut.addTask("Multiple estimated *5 *9", taskStartTime);
 }
 
 TEST_F(AddTaskControlPresenterFixture,
@@ -168,8 +173,9 @@ TEST_F(AddTaskControlPresenterFixture,
                     std::nullopt,
                     std::nullopt,
                     std::nullopt,
-                    TaskTimeframeDTO{}}));
+                    taskTimeframe}));
 
-    sut.addTask("##My #tag1  #   ##    beautiful,marvelous, great   content");
+    sut.addTask("##My #tag1  #   ##    beautiful,marvelous, great   content",
+                taskStartTime);
 }
 

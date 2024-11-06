@@ -204,7 +204,7 @@ auto TaskDialog::fillFormFields(const TaskDTO& task) -> void
         alg::join(task.tags.cbegin(), task.tags.cend(), " "));
     tagsField->setText(joined_tags);
     const auto& frame = task.timeFrame;
-    start->setDateTime(dateTimeConverter(frame.start));
+    start->setDateTime(dateTimeConverter(frame.start.value()));
     alg::inspect(frame.due, [this](const auto& dateTime) {
         dueFrame->setChecked(true);
         due->setDateTime(dateTimeConverter(dateTime));

@@ -60,7 +60,8 @@ public:
      * Description can have multiple words with estimated cost prefixes,
      * but only last of them will be interpreted, previous will be interpreted
      * as a part of the name. */
-    void addTask(const std::string& encodedDescription) const override;
+    void addTask(const std::string& encodedDescription,
+                 dw::DateTime startTime) const override;
 
 private:
     create_task_handler_t& createTaskHandler;

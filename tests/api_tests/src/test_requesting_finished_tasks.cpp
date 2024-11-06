@@ -28,6 +28,7 @@ using namespace sprint_timer::api;
 using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
+using namespace std::chrono_literals;
 
 class RequestingFinishedTasksFixture : public ::testing::Test {
 public:
@@ -49,38 +50,47 @@ public:
 
 TEST_F(RequestingFinishedTasksFixture, requesting_finished_tasks)
 {
-    createTaskHandler.handle(CreateTaskCommand{"Task name",
-                                               {"Tag1", "Tag2"},
-                                               4,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    createTaskHandler.handle(CreateTaskCommand{"Some other task",
-                                               {"SomeTag"},
-                                               2,
-                                               TaskTypeDTO::Regular,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               std::nullopt,
-                                               TaskTimeframeDTO{}});
-    const auto uuids = activeTasksHandler.handle(ActiveTasksQuery{});
-    const auto uuid = uuids.front().uuid;
-    toggleTaskCompletedHandler.handle(ToggleTaskCompletedCommand{uuid});
+    const DateTime pseudoCurrentTime{
+        DateTime{Date{Year{2025}, Month{1}, Day{28}}} + 17h + 31min};
+    {
+        TimePortalGuard timePortal{initializer.getDateTimeProvider(),
+                                   pseudoCurrentTime};
+        // uuid = 0
+        createTaskHandler.handle(
+            CreateTaskCommand{"Task name",
+                              {"Tag1", "Tag2"},
+                              4,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{pseudoCurrentTime}});
+        // uuid = 1
+        createTaskHandler.handle(
+            CreateTaskCommand{"Some other task",
+                              {"SomeTag"},
+                              2,
+                              TaskTypeDTO::Regular,
+                              std::nullopt,
+                              std::nullopt,
+                              std::nullopt,
+                              TaskTimeframeDTO{pseudoCurrentTime}});
+        toggleTaskCompletedHandler.handle(
+            ToggleTaskCompletedCommand{.taskUuid = "0"});
+    }
     TaskDTO expected{"",
                      {"Tag1", "Tag2"},
                      "Task name",
                      4,
                      {},
                      true,
-                     dw::current_date_time_local(),
+                     pseudoCurrentTime,
                      std::nullopt,
-                     TaskTimeframeDTO{},
+                     TaskTimeframeDTO{pseudoCurrentTime},
                      TaskTypeDTO::Regular};
 
     const auto finishedTasks = finishedTasksHandler.handle(FinishedTasksQuery{
-        DateRange{current_date_local(), current_date_local()}});
+        DateRange{pseudoCurrentTime.date(), pseudoCurrentTime.date()}});
 
     EXPECT_EQ(1, finishedTasks.size());
     EXPECT_THAT(finishedTasks.front(),

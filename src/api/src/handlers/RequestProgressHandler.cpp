@@ -20,16 +20,20 @@
 **
 *********************************************************************************/
 #include "api/handlers/RequestProgressHandler.h"
+#include "api/DateTimeProvider.h"
+#include "core/BackRequestStrategy.h"
 
 namespace sprint_timer::api {
 
 RequestProgressHandler::RequestProgressHandler(
+    const DateTimeProvider& dateTimeProvider_,
     const BackRequestStrategy& backRequestStrategy_,
     const ProgressComputeStrategy& progressComputeStrategy_,
     asp::QueryHandler<RequestSprintDistributionQuery>&
         requestDistributionHandler_,
     asp::QueryHandler<WorkScheduleQuery>& requestWorkScheduleHandler_)
-    : requestDistributionHandler{requestDistributionHandler_}
+    : dateTimeProvider{dateTimeProvider_}
+    , requestDistributionHandler{requestDistributionHandler_}
     , requestWorkScheduleHandler{requestWorkScheduleHandler_}
     , backRequestStrategy{backRequestStrategy_}
     , progressComputeStrategy{progressComputeStrategy_}
@@ -39,12 +43,14 @@ RequestProgressHandler::RequestProgressHandler(
 RequestProgressQuery::Result
 RequestProgressHandler::handle(const RequestProgressQuery& /*query*/)
 {
+    const auto period =
+        backRequestStrategy.dateRange(dateTimeProvider.dateLocalNow());
     const auto distribution = requestDistributionHandler.handle(
-        RequestSprintDistributionQuery{backRequestStrategy.dateRange()});
+        RequestSprintDistributionQuery{period});
     const auto workSchedule =
         requestWorkScheduleHandler.handle(WorkScheduleQuery{});
     return ProgressOverPeriod{progressComputeStrategy.computeProgress(
-        backRequestStrategy.dateRange(), distribution, workSchedule)};
+        period, distribution, workSchedule)};
 }
 
 } // namespace sprint_timer::api

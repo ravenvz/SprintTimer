@@ -23,6 +23,7 @@
 #define SQLITESTORAGEFACTORY_H_ONDMSA1X
 
 #include "ThreadConnectionHelper.h"
+#include "api/DateTimeProvider.h"
 #include "api/IConfig.h"
 #include "api/StorageImplementersFactory.h"
 #include <filesystem>
@@ -34,23 +35,27 @@ public:
     SQliteStorageFactory(ThreadConnectionHelper& connectionHelper,
                          api::IConfig& applicationSettings);
 
-    std::unique_ptr<SprintStorage> sprintStorage() const override;
+    [[nodiscard]] auto
+    sprintStorage() const -> std::unique_ptr<api::SprintStorage> override;
 
-    std::unique_ptr<TaskStorage> taskStorage() const override;
+    [[nodiscard]] auto
+    taskStorage() const -> std::unique_ptr<api::TaskStorage> override;
 
-    std::unique_ptr<OperationalRangeReader>
-    operationalRangeReader() const override;
+    [[nodiscard]] auto
+    operationalRangeReader(const api::DateTimeProvider& dateTimeProvider) const
+        -> std::unique_ptr<api::OperationalRangeReader> override;
 
-    std::unique_ptr<SprintDistributionReader>
-    dailyDistReader(size_t numDays) const override;
+    [[nodiscard]] auto dailyDistReader(size_t numDays) const
+        -> std::unique_ptr<api::SprintDistributionReader> override;
 
-    std::unique_ptr<SprintDistributionReader>
-    weeklyDistReader(dw::Weekday firstDayOfWeek) const override;
+    [[nodiscard]] auto weeklyDistReader(dw::Weekday firstDayOfWeek) const
+        -> std::unique_ptr<api::SprintDistributionReader> override;
 
-    std::unique_ptr<SprintDistributionReader>
-    monthlyDistReader() const override;
+    [[nodiscard]] auto monthlyDistReader() const
+        -> std::unique_ptr<api::SprintDistributionReader> override;
 
-    std::unique_ptr<WorkScheduleStorage> scheduleStorage() const override;
+    [[nodiscard]] auto scheduleStorage() const
+        -> std::unique_ptr<api::WorkScheduleStorage> override;
 
 private:
     ThreadConnectionHelper& connectionHelper;

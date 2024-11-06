@@ -37,14 +37,14 @@ QtSprintStorage::findByDateRange(const dw::DateRange& dateRange)
 }
 
 void QtSprintStorage::save(const std::string& taskUuid,
-                           const std::vector<Sprint>& sprints)
+                           std::span<const Sprint> sprints)
 {
     writer->save(taskUuid, sprints);
 }
 
 void QtSprintStorage::remove(const Sprint& sprint) { writer->remove(sprint); }
 
-void QtSprintStorage::remove(const std::vector<Sprint>& sprints)
+void QtSprintStorage::remove(std::span<const Sprint> sprints)
 {
     writer->remove(sprints);
 }

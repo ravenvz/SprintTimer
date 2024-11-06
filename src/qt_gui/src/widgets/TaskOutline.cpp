@@ -21,6 +21,7 @@
 *********************************************************************************/
 #include "qt_gui/widgets/TaskOutline.h"
 #include "qt_gui/Displayable.h"
+#include <QDateTime>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -66,7 +67,8 @@ void TaskOutline::onQuickAddTodoReturnPressed()
     const std::string encodedDescription = quickAddTask->text().toStdString();
     quickAddTask->clear();
     if (auto p = presenter(); p && !encodedDescription.empty()) {
-        p.value()->addTask(encodedDescription);
+        p.value()->addTask(encodedDescription,
+                           dateTimeConverter(QDateTime::currentDateTime()));
     }
 }
 

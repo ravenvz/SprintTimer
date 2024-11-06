@@ -22,6 +22,7 @@
 #ifndef ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 #define ISTORAGEIMPLEMENTERSFACTORY_H_PRIUAOH6
 
+#include "api/DateTimeProvider.h"
 #include "api/OperationalRangeReader.h"
 #include "api/SprintDistributionReader.h"
 #include "api/SprintStorage.h"
@@ -36,23 +37,27 @@ class StorageImplementersFactory {
 public:
     virtual ~StorageImplementersFactory() = default;
 
-    virtual std::unique_ptr<SprintStorage> sprintStorage() const = 0;
+    [[nodiscard]] virtual auto
+    sprintStorage() const -> std::unique_ptr<SprintStorage> = 0;
 
-    virtual std::unique_ptr<TaskStorage> taskStorage() const = 0;
+    [[nodiscard]] virtual auto
+    taskStorage() const -> std::unique_ptr<TaskStorage> = 0;
 
-    virtual std::unique_ptr<OperationalRangeReader>
-    operationalRangeReader() const = 0;
+    [[nodiscard]] virtual auto
+    operationalRangeReader(const api::DateTimeProvider& dateTimeProvider) const
+        -> std::unique_ptr<OperationalRangeReader> = 0;
 
-    virtual std::unique_ptr<SprintDistributionReader>
-    dailyDistReader(size_t numDays) const = 0;
+    [[nodiscard]] virtual auto dailyDistReader(size_t numDays) const
+        -> std::unique_ptr<SprintDistributionReader> = 0;
 
-    virtual std::unique_ptr<SprintDistributionReader>
-    weeklyDistReader(dw::Weekday firstDayOfWeek) const = 0;
+    [[nodiscard]] virtual auto weeklyDistReader(dw::Weekday firstDayOfWeek)
+        const -> std::unique_ptr<SprintDistributionReader> = 0;
 
-    virtual std::unique_ptr<SprintDistributionReader>
-    monthlyDistReader() const = 0;
+    [[nodiscard]] virtual auto
+    monthlyDistReader() const -> std::unique_ptr<SprintDistributionReader> = 0;
 
-    virtual std::unique_ptr<WorkScheduleStorage> scheduleStorage() const = 0;
+    [[nodiscard]] virtual auto
+    scheduleStorage() const -> std::unique_ptr<WorkScheduleStorage> = 0;
 };
 
 } // namespace sprint_timer::api

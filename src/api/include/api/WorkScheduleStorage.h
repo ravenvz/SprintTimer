@@ -25,12 +25,11 @@
 #include "api/WorkScheduleReader.h"
 #include "api/WorkScheduleWriter.h"
 
-namespace sprint_timer {
+namespace sprint_timer::api {
 
 class WorkScheduleStorage : public WorkScheduleReader,
-                            public WorkScheduleWriter {
-};
+                            public WorkScheduleWriter { };
 
-} // namespace sprint_timer
+} // namespace sprint_timer::api
 
 #endif /* end of include guard: IWORKINGDAYSSTORAGE_H_EGNQRQKY */

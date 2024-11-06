@@ -26,6 +26,7 @@
 #include "api/dtos/TaskTreeDTO.h"
 #include "api/requests/CreateTaskCommand.h"
 #include "api/requests/RegisterSprintBulkCommand.h"
+#include "api_tests/QtStorageInitializer.h"
 
 namespace fixtures {
 
@@ -33,19 +34,22 @@ auto givenSomeTaskTreeCreated(
     asp::CommandHandler<sprint_timer::api::CreateTaskCommand>&
         createTaskHandler,
     asp::CommandHandler<sprint_timer::api::RegisterSprintBulkCommand>&
-        registerSprintsHandler) -> sprint_timer::api::TaskTreeDTO;
+        registerSprintsHandler,
+    TestStorageInitializer& initializer) -> sprint_timer::api::TaskTreeDTO;
 
 auto givenTaskTreeWithDueDatesCreated(
     asp::CommandHandler<sprint_timer::api::CreateTaskCommand>&
         createTaskHandler,
     asp::CommandHandler<sprint_timer::api::RegisterSprintBulkCommand>&
-        registerSprintsHandler) -> sprint_timer::api::TaskTreeDTO;
+        registerSprintsHandle,
+    TestStorageInitializer& initializerr) -> sprint_timer::api::TaskTreeDTO;
 
 auto givenTaskTreeWithRecurringTasksCreated(
     asp::CommandHandler<sprint_timer::api::CreateTaskCommand>&
         createTaskHandler,
     asp::CommandHandler<sprint_timer::api::RegisterSprintBulkCommand>&
-        registerSprintsHandler) -> sprint_timer::api::TaskTreeDTO;
+        registerSprintsHandler,
+    TestStorageInitializer& initializer) -> sprint_timer::api::TaskTreeDTO;
 
 } // namespace fixtures
 

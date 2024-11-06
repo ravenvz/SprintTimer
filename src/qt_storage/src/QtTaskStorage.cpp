@@ -82,6 +82,8 @@ auto QtTaskStorage::remove(const std::string& uuid) -> void
     writer->remove(uuid);
 }
 
+auto QtTaskStorage::restore(const Task& task) -> void { writer->restore(task); }
+
 auto QtTaskStorage::edit(const Task& oldTask, const Task& editedTask) -> void
 {
     writer->edit(oldTask, editedTask);

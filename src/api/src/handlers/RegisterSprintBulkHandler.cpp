@@ -20,12 +20,15 @@
 **
 *********************************************************************************/
 #include "api/handlers/RegisterSprintBulkHandler.h"
+#include "api/ActionInvoker.h"
+#include "api/SprintStorageReader.h"
+#include "api/TaskStorage.h"
 #include "api/actions/RegisterSprintBulk.h"
 #include "api/dtos/SprintMapper.h"
 #include "core/SprintConflictException.h"
+#include "cpp_utils/patterns/Converter.h"
 #include <algorithm>
-#include <iostream>
-#include <iterator>
+#include <format>
 #include <numeric>
 #include <ranges>
 #include <sstream>
@@ -35,30 +38,24 @@ namespace {
 
 using sprint_timer::Sprint;
 
-dw::DateRange unite(dw::DateRange a, dw::DateTimeRange b);
+constexpr auto
+to_date_range(const dw::DateTimeRange& dateTimeRange) noexcept -> dw::DateRange;
+
+auto to_sprint(const dw::DateTimeRange& dateTimeRange) -> Sprint;
+
+constexpr auto unite(dw::DateRange a,
+                     dw::DateRange b) noexcept -> dw::DateRange;
 
 // Precondition: intervals should not be empty
-dw::DateRange fittingRange(const std::vector<dw::DateTimeRange>& intervals);
+auto fittingRange(const std::vector<dw::DateTimeRange>& intervals)
+    -> dw::DateRange;
 
-bool orderByStartTime(const Sprint& lhs, const Sprint& rhs);
+auto orderByStartTime(const Sprint& lhs, const Sprint& rhs) -> bool;
 
-// void throwIfSprintConflictDetected(
-//     const std::vector<Sprint>& sprints,
-//     const std::vector<Sprint>& existingSprints);
+auto intersecting(const std::tuple<Sprint, Sprint>& sprintPair) -> bool;
 
-bool intersecting(const std::pair<Sprint, Sprint>& sprintPair);
-
-constexpr auto adjacent_view = [](auto&& range) {
-    if (range.size() < 2) {
-        throw std::runtime_error("adjacent_view should only adapt ranges that "
-                                 "have at least 2 elements");
-    }
-    return std::views::iota(1u, range.size()) |
-           std::views::transform(
-               [&](auto i) { return std::make_pair(range[i - 1], range[i]); });
-};
-
-auto throwIfSprintConflictDetected(auto&& sprints, auto&& existingSprints)
+auto throwIfSprintConflictDetected(auto&& sprints,
+                                   auto&& existingSprints) -> void
 {
     using namespace sprint_timer;
 
@@ -74,14 +71,14 @@ auto throwIfSprintConflictDetected(auto&& sprints, auto&& existingSprints)
                        std::back_inserter(mergedSprints),
                        orderByStartTime);
 
-    auto conflicting_view = adjacent_view(mergedSprints) |
-                            std::views::filter(intersecting) |
-                            std::views::common;
+    auto conflicting_view = mergedSprints | std::views::adjacent<2> |
+                            std::views::filter(intersecting);
 
-    if (!conflicting_view.empty()) {
-        throw sprint_timer::SprintConflictException{
-            std::vector<std::pair<Sprint, Sprint>>(conflicting_view.begin(),
-                                                   conflicting_view.end())};
+    if (not conflicting_view.empty()) {
+        throw SprintConflictException{
+            conflicting_view |
+            std::ranges::to<std::vector<
+                SprintConflictException::conflicting_sprints_pair>>()};
     }
 }
 
@@ -90,29 +87,29 @@ auto throwIfSprintConflictDetected(auto&& sprints, auto&& existingSprints)
 namespace sprint_timer::api {
 
 RegisterSprintBulkHandler::RegisterSprintBulkHandler(
-    TaskStorageReader& taskReader_,
+    TaskStorage& taskStorage_,
     SprintStorage& sprintStorage_,
-    ActionInvoker& actionInvoker_,
-    const patterns::Converter<dw::DateTimeRange, Sprint>& sprintMapper_)
-    : taskReader{taskReader_}
+    DateTimeProvider& dateTimeProvider_,
+    ActionInvoker& actionInvoker_)
+    : taskStorage{taskStorage_}
     , sprintStorage{sprintStorage_}
+    , dateTimeProvider{dateTimeProvider_}
     , actionInvoker{actionInvoker_}
-    , sprintMapper{sprintMapper_}
 {
 }
 
-void RegisterSprintBulkHandler::handle(const RegisterSprintBulkCommand& command)
+auto RegisterSprintBulkHandler::handle(const RegisterSprintBulkCommand& command)
+    -> void
 {
-    std::vector<Sprint> sprints;
-    sprints.reserve(command.intervals.size());
-    std::ranges::copy(sprintMapper(command.intervals),
-                      std::back_inserter(sprints));
-
-    if (sprints.empty()) {
+    if (command.intervals.empty()) {
         return;
     }
 
     throwIfTaskDoesNotExist(command.taskUuid);
+
+    const std::vector<Sprint> sprints = command.intervals |
+                                        std::views::transform(to_sprint) |
+                                        std::ranges::to<std::vector>();
 
     const auto range = fittingRange(command.intervals);
     const auto existingSprints = sprintStorage.findByDateRange(range);
@@ -126,24 +123,23 @@ void RegisterSprintBulkHandler::handle(const RegisterSprintBulkCommand& command)
         }));
 
     actionInvoker.execute(
-        actions::RegisterSprintBulk{sprintStorage, command.taskUuid, sprints});
+        actions::RegisterSprintBulk{taskStorage,
+                                    sprintStorage,
+                                    dateTimeProvider.dateTimeLocalNow(),
+                                    command.taskUuid,
+                                    sprints});
 }
 
-void RegisterSprintBulkHandler::throwIfTaskDoesNotExist(
-    const std::string& taskUuid)
+auto RegisterSprintBulkHandler::throwIfTaskDoesNotExist(
+    const std::string& taskUuid) -> void
 {
-    const auto tasksMatchingUuid = taskReader.findByUuid(taskUuid);
+    const auto tasksMatchingUuid = taskStorage.findByUuid(taskUuid);
     if (tasksMatchingUuid.empty() ||
         tasksMatchingUuid.front().uuid() != taskUuid) {
-        std::string msg{"Cannot register sprint for task with uuid: "};
-        msg += taskUuid;
-        msg += " was not found";
-        throw SprintTimerException{msg};
+        throw SprintTimerException{std::format(
+            "Cannot register sprint for task with uuid: {} -- not found",
+            taskUuid)};
     }
-    // Task task = tasksMatchingUuid.front();
-    // for (const auto& sprint : sprints) {
-    //     task.addSprint(sprint);
-    // }
 }
 
 } // namespace sprint_timer::api
@@ -151,29 +147,41 @@ void RegisterSprintBulkHandler::throwIfTaskDoesNotExist(
 namespace {
 
 // Precondition: intervals should not be empty
-dw::DateRange fittingRange(const std::vector<dw::DateTimeRange>& intervals)
+auto fittingRange(const std::vector<dw::DateTimeRange>& intervals)
+    -> dw::DateRange
 {
-    dw::DateRange range = dw::DateRange{intervals.front().start().date(),
-                                        intervals.front().finish().date()};
-    std::accumulate(cbegin(intervals) + 1, cend(intervals), range, unite);
-    return range;
+    return std::ranges::fold_left_first(
+               intervals | std::views::transform(to_date_range), unite)
+        .value();
 };
 
-dw::DateRange unite(dw::DateRange a, dw::DateTimeRange b)
+constexpr auto
+to_date_range(const dw::DateTimeRange& dateTimeRange) noexcept -> dw::DateRange
 {
-    return dw::DateRange{std::min(a.start(), b.start().date()),
-                         std::max(a.finish(), b.finish().date())};
+    return dw::DateRange{dateTimeRange.start().date(),
+                         dateTimeRange.finish().date()};
+}
+
+auto to_sprint(const dw::DateTimeRange& dateTimeRange) -> Sprint
+{
+    return Sprint{dateTimeRange};
+}
+
+constexpr auto unite(dw::DateRange a, dw::DateRange b) noexcept -> dw::DateRange
+{
+    return dw::DateRange{std::min(a.start(), b.start()),
+                         std::max(a.finish(), b.finish())};
 };
 
-bool orderByStartTime(const Sprint& lhs, const Sprint& rhs)
+auto orderByStartTime(const Sprint& lhs, const Sprint& rhs) -> bool
 {
     return lhs.timeSpan().start() < rhs.timeSpan().start();
 };
 
-bool intersecting(const std::pair<Sprint, Sprint>& sprintPair)
+auto intersecting(const std::tuple<Sprint, Sprint>& sprintPair) -> bool
 {
-    return sprint_timer::intersectingInTime(sprintPair.first,
-                                            sprintPair.second);
+    const auto& [left, right] = sprintPair;
+    return sprint_timer::intersectingInTime(left, right);
 };
 
 } // namespace

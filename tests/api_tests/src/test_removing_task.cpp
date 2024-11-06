@@ -29,6 +29,7 @@ using namespace sprint_timer::api;
 using namespace sprint_timer;
 using namespace sprint_timer::compose;
 using namespace dw;
+// using namespace std::chrono_literals;
 
 class RemovingTaskFixture : public ::testing::Test {
 public:
@@ -54,16 +55,18 @@ public:
         queryComposer.readTaskTreeHandler()};
     asp::CommandHandler<UndoLastCommand>& undoHandler{
         commandComposer.undoHandler()};
-    TaskDTO task{"",
-                 {"Tag1", "Tag2"},
-                 "Task name",
-                 4,
-                 {},
-                 false,
-                 dw::current_date_time(),
-                 std::nullopt,
-                 TaskTimeframeDTO{},
-                 TaskTypeDTO::Regular};
+    // DateTime irrelevantTime{DateTime{Date{Year{2025}, Month{1}, Day{28}}} +
+    //                         17h + 52min};
+    // TaskDTO task{"",
+    //              {"Tag1", "Tag2"},
+    //              "Task name",
+    //              4,
+    //              {},
+    //              false,
+    //              dw::current_date_time(),
+    //              std::nullopt,
+    //              TaskTimeframeDTO{},
+    //              TaskTypeDTO::Regular};
 };
 
 /*    Task tree fixture used in these tests looks like that
@@ -82,8 +85,8 @@ auto uuid_projection = [](const auto& node) { return node.uuid; };
 
 TEST_F(RemovingTaskFixture, removing_task_with_no_sprints)
 {
-    auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
-                                                   registerSprintBulkHandler);
+    auto tree = fixtures::givenSomeTaskTreeCreated(
+        createTaskHandler, registerSprintBulkHandler, initializer);
     tree.erase(std::ranges::find(tree, "3", uuid_projection));
 
     deleteTaskHandler.handle(DeleteTaskCommand{"3"});
@@ -96,8 +99,8 @@ TEST_F(RemovingTaskFixture, removing_task_with_no_sprints)
 
 TEST_F(RemovingTaskFixture, removing_task_that_has_assosiated_sprints)
 {
-    auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
-                                                   registerSprintBulkHandler);
+    auto tree = fixtures::givenSomeTaskTreeCreated(
+        createTaskHandler, registerSprintBulkHandler, initializer);
     tree.erase(std::ranges::find(tree, "5", uuid_projection));
 
     deleteTaskHandler.handle(DeleteTaskCommand{"5"});
@@ -118,8 +121,8 @@ TEST_F(RemovingTaskFixture,
 TEST_F(RemovingTaskFixture,
        undoing_removing_parent_task_restores_children_and_tags_and_sprints)
 {
-    auto tree = fixtures::givenSomeTaskTreeCreated(createTaskHandler,
-                                                   registerSprintBulkHandler);
+    auto tree = fixtures::givenSomeTaskTreeCreated(
+        createTaskHandler, registerSprintBulkHandler, initializer);
     deleteTaskHandler.handle(DeleteTaskCommand{"1"});
 
     undoHandler.handle(UndoLastCommand{});

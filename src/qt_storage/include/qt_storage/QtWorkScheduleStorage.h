@@ -27,7 +27,7 @@
 
 namespace sprint_timer::storage::qt_storage {
 
-class QtWorkScheduleStorage : public WorkScheduleStorage {
+class QtWorkScheduleStorage : public api::WorkScheduleStorage {
 public:
     explicit QtWorkScheduleStorage(QString connectionName);
     ~QtWorkScheduleStorage() override = default;

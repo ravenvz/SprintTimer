@@ -22,8 +22,9 @@
 #ifndef SPRINTCONFLICTEXCEPTION_H
 #define SPRINTCONFLICTEXCEPTION_H
 
-#include "core/SprintTimerException.h"
 #include "core/Sprint.h"
+#include "core/SprintTimerException.h"
+#include <span>
 #include <string>
 #include <vector>
 
@@ -31,13 +32,14 @@ namespace sprint_timer {
 
 class SprintConflictException : public SprintTimerException {
 public:
-    using conflicting_sprints_pair = std::pair<sprint_timer::Sprint,
-                                               sprint_timer::Sprint>;
+    using conflicting_sprints_pair =
+        std::tuple<sprint_timer::Sprint, sprint_timer::Sprint>;
 
     explicit SprintConflictException(
         std::vector<conflicting_sprints_pair>&& conflictingSprints);
 
-    const std::vector<conflicting_sprints_pair>& conflictingSprints() const;
+    [[nodiscard]] auto
+    conflictingSprints() const -> std::span<const conflicting_sprints_pair>;
 
 private:
     std::vector<conflicting_sprints_pair> sprintPairs;

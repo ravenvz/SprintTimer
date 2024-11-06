@@ -54,7 +54,8 @@ SQliteStorageFactory::SQliteStorageFactory(
 {
 }
 
-std::unique_ptr<SprintStorage> SQliteStorageFactory::sprintStorage() const
+auto SQliteStorageFactory::sprintStorage() const
+    -> std::unique_ptr<api::SprintStorage>
 {
     return std::make_unique<QtSprintStorage>(
         std::make_unique<QtSprintStorageReaderConnectionProxy>(
@@ -63,7 +64,8 @@ std::unique_ptr<SprintStorage> SQliteStorageFactory::sprintStorage() const
             connectionHelper.connectionName()));
 }
 
-std::unique_ptr<TaskStorage> SQliteStorageFactory::taskStorage() const
+auto SQliteStorageFactory::taskStorage() const
+    -> std::unique_ptr<api::TaskStorage>
 {
     return std::make_unique<QtTaskStorage>(
         std::make_unique<QtTaskStorageReaderConnectionProxy>(connectionHelper),
@@ -71,38 +73,39 @@ std::unique_ptr<TaskStorage> SQliteStorageFactory::taskStorage() const
             connectionHelper.connectionName()));
 }
 
-std::unique_ptr<OperationalRangeReader>
-SQliteStorageFactory::operationalRangeReader() const
+auto SQliteStorageFactory::operationalRangeReader(
+    const api::DateTimeProvider& dateTimeProvider) const
+    -> std::unique_ptr<api::OperationalRangeReader>
 {
     return std::make_unique<QtOperationalRangeReaderConnectionProxy>(
-        connectionHelper);
+        connectionHelper, dateTimeProvider);
 }
 
-std::unique_ptr<SprintDistributionReader>
-SQliteStorageFactory::dailyDistReader(size_t numDays) const
+auto SQliteStorageFactory::dailyDistReader(size_t numDays) const
+    -> std::unique_ptr<api::SprintDistributionReader>
 {
     return std::make_unique<QtSprintDailyDistributionReaderConnectionProxy>(
         connectionHelper, numDays);
 }
 
-std::unique_ptr<SprintDistributionReader>
-SQliteStorageFactory::weeklyDistReader(dw::Weekday /*firstDayOfWeek*/) const
+auto SQliteStorageFactory::weeklyDistReader(dw::Weekday /*firstDayOfWeek*/)
+    const -> std::unique_ptr<api::SprintDistributionReader>
 {
     constexpr size_t numWeeks{12};
     return std::make_unique<QtSprintWeeklyDistributionReaderConnectionProxy>(
         connectionHelper, numWeeks, applicationSettings);
 }
 
-std::unique_ptr<SprintDistributionReader>
-SQliteStorageFactory::monthlyDistReader() const
+auto SQliteStorageFactory::monthlyDistReader() const
+    -> std::unique_ptr<api::SprintDistributionReader>
 {
     constexpr size_t numMonths{12};
     return std::make_unique<QtSprintMonthlyDistributionReaderConnectionProxy>(
         connectionHelper, numMonths);
 }
 
-std::unique_ptr<WorkScheduleStorage>
-SQliteStorageFactory::scheduleStorage() const
+auto SQliteStorageFactory::scheduleStorage() const
+    -> std::unique_ptr<api::WorkScheduleStorage>
 {
     return std::make_unique<QtWorkScheduleStorageConnectionProxy>(
         connectionHelper);

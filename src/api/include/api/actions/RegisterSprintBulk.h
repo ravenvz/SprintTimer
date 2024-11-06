@@ -19,13 +19,17 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
-#include "api/SprintStorageWriter.h"
+#include "api/DateTimeProvider.h"
+#include "api/SprintStorage.h"
+#include "api/TaskStorage.h"
 
 namespace sprint_timer::api::actions {
 
 class RegisterSprintBulk {
 public:
-    RegisterSprintBulk(SprintStorageWriter& writer_,
+    RegisterSprintBulk(TaskStorage& taskStorage_,
+                       SprintStorage& sprintStorage_,
+                       dw::DateTime timeStamp_,
                        std::string taskUuid_,
                        std::vector<Sprint> sprints_);
 
@@ -36,9 +40,12 @@ public:
     [[nodiscard]] auto describe() const -> std::string;
 
 private:
-    SprintStorageWriter& writer;
+    TaskStorage& taskStorage;
+    SprintStorage& sprintStorage;
+    dw::DateTime timeStamp;
     std::string taskUuid;
-    const std::vector<Sprint> sprints;
+    std::vector<Sprint> sprints;
+    Task original;
 };
 
 } // namespace sprint_timer::api::actions

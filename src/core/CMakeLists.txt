@@ -14,7 +14,6 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/ComputeByWeekStrategy.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Distribution.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/GoalProgress.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/IWorkflow.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Observable.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Observer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/PeriodicBackgroundRunner.h"
@@ -26,17 +25,16 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Sprint.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintConflictException.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintRecord.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintTimer.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/SprintTimerException.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Tag.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/TagTop.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/Task.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/TaskTimeframe.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/TaskTree.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/Tree.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/TreeType.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/WeekSchedule.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/WorkSchedule.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/core/Workflow.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/core/utils/threadsafe_queue.h"
 
     PRIVATE
@@ -55,12 +53,12 @@ target_sources(${CORE_LIB}
         "${CMAKE_CURRENT_LIST_DIR}/src/Sprint.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintConflictException.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/SprintRecord.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/SprintTimer.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/Tag.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/TagTop.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/Task.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/WeekSchedule.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/WorkSchedule.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/Workflow.cpp"
 )
 
 target_include_directories(${CORE_LIB}

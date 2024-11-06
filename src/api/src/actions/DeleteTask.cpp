@@ -23,8 +23,11 @@
 
 namespace sprint_timer::api::actions {
 
-DeleteTask::DeleteTask(TaskStorage& taskStorage_, Task taskToRemove_)
+DeleteTask::DeleteTask(TaskStorage& taskStorage_,
+                       SprintStorageWriter& sprintWriter_,
+                       Task taskToRemove_)
     : taskStorage{taskStorage_}
+    , sprintWriter{sprintWriter_}
     , task{std::move(taskToRemove_)}
 {
 }
@@ -40,6 +43,7 @@ auto DeleteTask::execute() -> void
     position = taskTree.position_in_children(it);
     subTree = taskTree.take_subtree(it);
     taskStorage.saveTree(taskTree);
+    // NOTE that sprints are marked as deleted by taskStorage::remove
     std::ranges::for_each(
         subTree, [&](const auto& id) { taskStorage.remove(id); }, &Task::uuid);
 }
@@ -52,15 +56,18 @@ auto DeleteTask::undo() -> void
                              return find_by_uuid(taskTree, uuid);
                          })
                          .value_or(taskTree.end());
-    // auto parent_it = parent ? find_by_uuid(taskTree, *parent) :
-    // taskTree.end();
     taskTree.insert_subtree(
         parent_it, subTree, position.transform([](auto pos) {
             return ds::DestinationPosition{pos};
         }));
     taskStorage.saveTree(taskTree);
+
+    // NOTE that for now those two operations are not run in single transaction,
+    // that can potentially cause problems. TaskStorage::restore should take
+    // (const Task&) as parameter instead of uuid to be able to restore correct
+    // sprints.
     std::ranges::for_each(
-        subTree, [this](const auto& payload) { taskStorage.save(payload); });
+        subTree, [this](const auto& payload) { taskStorage.restore(payload); });
 }
 
 auto DeleteTask::describe() const -> std::string

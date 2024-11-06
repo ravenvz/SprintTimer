@@ -27,8 +27,11 @@
 namespace sprint_timer::api {
 
 DeleteTaskHandler::DeleteTaskHandler(TaskStorage& taskStorage_,
+                                     SprintStorageWriter& sprintWriter_,
                                      ActionInvoker& actionInvoker_)
+
     : taskStorage{taskStorage_}
+    , sprintWriter{sprintWriter_}
     , actionInvoker{actionInvoker_}
 {
 }
@@ -44,7 +47,7 @@ void DeleteTaskHandler::handle(const DeleteTaskCommand& command)
     }
 
     actionInvoker.execute(
-        actions::DeleteTask{taskStorage, matchingUuid.front()});
+        actions::DeleteTask{taskStorage, sprintWriter, matchingUuid.front()});
 }
 
 } // namespace sprint_timer::api

@@ -28,7 +28,7 @@
 
 namespace sprint_timer::compose {
 
-class QtSprintStorageReaderConnectionProxy : public SprintStorageReader {
+class QtSprintStorageReaderConnectionProxy : public api::SprintStorageReader {
 public:
     explicit QtSprintStorageReaderConnectionProxy(
         ThreadConnectionHelper& connectionHelper);

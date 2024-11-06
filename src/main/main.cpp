@@ -19,6 +19,12 @@
 ** along with SprintTimer.  If not, see <http://www.gnu.org/licenses/>.
 **
 *********************************************************************************/
+#include "api/handlers/CancelWorkflowHandler.h"
+#include "api/handlers/StartWorkflowHandler.h"
+#include "api/handlers/ToggleZoneHandler.h"
+#include "api/requests/CancelWorkflowCommand.h"
+#include "api/requests/StartTimerCommand.h"
+#include "api/requests/ToggleZoneCommand.h"
 #include "qt_gui/presentation/EditTaskDialogPresenter.h"
 #ifdef _WIN32
 #define NOMINMAX // min and max macros break Howard Hinnant's date lib
@@ -65,12 +71,12 @@
 #include "SettingsDialogLifestyleProxy.h"
 #include "SettingsWatchingAssetLibrary.h"
 #include "SoundPlayerFactory.h"
+#include "SprintTimerAutoconfigurator.h"
 #include "StatisticsWindowProxy.h"
 #include "TagEditorProxy.h"
 #include "TaskSprintsViewProxy.h"
 #include "WorkScheduleEditorLifestyleProxy.h"
 #include "WorkScheduleEditorPresenterProxy.h"
-#include "WorkflowProxy.h"
 #include "api/ActionInvokerImpl.h"
 #include "api/handlers/ActiveTasksHandler.h"
 #include "api/handlers/AllTagsHandler.h"
@@ -86,6 +92,7 @@
 #include <QAbstractItemModelTester>
 #include <fstream>
 // #include "api/handlers/CancelTimerHandler.h"
+#include "api/WorkflowService.h"
 #include "api/handlers/ChangeActiveTasksPriorityHandler.h"
 #include "api/handlers/ChangeWorkScheduleHandler.h"
 #include "api/handlers/CreateTaskHandler.h"
@@ -131,7 +138,7 @@
 #include "core/RequestForDaysBack.h"
 #include "core/RequestForMonthsBack.h"
 #include "core/RequestForWeeksBack.h"
-#include "core/Workflow.h"
+#include "core/SprintTimer.h"
 #include "external_io/OstreamSink.h"
 #include "external_io/RuntimeConfigurableDataExporter.h"
 #include "external_io/RuntimeSinkRouter.h"
@@ -220,6 +227,9 @@
 
 using std::filesystem::create_directory;
 using std::filesystem::exists;
+using namespace sprint_timer;
+using namespace sprint_timer::api;
+using namespace std::chrono_literals;
 
 namespace {
 
@@ -407,7 +417,8 @@ int main(int argc, char* argv[])
     auto weeklyDistReader =
         storageFactory.weeklyDistReader(applicationSettings.firstDayOfWeek());
     auto monthlyDistReader = storageFactory.monthlyDistReader();
-    auto operationalRangeReader = storageFactory.operationalRangeReader();
+    auto operationalRangeReader =
+        storageFactory.operationalRangeReader(dateTimeProvider);
     auto scheduleStorage = storageFactory.scheduleStorage();
 
     // Observable desyncObservable;
@@ -416,13 +427,16 @@ int main(int argc, char* argv[])
     VerboseActionInvoker verboseActionInvoker{defaultActionInvoker};
     ObservableActionInvoker actionInvoker{verboseActionInvoker};
 
-    using namespace api;
-
     ui::Mediator<ui::Invalidatable> cacheInvalidationMediator;
     // RelayHub cacheInvalidationMediator;
 
-    compose::WorkflowProxy workflow{
-        std::chrono::seconds{1}, applicationSettings, applicationSettings};
+    BackgroundCountdownTimer workflowTimer;
+    SprintTimer workflow{workflowTimer,
+                         1000ms,
+                         SprintTimer::WorkflowParams{25min, 5min, 15min, 4}};
+
+    compose::SprintTimerAutoconfigurator workflowRuntimeConfigurator{
+        workflow, applicationSettings, applicationSettings};
 
     std::ostream outputStream{std::cout.rdbuf()};
 
@@ -553,7 +567,8 @@ int main(int argc, char* argv[])
         outputStream,
         cacheInvalidationMediator);
     auto deleteTaskHandler = compose::decorate_command<DeleteTaskCommand>(
-        std::make_unique<DeleteTaskHandler>(*taskStorage, actionInvoker),
+        std::make_unique<DeleteTaskHandler>(
+            *taskStorage, *sprintStorage, actionInvoker),
         outputStream,
         cacheInvalidationMediator);
     auto toggleCompletionHandler =
@@ -569,10 +584,8 @@ int main(int argc, char* argv[])
         cacheInvalidationMediator);
     auto registerSprintBulkHandler =
         compose::decorate_command<RegisterSprintBulkCommand>(
-            std::make_unique<RegisterSprintBulkHandler>(*taskStorage,
-                                                        *sprintStorage,
-                                                        actionInvoker,
-                                                        sprintDateTimeMapper),
+            std::make_unique<RegisterSprintBulkHandler>(
+                *taskStorage, *sprintStorage, dateTimeProvider, actionInvoker),
             outputStream,
             cacheInvalidationMediator);
     auto changeWorkScheduleHandler =
@@ -587,91 +600,69 @@ int main(int argc, char* argv[])
         outputStream,
         cacheInvalidationMediator);
 
-    // auto startTimerHandler = compose::decorate_com_handler<StartTimer>(
-    //     std::make_unique<StartTimerHandler>(workflow), outputStream);
-    //
-    // auto cancelTimerHandler = compose::decorate_com_handler<CancelTimer>(
-    //     std::make_unique<CancelTimerHandler>(workflow), outputStream);
-    //
-    // auto toggleZoneHandler = compose::decorate_com_handler<ToggleZoneMode>(
-    //     std::make_unique<ToggleZoneModeHandler>(workflow), outputStream);
+    const int distributionDays{30};
+    RequestForDaysBack requestDaysBackStrategy{distributionDays};
+    ComputeByDayStrategy computeByDayStrategy;
 
-    // // TODO this is in fact a part of Migration_v7
+    auto requestDailyProgressHandler =
+        compose::decorate_query<RequestProgressQuery>(
+            std::make_unique<RequestProgressHandler>(
+                dateTimeProvider,
+                requestDaysBackStrategy,
+                computeByDayStrategy,
+                *requestSprintDailyDistributionHandler,
+                *workScheduleHandler),
+            outputStream,
+            cacheInvalidationMediator);
 
-    // TaskTreeDTO tree;
-    // createTaskHandler->handle(CreateTaskCommand{
-    //     "Overdue task",
-    //     {"TestTag", "OtherTag"},
-    //     4,
-    //     TaskTypeDTO::Regular,
-    //     std::nullopt,
-    //     std::nullopt,
-    //     NoteDTO{"Some test task note."},
-    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
-    //                           dw::current_date_time_local() - dw::Days{1},
-    //                           dw::current_date_time_local() - dw::Days{1},
-    //                           std::nullopt}});
-    //
-    // createTaskHandler->handle(CreateTaskCommand{
-    //     "Today task",
-    //     {"TestTag", "OtherTag", "YetAnother"},
-    //     4,
-    //     TaskTypeDTO::Regular,
-    //     std::nullopt,
-    //     std::nullopt,
-    //     NoteDTO{"Today task note"},
-    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
-    //                           dw::current_date_time_local(),
-    //                           dw::current_date_time_local() - dw::Days{1},
-    //                           std::nullopt}});
-    //
-    // createTaskHandler->handle(CreateTaskCommand{
-    //     "Coming up soon task",
-    //     {"Dev"},
-    //     4,
-    //     TaskTypeDTO::Regular,
-    //     std::nullopt,
-    //     std::nullopt,
-    //     NoteDTO{"Today task note"},
-    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
-    //                           dw::current_date_time_local() + dw::Days{3},
-    //                           dw::current_date_time_local() - dw::Days{1},
-    //                           std::nullopt}});
-    //
-    // createTaskHandler->handle(CreateTaskCommand{
-    //     "Coming up not soon task",
-    //     {"Study"},
-    //     7,
-    //     TaskTypeDTO::Regular,
-    //     std::nullopt,
-    //     std::nullopt,
-    //     std::nullopt,
-    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
-    //                           dw::current_date_time_local() + dw::Days{30},
-    //                           dw::current_date_time_local() - dw::Days{1},
-    //                           std::nullopt}});
-    //
-    // createTaskHandler->handle(CreateTaskCommand{
-    //     "Coming up soon task",
-    //     {"Dev"},
-    //     4,
-    //     TaskTypeDTO::Regular,
-    //     std::nullopt,
-    //     std::nullopt,
-    //     NoteDTO{"Today task note"},
-    //     api::TaskTimeframeDTO{dw::current_date_time_local() - dw::Days{2},
-    //                           dw::current_date_time_local() + dw::Days{3},
-    //                           dw::current_date_time_local() - dw::Days{1},
-    //                           std::nullopt}});
-    //
-    // const auto tasks = unfinishedTasksHandler->handle(ActiveTasksQuery{});
-    //
-    // for (const auto& task : tasks) {
-    //     tree.addChild(task.uuid, task, std::nullopt, std::nullopt);
-    // }
-    //
-    // savePlannerHandler->handle(SaveTaskTreeCommand{tree});
-    // std::cout << "Task tree file created.\n";
+    const int distributionWeeks{12};
+    RequestForWeeksBack requestWeeksBackStrategy{
+        distributionWeeks, applicationSettings.firstDayOfWeek()};
+    ComputeByWeekStrategy computeByWeekStrategy{
+        applicationSettings.firstDayOfWeek()};
+    auto requestWeeklyProgressHandler =
+        compose::decorate_query<RequestProgressQuery>(
+            std::make_unique<RequestProgressHandler>(
+                dateTimeProvider,
+                requestWeeksBackStrategy,
+                computeByWeekStrategy,
+                *requestSprintWeeklyDistributionHandler,
+                *workScheduleHandler),
+            outputStream,
+            cacheInvalidationMediator);
+    ui::ProgressPresenter weeklyProgressPresenter{
+        *requestWeeklyProgressHandler};
+
+    const int distributionMonths{12};
+    RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
+    ComputeByMonthStrategy computeByMonthStrategy;
+    auto requestMonthlyProgressHandler =
+        compose::decorate_query<RequestProgressQuery>(
+            std::make_unique<RequestProgressHandler>(
+                dateTimeProvider,
+                requestMonthsBackStrategy,
+                computeByMonthStrategy,
+                *requestSprintMonthlyDistributionHandler,
+                *workScheduleHandler),
+            outputStream,
+            cacheInvalidationMediator);
+
+    auto startWorkflowHandler = compose::decorate_command<StartTimerCommand>(
+        std::make_unique<api::StartWorkflowHandler>(
+            dateTimeProvider, workflow, *requestDailyProgressHandler),
+        outputStream,
+        cacheInvalidationMediator);
+
+    auto cancelWorkflowHandler =
+        compose::decorate_command<CancelWorkflowCommand>(
+            std::make_unique<api::CancelWorkflowHandler>(workflow),
+            outputStream,
+            cacheInvalidationMediator);
+
+    auto toggleZoneHandler = compose::decorate_command<ToggleZoneCommand>(
+        std::make_unique<api::ToggleZoneHandler>(workflow),
+        outputStream,
+        cacheInvalidationMediator);
 
     ui::TagEditorPresenter tagEditorPresenter{*allTagsHandler,
                                               *renameTagHandler};
@@ -755,51 +746,7 @@ int main(int argc, char* argv[])
         applicationSettings,
         applicationSettings};
 
-    const int distributionDays{30};
-    RequestForDaysBack requestDaysBackStrategy{distributionDays};
-    ComputeByDayStrategy computeByDayStrategy;
-
-    auto requestDailyProgressHandler =
-        compose::decorate_query<RequestProgressQuery>(
-            std::make_unique<RequestProgressHandler>(
-                requestDaysBackStrategy,
-                computeByDayStrategy,
-                *requestSprintDailyDistributionHandler,
-                *workScheduleHandler),
-            outputStream,
-            cacheInvalidationMediator);
-
     ui::ProgressPresenter dailyProgressPresenter{*requestDailyProgressHandler};
-
-    const int distributionWeeks{12};
-    RequestForWeeksBack requestWeeksBackStrategy{
-        distributionWeeks, applicationSettings.firstDayOfWeek()};
-    ComputeByWeekStrategy computeByWeekStrategy{
-        applicationSettings.firstDayOfWeek()};
-    auto requestWeeklyProgressHandler =
-        compose::decorate_query<RequestProgressQuery>(
-            std::make_unique<RequestProgressHandler>(
-                requestWeeksBackStrategy,
-                computeByWeekStrategy,
-                *requestSprintWeeklyDistributionHandler,
-                *workScheduleHandler),
-            outputStream,
-            cacheInvalidationMediator);
-    ui::ProgressPresenter weeklyProgressPresenter{
-        *requestWeeklyProgressHandler};
-
-    const int distributionMonths{12};
-    RequestForMonthsBack requestMonthsBackStrategy{distributionMonths};
-    ComputeByMonthStrategy computeByMonthStrategy;
-    auto requestMonthlyProgressHandler =
-        compose::decorate_query<RequestProgressQuery>(
-            std::make_unique<RequestProgressHandler>(
-                requestMonthsBackStrategy,
-                computeByMonthStrategy,
-                *requestSprintMonthlyDistributionHandler,
-                *workScheduleHandler),
-            outputStream,
-            cacheInvalidationMediator);
 
     ui::ProgressPresenter monthlyProgressPresenter{
         *requestMonthlyProgressHandler};
@@ -845,7 +792,7 @@ int main(int argc, char* argv[])
             std::make_unique<ExportSprintsHandler>(
                 *historyRequestSprintsHandler, sprintDataExporter),
             outputStream);
-    // Does not use synchronizing overload as it doesn't mutate eternal state
+    // Does not use synchronizing overload as it doesn't mutate internal state
     auto exportTasksHandler =
         compose::decorate_immutable_command<ExportTasksCommand>(
             std::make_unique<ExportTasksHandler>(*finishedTasksHandler,
@@ -923,11 +870,6 @@ int main(int argc, char* argv[])
                                                        plannerWindow,
                                                        settingsDialog);
 
-    // QMediaPlayer qmediaPlayer;
-    // compose::RuntimeConfigurableSoundPlayer soundPlayer(
-    //     applicationSettings,
-    //     applicationSettings,
-    //     std::make_unique<ui::qt_gui::QtSoundPlayerImp>(qmediaPlayer));
     compose::RuntimeConfigurableSoundPlayer soundPlayer(
         applicationSettings, applicationSettings, compose::createPlayer());
 
@@ -937,8 +879,10 @@ int main(int argc, char* argv[])
         {{"ringSound", applicationSettings.soundFilePath()}}};
     compose::SettingsWatchingAssetLibrary assetLibrary{
         assetLibrary_, applicationSettings, applicationSettings};
-    ui::TimerPresenter timerPresenter{workflow,
-                                      *requestDailyProgressHandler,
+    ui::TimerPresenter timerPresenter{*startWorkflowHandler,
+                                      *cancelWorkflowHandler,
+                                      *toggleZoneHandler,
+                                      *registerSprintBulkHandler,
                                       soundPlayer,
                                       assetLibrary,
                                       "ringSound",
